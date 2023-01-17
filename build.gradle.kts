@@ -1,6 +1,8 @@
 plugins {
     kotlin("multiplatform") version "1.7.21"
+    kotlin("plugin.serialization") version "1.8.0"
     id("com.android.library")
+    id("maven-publish")
 }
 
 group = "org.orca"
@@ -47,11 +49,16 @@ kotlin {
     }
     sourceSets {
         val ktorVersion = "2.2.2"
-        val serializationVersion = "1.4.1"
+        val coroutinesVersion = "1.6.4"
+//        val okioVersion = "3.3.0"
         val commonMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationVersion")
+                implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+                implementation("io.ktor:ktor-client-logging:$ktorVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+//                implementation("com.squareup.okio:okio:$okioVersion")
             }
         }
         val commonTest by getting {
@@ -65,11 +72,16 @@ kotlin {
             }
         }
         val jvmTest by getting
-        val nativeMain by getting
+        val nativeMain by getting {
+            dependencies {
+                implementation("io.ktor:ktor-client-curl:$ktorVersion")
+            }
+        }
         val nativeTest by getting
         val androidMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
             }
         }
         val androidTest by getting {

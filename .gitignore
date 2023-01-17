@@ -1,2 +1,5 @@
 .gradle
 .idea
+build
+/src/commonTest/kotlin/org.orca.kotlass/ClientCredentials.kt
+/java_pid*
