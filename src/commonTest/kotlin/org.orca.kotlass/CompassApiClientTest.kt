@@ -13,6 +13,11 @@ class CompassApiClientTest {
     private val client = CompassApiClient(domain, ClientCredentials.cookies, ClientCredentials.userId)
 
     @Test
+    fun testGetLessonsByInstanceId() = runBlocking {
+        assertNull(client.getLessonsByInstanceId(ClientCredentials.testInstanceId).h, "Error in getLessonsByInstanceId")
+    }
+
+    @Test
     fun testGetAllTaskCategories() = runBlocking {
         assertNull(client.getAllTaskCategories().h, "Error in getAllTaskCategories")
     }

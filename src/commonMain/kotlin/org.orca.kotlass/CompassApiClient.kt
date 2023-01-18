@@ -37,6 +37,7 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
             const val referenceDataCache = "ReferenceDataCache.svc"
             const val newsFeed = "NewsFeed.svc"
             const val calendar = "Calendar.svc"
+            const val activity = "Activity.svc"
             const val learningTasks = "LearningTasks.svc"
         }
     }
@@ -54,7 +55,15 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
     }
 
     /**
-     * Get the compass Newsfeed
+     * Get list of lessons for a class instance by its ID
+     */
+    suspend fun getLessonsByInstanceId(instanceId: String): ActivitySummaryContainer {
+        return makePostRequest(Services.activity, "GetLessonsByInstanceId", json.encodeToString(ActivitySummaryRequest(instanceId)))
+            .body()
+    }
+
+    /**
+     * Get list of task categories
      */
     suspend fun getAllTaskCategories(): TaskCategoryList {
         return makePostRequest(Services.learningTasks, "GetAllTaskCategories", json.encodeToString(TaskCategoriesRequest()))
@@ -64,13 +73,13 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
     /**
      * Get the compass Newsfeed
      */
-    suspend fun getMyNewsFeedPaged(): NewsItemList {
+    suspend fun getMyNewsFeedPaged(): NewsItemListContainer {
         return makePostRequest(Services.newsFeed, "GetMyNewsFeedPaged", json.encodeToString(NewsFeedRequest()))
             .body()
     }
 
     /**
-     * Get the compass Newsfeed
+     * Get calendar layers
      */
     suspend fun getCalendarsByUser(): CalendarLayerList {
         return makePostRequest(Services.calendar, "GetCalendarsByUser", json.encodeToString(CalendarLayersRequest()))

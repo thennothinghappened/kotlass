@@ -17,7 +17,7 @@ data class NewsFeedRequest(
  * Compass' "DataExtGridDataContainer" for containing NewsItems
  */
 @Serializable
-data class NewsItemsContainer(
+data class NewsItemList(
     @SerialName("__type") val dataType: String,
     val data: Array<NewsItem>,
     val total: Int
@@ -25,10 +25,10 @@ data class NewsItemsContainer(
 
 /**
  * Data type received from getMyNewsFeedPaged,
- * Contains NewsItemContainer - array of newsfeed items
+ * Contains NewsItemList - array of newsfeed items
  */
 @Serializable
-data class NewsItemList(override val h: String? = null, override val d: NewsItemsContainer? = null) : CData
+data class NewsItemListContainer(override val h: String? = null, override val d: NewsItemList? = null) : CData
 
 /**
  * A news item on the newsfeed.
