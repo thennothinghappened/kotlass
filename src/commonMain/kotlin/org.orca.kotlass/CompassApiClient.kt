@@ -3,7 +3,6 @@ package org.orca.kotlass
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.cookies.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -23,9 +22,6 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
 //            logger = Logger.DEFAULT
 //            level = LogLevel.ALL
 //        }
-        install(HttpCookies) {
-            storage = credentials.cookies
-        }
     }
 
     private val json = Json {
@@ -43,14 +39,22 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
     }
 
     private suspend fun makeGetRequest(endpoint: String, location: String): HttpResponse {
-        return client.get("https://${credentials.domain}/Services/${endpoint}/${location}")
+        return client.get("https://${credentials.domain}/Services/${endpoint}/${location}") {
+            headers {
+                append(HttpHeaders.Cookie, credentials.cookie)
+            }
+        }
     }
 
     private suspend fun makePostRequest(endpoint: String, location: String, body: String): HttpResponse {
         println(body)
         return client.post("https://${credentials.domain}/Services/${endpoint}/${location}") {
+            headers {
+                append(HttpHeaders.Cookie, credentials.cookie)
+            }
             contentType(ContentType.Application.Json)
             setBody(body)
+
         }
     }
 
@@ -141,5 +145,5 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
 interface CompassClientCredentials {
     val domain: String
     val userId: Int
-    val cookies: ConstantCookiesStorage
+    val cookie: String
 }
