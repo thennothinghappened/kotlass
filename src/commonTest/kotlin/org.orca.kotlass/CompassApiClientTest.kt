@@ -6,15 +6,30 @@ import kotlin.test.Test
 import kotlin.test.assertNull
 
 class CompassApiClientTest {
-    // for testing the client, create the object ClientCredentials and fill in the relevant details from compass.
-    private val domain = ClientCredentials.domain
-    //private val domain = "localhost:5000"
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // for testing the client, create the object SampleClientCredentials and fill in the relevant details from compass' own XHR requests //
+    // domain: the domain name of the compass instance                                                                                   //
+    // userId: numerical ID corresponding to your user which is sent in requests such as getCalendarEventsByUser                         //
+    // testInstanceId: an ID of a class session to test                                                                                  //
+    // testActivityId: an ID of a class to test                                                                                          //
+    // cookies: cookie storage of the login cookies that compass issues the user                                                         //
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private val client = CompassApiClient(domain, ClientCredentials.cookies, ClientCredentials.userId)
+    private val client = CompassApiClient(SampleClientCredentials)
 
     @Test
     fun testGetLessonsByInstanceId() = runBlocking {
-        assertNull(client.getLessonsByInstanceId(ClientCredentials.testInstanceId).h, "Error in getLessonsByInstanceId")
+        assertNull(client.getLessonsByInstanceId(SampleClientCredentials.testInstanceId).h, "Error in getLessonsByInstanceId")
+    }
+
+    @Test
+    fun testGetAllLearningTasksByActivityId() = runBlocking {
+        assertNull(client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId).h, "Error in getAllLearningTasksByActivityId")
+    }
+
+    @Test
+    fun testGetAllLearningTasksByUserId() = runBlocking {
+        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicYear).h, "Error in getAllLearningTasksByActivityId")
     }
 
     @Test

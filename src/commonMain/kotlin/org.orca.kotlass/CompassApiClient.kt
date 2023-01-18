@@ -12,7 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
 
-class CompassApiClient(private val domain: String, private val cookiesStorage: ConstantCookiesStorage, private val userId: Int) {
+class CompassApiClient(private val credentials: CompassClientCredentials) {
     private val client = HttpClient() {
         install(ContentNegotiation) {
             json(Json {
@@ -24,7 +24,7 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
 //            level = LogLevel.ALL
 //        }
         install(HttpCookies) {
-            storage = cookiesStorage
+            storage = credentials.cookies
         }
     }
 
@@ -43,12 +43,12 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
     }
 
     private suspend fun makeGetRequest(endpoint: String, location: String): HttpResponse {
-        return client.get("https://${domain}/Services/${endpoint}/${location}")
+        return client.get("https://${credentials.domain}/Services/${endpoint}/${location}")
     }
 
     private suspend fun makePostRequest(endpoint: String, location: String, body: String): HttpResponse {
         println(body)
-        return client.post("https://${domain}/Services/${endpoint}/${location}") {
+        return client.post("https://${credentials.domain}/Services/${endpoint}/${location}") {
             contentType(ContentType.Application.Json)
             setBody(body)
         }
@@ -63,10 +63,26 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
     }
 
     /**
-     * Get list of task categories
+     * Get list of learning task categories
      */
     suspend fun getAllTaskCategories(): TaskCategoryList {
         return makePostRequest(Services.learningTasks, "GetAllTaskCategories", json.encodeToString(TaskCategoriesRequest()))
+            .body()
+    }
+
+    /**
+     * Get list of learning tasks for a class by class ID
+     */
+    suspend fun getAllLearningTasksByActivityId(instanceId: String): LearningTaskListContainer {
+        return makePostRequest(Services.learningTasks, "GetAllLearningTasksByActivityId", json.encodeToString(LearningTasksByActivityIdRequest(activityId = instanceId)))
+            .body()
+    }
+
+    /**
+     * Get list of learning tasks for the user for a year by their ID
+     */
+    suspend fun getAllLearningTasksByUserId(academicGroupId: Int? = null): LearningTaskListContainer {
+        return makePostRequest(Services.learningTasks, "GetAllLearningTasksByUserId", json.encodeToString(LearningTasksByUserIdRequest(userId = credentials.userId, academicGroupId = academicGroupId)))
             .body()
     }
 
@@ -93,7 +109,7 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
         return makePostRequest(Services.calendar, "GetCalendarEventsByUser", json.encodeToString(CalendarEventsRequest(
             startDate = startDate,
             endDate = endDate,
-            userId = userId
+            userId = credentials.userId
         ))).body()
     }
 
@@ -120,4 +136,10 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
         return makeGetRequest(Services.referenceDataCache, "GetAllCampuses")
             .body()
     }
+}
+
+interface CompassClientCredentials {
+    val domain: String
+    val userId: Int
+    val cookies: ConstantCookiesStorage
 }
