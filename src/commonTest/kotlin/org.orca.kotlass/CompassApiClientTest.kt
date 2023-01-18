@@ -10,7 +10,12 @@ class CompassApiClientTest {
     private val domain = ClientCredentials.domain
     //private val domain = "localhost:5000"
 
-    private val client = CompassApiClient(domain, ClientCredentials.cookies, ClientCredentials.v, ClientCredentials.userId)
+    private val client = CompassApiClient(domain, ClientCredentials.cookies, ClientCredentials.userId)
+
+    @Test
+    fun testGetAllTaskCategories() = runBlocking {
+        assertNull(client.getAllTaskCategories().h, "Error in getAllTaskCategories")
+    }
 
     @Test
     fun testGetCalendarEventsByUser() = runBlocking {

@@ -12,7 +12,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
 
-class CompassApiClient(private val domain: String, private val cookiesStorage: ConstantCookiesStorage, private val v: String, private val userId: Int) {
+class CompassApiClient(private val domain: String, private val cookiesStorage: ConstantCookiesStorage, private val userId: Int) {
     private val client = HttpClient() {
         install(ContentNegotiation) {
             json(Json {
@@ -37,6 +37,7 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
             const val referenceDataCache = "ReferenceDataCache.svc"
             const val newsFeed = "NewsFeed.svc"
             const val calendar = "Calendar.svc"
+            const val learningTasks = "LearningTasks.svc"
         }
     }
 
@@ -50,6 +51,14 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
             contentType(ContentType.Application.Json)
             setBody(body)
         }
+    }
+
+    /**
+     * Get the compass Newsfeed
+     */
+    suspend fun getAllTaskCategories(): TaskCategoryList {
+        return makePostRequest(Services.learningTasks, "GetAllTaskCategories", json.encodeToString(TaskCategoriesRequest()))
+            .body()
     }
 
     /**
@@ -83,23 +92,23 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
      * Get list of compass alerts (Messages that appear above newsfeed asking for your attention)
      */
     suspend fun getMyAlerts(): AlertList {
-        return makePostRequest(Services.newsFeed, "GetMyAlerts?sessionstate=readonly", "")
+        return makePostRequest(Services.newsFeed, "GetMyAlerts", "")
             .body()
     }
 
     /**
      * Get list of rooms and their attributes
      */
-    suspend fun getAllLocations(num: Int = 25): LocationList {
-        return makeGetRequest(Services.referenceDataCache, "GetAllLocations?sessionstate=readonly&v=${v}&page=1&start=0&limit=$num")
+    suspend fun getAllLocations(): LocationList {
+        return makeGetRequest(Services.referenceDataCache, "GetAllLocations")
             .body()
     }
 
     /**
      * Get list of school campuses
      */
-    suspend fun getAllCampuses(num: Int = 25): CampusList {
-        return makeGetRequest(Services.referenceDataCache, "GetAllCampuses?sessionstate=readonly&v=${v}&page=1&start=0&limit=$num")
+    suspend fun getAllCampuses(): CampusList {
+        return makeGetRequest(Services.referenceDataCache, "GetAllCampuses")
             .body()
     }
 }
