@@ -50,6 +50,7 @@ kotlin {
     sourceSets {
         val ktorVersion = "2.2.2"
         val coroutinesVersion = "1.6.4"
+        val datetimeVersion = "0.4.0"
 //        val okioVersion = "3.3.0"
         val commonMain by getting {
             dependencies {
@@ -58,6 +59,7 @@ kotlin {
                 implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
 //                implementation("com.squareup.okio:okio:$okioVersion")
             }
         }

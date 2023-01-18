@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Data to send to get the newsfeed
+ * Data to send to get the list of CalendarEvents
  */
 @Serializable
 data class CalendarEventsRequest(
@@ -54,13 +54,13 @@ data class CalendarEvent(
     val finish: String,
     val guid: String,
     val inClassStatus: Unit? = null,
-    val instanceId: String,
+    val instanceId: String? = null,
     val isRecurring: Boolean,
     val location: Unit? = null,
     val title: String,
-    val longTitle: String,
+    val longTitle: String? = null,
     val longTitleWithoutTime: String,
-    val managerId: Int,
+    val managerId: Int? = null,
     val minutesMeetingId: Unit? = null,
     val recurringStart: String? = null,
     val recurringFinish: String? = null,
@@ -70,7 +70,7 @@ data class CalendarEvent(
     val repeatUntil: String? = null,
     val rollMarked: Boolean,
     val runningStatus: Int,
-    val targetStudentId: Int,
+    val targetStudentId: Int? = null,
     val teachingDaysOnly: Boolean,
     val unavailablePd: Unit? = null
 )

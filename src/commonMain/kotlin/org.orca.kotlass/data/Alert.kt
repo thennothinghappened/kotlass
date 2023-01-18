@@ -12,7 +12,7 @@ data class Alert(
     @SerialName("AlertItemId") val alertItemId: Int,
     @SerialName("Body") val body: String,
     @SerialName("Content") val content: String,
-    @SerialName("Dismissible") val dismissable: Boolean,
+    @SerialName("Dismissible") val dismissible: Boolean,
     @SerialName("ImageSourceUrl") val imageSourceUrl: String,
     @SerialName("IsWarning") val isWarning: Boolean,
     @SerialName("LinkText") val linkText: String,

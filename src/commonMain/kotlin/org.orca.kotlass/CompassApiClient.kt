@@ -8,7 +8,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
@@ -57,14 +56,25 @@ class CompassApiClient(private val domain: String, private val cookiesStorage: C
      * Get the compass Newsfeed
      */
     suspend fun getMyNewsFeedPaged(): NewsItemList {
-        return makePostRequest(Services.newsFeed, "GetMyNewsFeedPaged?sessionstate=readonly", json.encodeToString(NewsFeedRequest()))
+        return makePostRequest(Services.newsFeed, "GetMyNewsFeedPaged", json.encodeToString(NewsFeedRequest()))
             .body()
     }
 
-    suspend fun getCalendarEventsByUser(): CalendarEventList {
+    /**
+     * Get the compass Newsfeed
+     */
+    suspend fun getCalendarsByUser(): CalendarLayerList {
+        return makePostRequest(Services.calendar, "GetCalendarsByUser", json.encodeToString(CalendarLayersRequest()))
+            .body()
+    }
+
+    /**
+     * Get a list of items on the schedule between two dates
+     */
+    suspend fun getCalendarEventsByUser(startDate: String, endDate: String = startDate): CalendarEventList {
         return makePostRequest(Services.calendar, "GetCalendarEventsByUser", json.encodeToString(CalendarEventsRequest(
-            startDate = "2023-01-30",
-            endDate = "2023-02-05",
+            startDate = startDate,
+            endDate = endDate,
             userId = userId
         ))).body()
     }
