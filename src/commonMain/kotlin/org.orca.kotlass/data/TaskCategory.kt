@@ -14,13 +14,6 @@ data class TaskCategoriesRequest(
 )
 
 /**
- * Data type received from getCalendarsByUser,
- * Contains array of Calendars
- */
-@Serializable
-data class TaskCategoryList(override val h: String? = null, override val d: Array<TaskCategory>? = null) : CData
-
-/**
  * Singular CalendarLayer
  */
 @Serializable

@@ -13,20 +13,6 @@ data class ActivitySummaryRequest(
 )
 
 /**
- * Data type received from getLessonsByInstanceId,
- * Contains an ActivitySummary
- */
-@Serializable
-data class ActivitySummaryContainer(override val h: String? = null, override val d: ActivitySummary? = null) : CData
-
-/**
- * Data type received from getLessonsByInstanceIdQuick,
- * Contains an Activity
- */
-@Serializable
-data class QuickActivitySummaryContainer(override val h: String? = null, override val d: Activity? = null) : CData
-
-/**
  * Contains information about a specific class or "activity".
  */
 @Serializable

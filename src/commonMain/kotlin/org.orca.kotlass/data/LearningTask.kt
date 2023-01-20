@@ -56,23 +56,6 @@ data class LearningTaskSortType(
 }
 
 /**
- * Compass' "DataExtGridDataContainer" for containing LearningTasks
- */
-@Serializable
-data class LearningTaskList(
-    @SerialName("__type") private val dataType: String,
-    val data: Array<LearningTask>,
-    private val total: Int
-)
-
-/**
- * Data type received from getAllLearningTasksByActivityId,
- * Contains LearningTaskList - array of LearningTasks
- */
-@Serializable
-data class LearningTaskListContainer(override val h: String? = null, override val d: LearningTaskList? = null) : CData
-
-/**
  * Contains information about a specific class or "activity".
  */
 @Serializable

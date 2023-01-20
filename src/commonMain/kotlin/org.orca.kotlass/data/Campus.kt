@@ -4,9 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CampusList(override val h: String? = null, override val d: Array<Campus>? = null) : CData
-
-@Serializable
 data class Campus (
     @SerialName("__type") val dataType: String,
     val active: Boolean,

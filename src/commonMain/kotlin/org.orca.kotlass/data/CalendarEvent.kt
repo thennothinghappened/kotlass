@@ -23,13 +23,6 @@ data class CalendarEventsRequest(
 )
 
 /**
- * Data type received from getCalendarEventsByUser,
- * Contains array of CalendarEvents
- */
-@Serializable
-data class CalendarEventList(override val h: String? = null, override val d: Array<CalendarEvent>? = null) : CData
-
-/**
  * Singular Calendar Event such as a class or activity
  */
 // there are a lot of things which are

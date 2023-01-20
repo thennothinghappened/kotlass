@@ -4,9 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LocationList(override val h: String? = null, override val d: Array<Location>? = null) : CData
-
-@Serializable
 data class Location(
     private @SerialName("__type") val dataType: String,
     private val archived: Boolean,

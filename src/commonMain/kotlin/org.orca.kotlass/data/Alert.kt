@@ -4,9 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AlertList(override val h: String? = null, override val d: Array<Alert>? = null) : CData
-
-@Serializable
 data class Alert(
     @SerialName("__type") private val dataType: String,
     @SerialName("AlertItemId") val alertItemId: Int,
