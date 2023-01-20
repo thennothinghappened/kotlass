@@ -46,7 +46,7 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
         }
     }
 
-    suspend fun makeGetRequest(endpoint: String, location: String): HttpResponse {
+    private suspend fun makeGetRequest(endpoint: String, location: String): HttpResponse {
         return client.get("https://${credentials.domain}/Services/${endpoint}/${location}") {
             headers {
                 append(HttpHeaders.Cookie, credentials.cookie)
