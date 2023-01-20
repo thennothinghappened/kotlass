@@ -1,7 +1,10 @@
 package org.orca.kotlass.data
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toInstant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -37,12 +40,13 @@ data class LearningTasksByUserIdRequest(
  */
 @Serializable
 data class LearningTaskSortType(
-    val property: String = type.dueDate,
+    val property: String = type.dueDateTimestamp,
     val direction: String = directions.ascending
 ) {
     companion object {
         object type {
-            const val dueDate = "dueDateTimestamp"
+            const val dueDateTimestamp = "dueDateTimestamp"
+            const val groupName = "groupName"
         }
         object directions {
             const val ascending = "ASC"
@@ -56,9 +60,9 @@ data class LearningTaskSortType(
  */
 @Serializable
 data class LearningTaskList(
-    @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     val data: Array<LearningTask>,
-    val total: Int
+    private val total: Int
 )
 
 /**
@@ -73,56 +77,59 @@ data class LearningTaskListContainer(override val h: String? = null, override va
  */
 @Serializable
 data class LearningTask(
-    @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     val activityId: Int,
     val activityName: String,
-    val activityStart: String,
-    val assessmentPeriodId: Int? = null,
-    val attachments: Array<LearningTaskAttachment>? = null,
-    val canEditResults: Boolean,
-    val canManage: Boolean,
-    val canvasIntegrationId: String? = null,
-    val categoryId: Int,
-    val createdTimestamp: String,
     val description: String,
-    val displayPrimaryGrading: Boolean,
-    val distributionType: Int,
-    val dueDateTimestamp: String? = null,
+    @Serializable(InstantSerializer::class)
+    val dueDateTimestamp: Instant?,
+    val categoryId: Int,
     val gradingItems: Array<LearningTaskGradingItem>,
-    val groupName: String,
+    @Serializable(InstantSerializer::class)
+    val createdTimestamp: Instant?,
     val hidden: Boolean,
-    val id: Int,
-    val important: Boolean,
-    val includeBreakdownHeading: Boolean,
-    val includeInOverall: Boolean,
-    val includeInSemesterReports: Boolean,
-    val isAggregateTask: Boolean,
-    val isContributingTask: Boolean,
-    val masterTaskId: Int? = null,
     val name: String,
-    val parentCode: String? = null,
-    val promptForCycleOnPush: Boolean,
-    val reportDisplayType: Int,
-    val reportOrdinal: Boolean? = null,
-    val resultDistributionDisplayType: Int,
-    val rubricItems: Unit? = null,
-    val rubricWikiNodeIds: Array<Int>? = null,
-    val securityOptions: Array<LearningTaskSecurityOption>,
-    val semesterReportCycles: Unit? = null,
-    val sendSmsOutstanding: Boolean,
-    val showAverageBoxPlot: Boolean? = null,
-    val showLegendBoxPlot: Boolean? = null,
-    val showNumericalBoxPlot: Boolean? = null,
-    val showTaskDueDates: Boolean,
-    val singleResultBreakdownCols: Int,
-    val students: Array<LearningTaskStudent>,
-    val subjectId: Unit? = null,
     val subjectName: String,
-    val submissionItems: Array<LearningTaskSubmissionItems>? = null,
-    val taskReportDescription: String,
-    val taskTitleOnReport: String,
-    val verticalBreakdownHeadings: Boolean,
-    val wikiNodeId: Int
+    @Serializable(InstantSerializer::class)
+    private val activityStart: Instant?,
+    private val assessmentPeriodId: Int? = null,
+    private val attachments: Array<LearningTaskAttachment>? = null,
+    private val canEditResults: Boolean,
+    private val canManage: Boolean,
+    private val canvasIntegrationId: String? = null,
+    private val displayPrimaryGrading: Boolean,
+    private val distributionType: Int,
+    private val groupName: String,
+    private val id: Int,
+    private val important: Boolean,
+    private val includeBreakdownHeading: Boolean,
+    private val includeInOverall: Boolean,
+    private val includeInSemesterReports: Boolean,
+    private val isAggregateTask: Boolean,
+    private val isContributingTask: Boolean,
+    private val masterTaskId: Int? = null,
+    private val parentCode: String? = null,
+    private val promptForCycleOnPush: Boolean,
+    private val reportDisplayType: Int,
+    private val reportOrdinal: Boolean? = null,
+    private val resultDistributionDisplayType: Int,
+    private val rubricItems: Unit? = null,
+    private val rubricWikiNodeIds: Array<Int>? = null,
+    private val securityOptions: Array<LearningTaskSecurityOption>,
+    private val semesterReportCycles: Unit? = null,
+    private val sendSmsOutstanding: Boolean,
+    private val showAverageBoxPlot: Boolean? = null,
+    private val showLegendBoxPlot: Boolean? = null,
+    private val showNumericalBoxPlot: Boolean? = null,
+    private val showTaskDueDates: Boolean,
+    private val singleResultBreakdownCols: Int,
+    val students: Array<LearningTaskStudent>,
+    private val subjectId: Unit? = null,
+    private val submissionItems: Array<LearningTaskSubmissionItem>? = null,
+    private val taskReportDescription: String,
+    private val taskTitleOnReport: String,
+    private val verticalBreakdownHeadings: Boolean,
+    private val wikiNodeId: Int
 )
 
 /**
@@ -130,13 +137,13 @@ data class LearningTask(
  */
 @Serializable
 data class LearningTaskAttachment(
-    @SerialName("__type") val dataType: String,
-    val contentUrl: String? = null,
+    private @SerialName("__type") val dataType: String,
+    private val contentUrl: String? = null,
     val fileName: String,
     val id: String,
     val name: String,
-    val wikiNodeId: Int,
-    val wikiNodeType: Int
+    private val wikiNodeId: Int,
+    private val wikiNodeType: Int
 )
 
 /**
@@ -144,43 +151,43 @@ data class LearningTaskAttachment(
  */
 @Serializable
 data class LearningTaskGradingItem(
-    @SerialName("__type") val dataType: String,
-    val calculationSettings: Unit? = null,
-    val calculationType: Unit? = null,
-    val canvasIntegrationId: String? = null,
-    val category: String? = null,
-    val commentLength: Int? = null,
-    val commentType: Int? = null,
-    val decimalPlaces: Unit? = null,
-    val dimension: String? = null,
-    val gradingItemOrderBy: Int,
+    @SerialName("__type") private val dataType: String,
     val id: Int,
-    val includeInCrossSubjectSummaryReport: Boolean,
-    val includeInSemesterReport: Boolean,
-    val includedCalculationCycleMeasures: Array<Unit>,
-    val irishSubjectCode: Unit? = null,
-    val isAggregateItem: Boolean,
-    val isContributingItem: Boolean,
-    val isPrimaryGrade: Boolean,
-    val isSelfAssessment: Boolean,
-    val isSystemScheme: Boolean,
-    val masterGradingComponentId: Unit? = null,
-    val max: String? = null,
-    val min: String? = null,
     val measureUniqueId: String,
     val name: String,
-    val shortName: String,
-    val ordinal: Int,
-    val parentStudentAccess: Int,
-    val progressGraphItemType: Int,
-    val reportIncludeDistribution: Boolean,
-    val reportOrdinal: Int,
-    val reportRenderType: Int,
-    val staffAccess: Int,
-    val strandCode: String? = null,
-    val taskId: Int,
-    val tempId: Unit? = null,
-    val weighting: Int
+    private val calculationSettings: Unit? = null,
+    private val calculationType: Unit? = null,
+    private val canvasIntegrationId: String? = null,
+    private val category: String? = null,
+    private val commentLength: Int? = null,
+    private val commentType: Int? = null,
+    private val decimalPlaces: Unit? = null,
+    private val dimension: String? = null,
+    private val gradingItemOrderBy: Int,
+    private val includeInCrossSubjectSummaryReport: Boolean,
+    private val includeInSemesterReport: Boolean,
+    private val includedCalculationCycleMeasures: Array<Unit>,
+    private val irishSubjectCode: Unit? = null,
+    private val isAggregateItem: Boolean,
+    private val isContributingItem: Boolean,
+    private val isPrimaryGrade: Boolean,
+    private val isSelfAssessment: Boolean,
+    private val isSystemScheme: Boolean,
+    private val masterGradingComponentId: Unit? = null,
+    private val max: String? = null,
+    private val min: String? = null,
+    private val shortName: String,
+    private val ordinal: Int,
+    private val parentStudentAccess: Int,
+    private val progressGraphItemType: Int,
+    private val reportIncludeDistribution: Boolean,
+    private val reportOrdinal: Int,
+    private val reportRenderType: Int,
+    private val staffAccess: Int,
+    private val strandCode: String? = null,
+    private val taskId: Int,
+    private val tempId: Unit? = null,
+    private val weighting: Int
 )
 
 /**
@@ -188,7 +195,7 @@ data class LearningTaskGradingItem(
  */
 @Serializable
 data class LearningTaskSecurityOption(
-    @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     val allowSubmission: Boolean,
     val enableCommentChain: Boolean,
     val gradingVisible: Boolean,
@@ -197,13 +204,13 @@ data class LearningTaskSecurityOption(
 )
 
 @Serializable
-data class LearningTaskSubmissionItems(
-    @SerialName("__type") val dataType: String,
+data class LearningTaskSubmissionItem(
+    @SerialName("__type") private val dataType: String,
     val id: Int,
-    val masterGradingComponentId: Unit? = null,
     val name: String,
-    val taskId: Int,
-    val type: Int
+    val type: Int,
+    private val masterGradingComponentId: Unit? = null,
+    private val taskId: Int,
 )
 
 /**
@@ -211,23 +218,27 @@ data class LearningTaskSubmissionItems(
  */
 @Serializable
 data class LearningTaskStudent(
-    @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     val comments: Array<LearningTaskStudentComment>? = null,
-    val dueDateTimestamp: String,
     val id: Int,
-    val lastSubmittedTimestamp: String,
-    val primaryResult: Unit? = null,
     val results: Array<LearningTaskStudentResult>,
     val rubricResults: Array<LearningTaskStudentRubricResult>? = null,
     val selfAssessmentEnabled: Boolean,
-    val smsOutstandingSentTimestamp: String,
-    val submissionStatus: Int,
     val submissions: Array<LearningTaskStudentSubmission>? = null,
-    val submittedTimestamp: String,
-    val taskId: Int,
     val teacherResponses: Array<LearningTaskStudentTeacherResponse>? = null,
-    val userId: Int,
-    val userName: String
+    @Serializable(InstantSerializer::class)
+    private val dueDateTimestamp: Instant?,
+    @Serializable(InstantSerializer::class)
+    private val lastSubmittedTimestamp: Instant?,
+    private val primaryResult: Unit? = null,
+    @Serializable(InstantSerializer::class)
+    private val smsOutstandingSentTimestamp: Instant?,
+    private val submissionStatus: Int,
+    @Serializable(InstantSerializer::class)
+    val submittedTimestamp: Instant?,
+    private val taskId: Int,
+    private val userId: Int,
+    private val userName: String
 )
 
 /**
@@ -235,16 +246,17 @@ data class LearningTaskStudent(
  */
 @Serializable
 data class LearningTaskStudentComment(
-    @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     val comment: String,
-    val cycleMeasureId: Unit? = null,
-    val gradingItemId: Unit? = null,
-    val id: Int,
-    val status: Int,
-    val taskStudentId: Int,
-    val timestamp: String,
+    @Serializable(InstantSerializer::class)
+    val timestamp: Instant?,
     val userIdPoster: Int,
-    val userNamePoster: String
+    val userNamePoster: String,
+    private val cycleMeasureId: Unit? = null,
+    private val gradingItemId: Unit? = null,
+    private val id: Int,
+    private val status: Int,
+    private val taskStudentId: Int,
 )
 
 /**
@@ -252,15 +264,16 @@ data class LearningTaskStudentComment(
  */
 @Serializable
 data class LearningTaskStudentTeacherResponse(
-    @SerialName("__type") val dataType: String,
-    val contentUri: String? = null,
+    @SerialName("__type") private val dataType: String,
     val fileId: String,
     val fileName: String,
     val id: Int,
-    val taskStudentId: Int,
     val teacherResponseType: Int,
-    val timestamp: String,
-    val wikiNodeId: Int? = null
+    @Serializable(InstantSerializer::class)
+    val timestamp: Instant?,
+    private val contentUri: String? = null,
+    private val taskStudentId: Int,
+    private val wikiNodeId: Int? = null
 )
 
 /**
@@ -268,15 +281,15 @@ data class LearningTaskStudentTeacherResponse(
  */
 @Serializable
 data class LearningTaskStudentRubricResult(
-    @SerialName("__type") val dataType: String,
-    val cycleEnrolmentResultId: Int,
+    @SerialName("__type") private val dataType: String,
+    private val cycleEnrolmentResultId: Int,
     val id: Int,
-    val overallResult: Unit? = null,
-    val result: Unit? = null,
     val rubricCriterionId: Int,
     val rubricGradingScaleId: Int,
     val rubricId: Int,
-    val taskStudentId: Int
+    private val overallResult: Unit? = null,
+    private val result: Unit? = null,
+    private val taskStudentId: Int
 )
 
 /**
@@ -284,19 +297,20 @@ data class LearningTaskStudentRubricResult(
  */
 @Serializable
 data class LearningTaskStudentResult(
-    @SerialName("__type") val dataType: String,
-    val flaggedResultType: Int,
+    @SerialName("__type") private val dataType: String,
     val id: Int,
-    val isCalculatedResult: Boolean,
-    val isEstimatedResult: Boolean,
-    val lockedTimestamp: String? = null,
     val modifiedByUserId: Int,
-    val modifiedTimestamp: String,
+    @Serializable(InstantSerializer::class)
+    val modifiedTimestamp: Instant?,
     val reportGradingSchemeOptionId: String? = null,
     val result: String,
-    val taskGradingItemId: Int,
-    val taskStudentId: Int,
-    val userIdLocked: Unit? = null
+    private val flaggedResultType: Int,
+    private val isCalculatedResult: Boolean,
+    private val isEstimatedResult: Boolean,
+    private val lockedTimestamp: String? = null,
+    private val taskGradingItemId: Int,
+    private val taskStudentId: Int,
+    private val userIdLocked: Unit? = null
 )
 
 /**
@@ -304,15 +318,15 @@ data class LearningTaskStudentResult(
  */
 @Serializable
 data class LearningTaskStudentSubmission(
-    @SerialName("__type") val dataType: String,
-    val contentUrl: String? = null,
+    @SerialName("__type") private val dataType: String,
     val fileId: String,
     val fileName: String,
     val id: Int,
-    val submissionFileType: Int,
-    val submitterBaseRole: Int,
-    val taskStudentId: Int,
-    val taskSubmissionItemId: Int,
     val timestamp: String,
-    val wikiNodeId: Int? = null
+    private val contentUrl: String? = null,
+    private val submissionFileType: Int,
+    private val submitterBaseRole: Int,
+    private val taskStudentId: Int,
+    private val taskSubmissionItemId: Int,
+    private val wikiNodeId: Int? = null
 )

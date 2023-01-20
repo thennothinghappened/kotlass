@@ -1,5 +1,6 @@
 package org.orca.kotlass.data
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -36,40 +37,42 @@ data class CalendarEventList(override val h: String? = null, override val d: Arr
 // their data type is normally or their use.
 @Serializable
 data class CalendarEvent(
-    @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     val activityId: Int,
-    val activityImportIdentifier: Unit? = null,
     val activityType: Int,
-    val allDay: Boolean,
-    val attendanceMode: Int,
-    val attendeeUserId: Int,
     val backgroundColor: String,
-    val calendarId: Unit? = null,
-    val categoryIds: Unit? = null,
-    val comment: String? = null,
-    val description: String,
-    val eventSetupStatus: Unit? = null,
-    val start: String,
-    val finish: String,
-    val guid: String,
-    val inClassStatus: Unit? = null,
+    @Serializable(InstantSerializer::class)
+    val start: Instant?,
+    @Serializable(InstantSerializer::class)
+    val finish: Instant?,
     val instanceId: String? = null,
-    val isRecurring: Boolean,
-    val location: Unit? = null,
     val title: String,
-    val longTitle: String? = null,
     val longTitleWithoutTime: String,
     val managerId: Int? = null,
-    val minutesMeetingId: Unit? = null,
-    val recurringStart: String? = null,
-    val recurringFinish: String? = null,
-    val repeatDays: Unit? = null,
-    val repeatForever: Boolean,
-    val repeatFrequency: Int,
-    val repeatUntil: String? = null,
-    val rollMarked: Boolean,
-    val runningStatus: Int,
-    val targetStudentId: Int? = null,
-    val teachingDaysOnly: Boolean,
-    val unavailablePd: Unit? = null
+    private val activityImportIdentifier: Unit? = null,
+    private val allDay: Boolean,
+    private val attendanceMode: Int,
+    private val attendeeUserId: Int,
+    private val calendarId: Unit? = null,
+    private val categoryIds: Unit? = null,
+    private val comment: String? = null,
+    private val description: String,
+    private val eventSetupStatus: Unit? = null,
+    private val guid: String,
+    private val inClassStatus: Unit? = null,
+    private val isRecurring: Boolean,
+    private val location: Unit? = null,
+    private val longTitle: String? = null,
+    private val minutesMeetingId: Unit? = null,
+    private val recurringStart: String? = null,
+    private val recurringFinish: String? = null,
+    private val repeatDays: Unit? = null,
+    private val repeatForever: Boolean,
+    private val repeatFrequency: Int,
+    private val repeatUntil: String? = null,
+    private val rollMarked: Boolean,
+    private val runningStatus: Int,
+    private val targetStudentId: Int? = null,
+    private val teachingDaysOnly: Boolean,
+    private val unavailablePd: Unit? = null
 )

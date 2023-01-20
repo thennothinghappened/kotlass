@@ -3,6 +3,8 @@ package org.orca.kotlass.data
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// todo: how are these used?
+
 /**
  * Data to send to get the list of CalendarLayers
  */
@@ -25,14 +27,14 @@ data class CalendarLayerList(override val h: String? = null, override val d: Arr
  */
 @Serializable
 data class CalendarLayer(
-    @SerialName("__type") val dataType: String,
-    val calendarManagerUserIds: Int? = null,
+    private @SerialName("__type") val dataType: String,
     val color: String,
     val defaultHidden: Boolean,
     val id: Int,
     val isCustom: Boolean,
-    val isICal: Boolean,
     val title: String,
-    val userIdTarget: Int? = null,
-    val viewOnly: Boolean
+    val viewOnly: Boolean, //todo: what is this for
+    private val calendarManagerUserIds: Int? = null,
+    private val isICal: Boolean,
+    private val userIdTarget: Int? = null
 )

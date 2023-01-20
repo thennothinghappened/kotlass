@@ -8,10 +8,10 @@ data class LocationList(override val h: String? = null, override val d: Array<Lo
 
 @Serializable
 data class Location(
-    @SerialName("__type") val dataType: String,
-    val archived: Boolean,
-    val availableForBooking: Boolean? = null,
-    val building: String? = null,
+    private @SerialName("__type") val dataType: String,
+    private val archived: Boolean,
+    private val availableForBooking: Boolean? = null,
+    private val building: String? = null,
     val computerNumber: Int? = null,
     val hasCooling: Boolean? = null,
     val hasDvd: Boolean? = null,
@@ -28,7 +28,7 @@ data class Location(
     val hash: String? = null,
     val id: Int,
     val longName: String,
-    @SerialName("n") val roomNumber: String? = null,
+    @SerialName("n") val roomNumber: String? = null, //todo: duplicate with below?
     val roomName: String? = null,
     val seatNumber: Int? = null,
     val shortName: String? = null,

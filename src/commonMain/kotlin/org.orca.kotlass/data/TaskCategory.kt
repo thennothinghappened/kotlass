@@ -25,7 +25,7 @@ data class TaskCategoryList(override val h: String? = null, override val d: Arra
  */
 @Serializable
 data class TaskCategory(
-    @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     val categoryColour: String,
     val categoryId: Int,
     val categoryName: String

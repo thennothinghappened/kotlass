@@ -23,13 +23,18 @@ class CompassApiClientTest {
     }
 
     @Test
+    fun testGetLessonsByInstanceIdQuick() = runBlocking {
+        assertNull(client.getLessonsByInstanceIdQuick(SampleClientCredentials.testInstanceId).h, "Error in getLessonsByInstanceIdQuick")
+    }
+
+    @Test
     fun testGetAllLearningTasksByActivityId() = runBlocking {
         assertNull(client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId).h, "Error in getAllLearningTasksByActivityId")
     }
 
     @Test
     fun testGetAllLearningTasksByUserId() = runBlocking {
-        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicYear).h, "Error in getAllLearningTasksByActivityId")
+        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicYear).h, "Error in getAllLearningTasksByUserId")
     }
 
     @Test

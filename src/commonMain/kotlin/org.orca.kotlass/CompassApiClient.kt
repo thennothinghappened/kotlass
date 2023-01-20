@@ -2,6 +2,8 @@ package org.orca.kotlass
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
+import io.ktor.client.plugins.cache.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -17,6 +19,12 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
             json(Json {
                 prettyPrint = true
             })
+        }
+        install(HttpTimeout) {
+            requestTimeoutMillis = 5000 // it's a slow site
+        }
+        install(HttpCache) {
+            // todo: set this up (different implementations for desktop and android)
         }
 //        install(Logging) {
 //            logger = Logger.DEFAULT
@@ -63,6 +71,14 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
      */
     suspend fun getLessonsByInstanceId(instanceId: String): ActivitySummaryContainer {
         return makePostRequest(Services.activity, "GetLessonsByInstanceId", json.encodeToString(ActivitySummaryRequest(instanceId)))
+            .body()
+    }
+
+    /**
+     * Get list of lessons for a class instance by its ID
+     */
+    suspend fun getLessonsByInstanceIdQuick(instanceId: String): QuickActivitySummaryContainer {
+        return makePostRequest(Services.activity, "GetLessonsByInstanceIdQuick", json.encodeToString(ActivitySummaryRequest(instanceId)))
             .body()
     }
 
