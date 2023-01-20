@@ -16,6 +16,7 @@ class CompassApiClientTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private val client = CompassApiClient(SampleClientCredentials)
+    private val now = Clock.System.now()
 
     @Test
     fun testGetLessonsByInstanceId() = runBlocking {
@@ -44,7 +45,7 @@ class CompassApiClientTest {
 
     @Test
     fun testGetCalendarEventsByUser() = runBlocking {
-        assertNull(client.getCalendarEventsByUser("2022-01-30", "2022-02-05").h, "Error in getCalendarEventsByUser")
+        assertNull(client.getCalendarEventsByUser(now.toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()).h, "Error in getCalendarEventsByUser")
     }
 
     @Test
