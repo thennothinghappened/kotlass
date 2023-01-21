@@ -41,13 +41,13 @@ kotlin {
             }
         }
     }
-    macosX64 {
-        binaries {
-            executable {
-                entryPoint = "main"
-            }
-        }
-    }
+//    macosX64 {
+//        binaries {
+//            executable {
+//                entryPoint = "main"
+//            }
+//        }
+//    }
     sourceSets {
         val ktorVersion = "2.2.2"
         val coroutinesVersion = "1.6.4"
@@ -87,7 +87,7 @@ kotlin {
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
             }
         }
-        val androidTest by getting {
+        val androidUnitTest by getting {
             dependencies {
                 implementation("junit:junit:4.13.2")
             }
@@ -98,21 +98,21 @@ kotlin {
             }
         }
         val iosArm64Test by getting
-        val macosX64Main by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
-            }
-        }
-        val macosX64Test by getting
+//        val macosX64Main by getting {
+//            dependencies {
+//                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
+//            }
+//        }
+//        val macosX64Test by getting
     }
 }
 
 android {
-    compileSdkVersion(31)
+    compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdkVersion(23)
-        targetSdkVersion(33)
+        minSdk = 23
+        targetSdk = 33
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
