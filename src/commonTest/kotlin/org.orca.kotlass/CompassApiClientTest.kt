@@ -7,6 +7,7 @@ import org.orca.kotlass.data.CData
 import org.orca.kotlass.data.TaskItem
 import org.orca.kotlass.data.TaskItemRequest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class CompassApiClientTest {
@@ -42,6 +43,11 @@ class CompassApiClientTest {
         taskItem.id = itemId.data!!
         taskItem.taskName = "modified_api_test_task"
         assertNull(client.updateTaskItem(taskItem).error, "Error in updateTaskItem")
+
+        // check update successful
+        delay(500L)
+        val serversideTask = client.getTaskItems().data!!.filter { it.id == taskItem.id }[0]
+        assertEquals(serversideTask.taskName, taskItem.taskName, "Error in updateTaskItem")
 
         // delete the task
         delay(500L)
