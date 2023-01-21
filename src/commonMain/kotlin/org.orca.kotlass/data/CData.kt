@@ -15,3 +15,10 @@ data class DataExtGridDataContainer<T>(
     val data: List<T>,
     private val total: Int
 )
+
+@Serializable
+data class BaseApiRequest(
+    val start: Int = 0,
+    val limit: Int = 25,
+    val page: Int = 1
+)

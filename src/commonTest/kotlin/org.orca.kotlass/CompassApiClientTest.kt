@@ -2,6 +2,9 @@ package org.orca.kotlass
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.*
+import org.orca.kotlass.data.CData
+import org.orca.kotlass.data.TaskItem
+import org.orca.kotlass.data.TaskItemRequest
 import kotlin.test.Test
 import kotlin.test.assertNull
 
@@ -19,6 +22,30 @@ class CompassApiClientTest {
 
     private val client = CompassApiClient(SampleClientCredentials)
     private val now = Clock.System.now()
+
+    @Test
+    fun testGetTaskItems() = runBlocking {
+        assertNull(client.getTaskItems().error, "Error in getTaskItems")
+    }
+
+    // this one must happen sequentially and tests creation, modification and deletion of an item.
+    @Test
+    fun testTaskItem() = runBlocking {
+        // create the task
+        val taskItem = TaskItemRequest.TaskItemRequestBody(taskName = "api_test_task")
+        val itemId = client.saveTaskItem(taskItem)
+        assertNull(itemId.error, "Error in saveTaskItem")
+
+        // update the task
+        taskItem.id = itemId.data!!
+        taskItem.taskName = "modified_api_test_task"
+        assertNull(client.updateTaskItem(taskItem).error, "Error in updateTaskItem")
+
+        println(client.getTaskItems().data?.get(0))
+
+        // delete the task
+        assertNull(client.deleteTaskItem(taskItem).error, "Error in deleteTaskItem")
+    }
 
     @Test
     fun testDownloadFile() = runBlocking {
