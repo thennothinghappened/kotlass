@@ -1,5 +1,6 @@
 package org.orca.kotlass
 
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.*
 import org.orca.kotlass.data.CData
@@ -37,13 +38,13 @@ class CompassApiClientTest {
         assertNull(itemId.error, "Error in saveTaskItem")
 
         // update the task
+        delay(500L)
         taskItem.id = itemId.data!!
         taskItem.taskName = "modified_api_test_task"
         assertNull(client.updateTaskItem(taskItem).error, "Error in updateTaskItem")
 
-        println(client.getTaskItems().data?.get(0))
-
         // delete the task
+        delay(500L)
         assertNull(client.deleteTaskItem(taskItem).error, "Error in deleteTaskItem")
     }
 
