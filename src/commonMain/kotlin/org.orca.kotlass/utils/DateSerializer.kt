@@ -1,4 +1,4 @@
-package org.orca.kotlass.data
+package org.orca.kotlass.utils
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant

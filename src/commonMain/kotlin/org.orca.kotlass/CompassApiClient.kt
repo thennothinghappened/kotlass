@@ -43,6 +43,7 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
             const val calendar = "Calendar.svc"
             const val activity = "Activity.svc"
             const val learningTasks = "LearningTasks.svc"
+            const val fileAssets = "FileAssets.svc"
         }
     }
 
@@ -55,30 +56,53 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
     }
 
     private suspend fun makePostRequest(endpoint: String, location: String, body: String): HttpResponse {
-        println(body)
         return client.post("https://${credentials.domain}/Services/${endpoint}/${location}") {
             headers {
                 append(HttpHeaders.Cookie, credentials.cookie)
             }
             contentType(ContentType.Application.Json)
             setBody(body)
-
         }
+    }
+
+    /**
+     * Download a file from compass
+     */
+    suspend fun downloadFile(assetId: String): CData<String> {
+        val res = makeGetRequest(Services.fileAssets, "DownloadFile?id=$assetId")
+        if (res.status != HttpStatusCode.OK) return res.body()
+        return CData(data = res.bodyAsText())
     }
 
     /**
      * Get list of lessons for a class instance by its ID
      */
     suspend fun getLessonsByInstanceId(instanceId: String): CData<ActivitySummary> {
-        return makePostRequest(Services.activity, "GetLessonsByInstanceId", json.encodeToString(ActivitySummaryRequest(instanceId)))
+        return makePostRequest(Services.activity, "GetLessonsByInstanceId", json.encodeToString(ActivitySummaryByInstanceIdRequest(instanceId)))
             .body()
     }
 
     /**
-     * Get list of lessons for a class instance by its ID
+     * Get class instance by its ID
      */
     suspend fun getLessonsByInstanceIdQuick(instanceId: String): CData<Activity> {
-        return makePostRequest(Services.activity, "GetLessonsByInstanceIdQuick", json.encodeToString(ActivitySummaryRequest(instanceId)))
+        return makePostRequest(Services.activity, "GetLessonsByInstanceIdQuick", json.encodeToString(ActivitySummaryByInstanceIdRequest(instanceId)))
+            .body()
+    }
+
+    /**
+     * Get list of lessons for a class by its activity ID
+     */
+    suspend fun getLessonsByActivityId(activityId: String): CData<ActivitySummary> {
+        return makePostRequest(Services.activity, "GetLessonsByActivityId", json.encodeToString(ActivitySummaryByActivityIdRequest(activityId)))
+            .body()
+    }
+
+    /**
+     * Get current class instance its activity ID
+     */
+    suspend fun getLessonsByActivityIdQuick(activityId: String): CData<Activity> {
+        return makePostRequest(Services.activity, "GetLessonsByActivityIdQuick", json.encodeToString(ActivitySummaryByActivityIdRequest(activityId)))
             .body()
     }
 
@@ -93,8 +117,8 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
     /**
      * Get list of learning tasks for a class by class ID
      */
-    suspend fun getAllLearningTasksByActivityId(instanceId: String): CData<DataExtGridDataContainer<LearningTask>> {
-        return makePostRequest(Services.learningTasks, "GetAllLearningTasksByActivityId", json.encodeToString(LearningTasksByActivityIdRequest(activityId = instanceId)))
+    suspend fun getAllLearningTasksByActivityId(activityId: String): CData<DataExtGridDataContainer<LearningTask>> {
+        return makePostRequest(Services.learningTasks, "GetAllLearningTasksByActivityId", json.encodeToString(LearningTasksByActivityIdRequest(activityId = activityId)))
             .body()
     }
 

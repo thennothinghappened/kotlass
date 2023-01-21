@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CData<T>(
-    val h: String? = null,
-    val d: T? = null
+    @SerialName("h") val error: String? = null,
+    @SerialName("d") val data: T? = null
 )
 
 @Serializable

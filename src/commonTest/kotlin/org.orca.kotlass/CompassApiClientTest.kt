@@ -12,6 +12,8 @@ class CompassApiClientTest {
     // userId: numerical ID corresponding to your user which is sent in requests such as getCalendarEventsByUser                         //
     // testInstanceId: an ID of a class session to test                                                                                  //
     // testActivityId: an ID of a class to test                                                                                          //
+    // testAcademicYear: a number corresponding to an ID from getAllAcademicGroups                                                       //
+    // testFileAssetId: a FileAssetId on the server                                                                                      //
     // cookies: cookie storage of the login cookies that compass issues the user                                                         //
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -19,62 +21,72 @@ class CompassApiClientTest {
     private val now = Clock.System.now()
 
     @Test
+    fun testDownloadFile() = runBlocking {
+        assertNull(client.downloadFile(SampleClientCredentials.testFileAssetId).error, "Error in downloadFile")
+    }
+
+    @Test
     fun testGetLessonsByInstanceId() = runBlocking {
-        assertNull(client.getLessonsByInstanceId(SampleClientCredentials.testInstanceId).h, "Error in getLessonsByInstanceId")
+        assertNull(client.getLessonsByInstanceId(SampleClientCredentials.testInstanceId).error, "Error in getLessonsByInstanceId")
     }
 
     @Test
     fun testGetLessonsByInstanceIdQuick() = runBlocking {
-        assertNull(client.getLessonsByInstanceIdQuick(SampleClientCredentials.testInstanceId).h, "Error in getLessonsByInstanceIdQuick")
+        assertNull(client.getLessonsByInstanceIdQuick(SampleClientCredentials.testInstanceId).error, "Error in getLessonsByInstanceIdQuick")
+    }
+
+    @Test
+    fun testGetLessonsByActivityId() = runBlocking {
+        assertNull(client.getLessonsByActivityId(SampleClientCredentials.testActivityId).error, "Error in getLessonsByActivityId")
+    }
+
+    @Test
+    fun testGetLessonsByActivityIdQuick() = runBlocking {
+        assertNull(client.getLessonsByActivityIdQuick(SampleClientCredentials.testActivityId).error, "Error in getLessonsByActivityIdQuick")
     }
 
     @Test
     fun testGetAllLearningTasksByActivityId() = runBlocking {
-        assertNull(client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId).h, "Error in getAllLearningTasksByActivityId")
+        assertNull(client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId).error, "Error in getAllLearningTasksByActivityId")
     }
 
     @Test
     fun testGetAllLearningTasksByUserId() = runBlocking {
-        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicYear).h, "Error in getAllLearningTasksByUserId")
+        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicYear).error, "Error in getAllLearningTasksByUserId")
     }
 
     @Test
     fun testGetAllTaskCategories() = runBlocking {
-        assertNull(client.getAllTaskCategories().h, "Error in getAllTaskCategories")
+        assertNull(client.getAllTaskCategories().error, "Error in getAllTaskCategories")
     }
 
     @Test
     fun testGetCalendarEventsByUser() = runBlocking {
-        assertNull(client.getCalendarEventsByUser(now.toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()).h, "Error in getCalendarEventsByUser")
+        assertNull(client.getCalendarEventsByUser(now.toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()).error, "Error in getCalendarEventsByUser")
     }
 
     @Test
     fun testGetCalendarsByUser() = runBlocking {
-        assertNull(client.getCalendarsByUser().h, "Error in getCalendarsByUser")
+        assertNull(client.getCalendarsByUser().error, "Error in getCalendarsByUser")
     }
 
     @Test
     fun testGetMyNewsFeedPaged() = runBlocking {
-        assertNull(client.getMyNewsFeedPaged().h, "Error in getMyNewsFeedPaged")
+        assertNull(client.getMyNewsFeedPaged().error, "Error in getMyNewsFeedPaged")
     }
 
     @Test
     fun testGetMyAlerts() = runBlocking {
-        assertNull(client.getMyAlerts().h, "Error in getMyAlerts")
+        assertNull(client.getMyAlerts().error, "Error in getMyAlerts")
     }
 
     @Test
     fun testGetAllLocations() = runBlocking {
-        assertNull(client.getAllLocations().h, "Error in getAllLocations")
+        assertNull(client.getAllLocations().error, "Error in getAllLocations")
     }
 
     @Test
     fun testGetAllCampuses() = runBlocking {
-        assertNull(client.getAllCampuses().h, "Error in getAllCampuses")
-    }
-
-    @Test
-    fun testTime() {
-
+        assertNull(client.getAllCampuses().error, "Error in getAllCampuses")
     }
 }

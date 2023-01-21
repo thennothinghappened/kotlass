@@ -3,13 +3,22 @@ package org.orca.kotlass.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.orca.kotlass.utils.InstantSerializer
 
 /**
- * Data to send to get the ActivitySummary
+ * Data to send to get the ActivitySummary by instanceId
  */
 @Serializable
-data class ActivitySummaryRequest(
+data class ActivitySummaryByInstanceIdRequest(
     val instanceId: String
+)
+
+/**
+ * Data to send to get the ActivitySummary by activityId
+ */
+@Serializable
+data class ActivitySummaryByActivityIdRequest(
+    val activityId: String
 )
 
 /**
@@ -95,12 +104,12 @@ data class Activity(
     @Serializable(InstantSerializer::class)
     @SerialName("fn") val finish: Instant?,
     @SerialName("id") val id: String,
+    @SerialName("CoveringIid") val coveringIid: String? = null,
+    @SerialName("CoveringPhotoPath") val coveringPhotoId: String? = null,
+    @SerialName("CoveringUid") val coveringUid: Int,
     @SerialName("ActivityImportIdentifier") private val activityImportIdentifier: String,
     @SerialName("AttendanceMode") private val attendanceMode: Int,
     @SerialName("AttendeeLimit") private val attendeeLimit: Int? = null,
-    @SerialName("CoveringIid") private val coveringIid: Unit? = null,
-    @SerialName("CoveringPhotoPath") val coveringPhotoId: String? = null,
-    @SerialName("CoveringUid") val coveringUid: Int,
     @SerialName("ExtendedStatusId") private val extendedStatusId: Int,
     @SerialName("LocationDetails") private val locationDetails: Location,
     @SerialName("LocationId") private val locationId: Int,
@@ -112,7 +121,7 @@ data class Activity(
     @SerialName("bs") private val bs: Array<Unit>,
     @SerialName("dt") private val dateTime: String,
     @SerialName("irm") private val irm: Boolean,
-    @SerialName("lp") private val lp: ActivityLP, //todo: lesson plan? if it is, it doesn't seem to work...
+    @SerialName("lp") private val lessonPlan: ActivityLessonPlan,
     @SerialName("m") val managerShortName: String,
     @SerialName("managers") val managers: Array<Manager>,
     @SerialName("mi") private val mi: Int,
@@ -138,13 +147,13 @@ data class LocationDetailsContainer(
  * "lp" - what does this do
  */
 @Serializable
-data class ActivityLP(
+data class ActivityLessonPlan(
     @SerialName("__type") private val dataType: String,
-    private val fileAssetId: String? = null,
+    val fileAssetId: String? = null,
+    val name: String? = null,
     private val mp: String,
-    private val name: String? = null,
     private val sp: String? = null,
-    private val wnid: String? = null,
+    private val wnid: Int? = null,
 )
 
 /**
@@ -153,7 +162,7 @@ data class ActivityLP(
 @Serializable
 data class Manager(
     @SerialName("__type") private val dataType: String,
-    @SerialName("CoveringImportIdentifier") val coveringImportIdentifier: String? = null, //todo: is this the "replacement teacher" for classes where the teacher can't make it?
+    @SerialName("CoveringImportIdentifier") val coveringImportIdentifier: String? = null,
     @SerialName("CoveringName") val coveringName: String? = null,
     @SerialName("CoveringPhotoPath") val coveringPhotoPath: String? = null,
     @SerialName("CoveringUserId") val coveringUserId: Int? = null,

@@ -3,6 +3,7 @@ package org.orca.kotlass.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.orca.kotlass.utils.InstantSerializer
 
 /**
  * Data to send to get the list of CalendarEvents

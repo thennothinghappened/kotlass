@@ -1,12 +1,11 @@
 package org.orca.kotlass.data
 
 import kotlinx.datetime.Instant
-import kotlinx.datetime.toInstant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.orca.kotlass.utils.InstantSerializer
 
 /**
  * Data to send to get the LearningTaskListContainer for a subject by its ID

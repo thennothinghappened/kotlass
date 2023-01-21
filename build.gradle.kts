@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.serialization") version "1.8.0"
     id("com.android.library")
     id("maven-publish")
+    id("org.jetbrains.kotlin.android") version "1.8.0" apply false
 }
 
 group = "org.orca"
@@ -110,11 +111,15 @@ android {
     compileSdkVersion(31)
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdkVersion(24)
+        minSdkVersion(23)
         targetSdkVersion(31)
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+dependencies {
+    implementation("androidx.core:core-ktx:+")
+    implementation("androidx.core:core-ktx:+")
 }
