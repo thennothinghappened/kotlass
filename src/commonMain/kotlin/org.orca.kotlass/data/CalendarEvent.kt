@@ -1,9 +1,11 @@
 package org.orca.kotlass.data
 
 import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.orca.kotlass.utils.InstantSerializer
+import org.orca.kotlass.utils.LocalDateSerializer
 
 /**
  * Data to send to get the list of CalendarEvents
@@ -11,8 +13,10 @@ import org.orca.kotlass.utils.InstantSerializer
 @Serializable
 data class CalendarEventsRequest(
     val userId: Int,
-    val startDate: String,
-    val endDate: String = startDate,
+    @Serializable(LocalDateSerializer::class)
+    val startDate: LocalDate,
+    @Serializable(LocalDateSerializer::class)
+    val endDate: LocalDate = startDate,
     val homePage: Boolean = true,
     val start: Int = 0,
     val limit: Int = 25,

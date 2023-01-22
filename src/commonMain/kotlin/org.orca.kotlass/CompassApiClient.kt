@@ -9,6 +9,10 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
@@ -169,7 +173,7 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
     /**
      * Get a list of items on the schedule between two dates
      */
-    suspend fun getCalendarEventsByUser(startDate: String, endDate: String = startDate): CData<Array<CalendarEvent>> =
+    suspend fun getCalendarEventsByUser(startDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date, endDate: LocalDate = startDate): CData<Array<CalendarEvent>> =
         makePostRequest(Services.calendar, "GetCalendarEventsByUser", json.encodeToString(CalendarEventsRequest(
             startDate = startDate,
             endDate = endDate,
@@ -196,6 +200,16 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
     suspend fun getAllCampuses(): CData<Array<Campus>> =
         makeGetRequest(Services.referenceDataCache, "GetAllCampuses")
             .body()
+
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Download the lesson plan for a class instance
+     */
+    suspend fun getLessonPlanString(activityLessonPlan: ActivityLessonPlan): String? {
+        if (activityLessonPlan.fileAssetId == null) return null
+        return downloadFile(activityLessonPlan.fileAssetId).data
+    }
 }
 
 interface CompassClientCredentials {

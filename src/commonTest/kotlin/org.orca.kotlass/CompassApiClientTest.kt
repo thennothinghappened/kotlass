@@ -94,7 +94,7 @@ class CompassApiClientTest {
 
     @Test
     fun testGetCalendarEventsByUser() = runBlocking {
-        assertNull(client.getCalendarEventsByUser(now.toLocalDateTime(TimeZone.currentSystemDefault()).date.toString()).error, "Error in getCalendarEventsByUser")
+        assertNull(client.getCalendarEventsByUser().error, "Error in getCalendarEventsByUser")
     }
 
     @Test
