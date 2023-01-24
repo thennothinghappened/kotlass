@@ -28,8 +28,16 @@ object LocalDateNullableSerializer : KSerializer<LocalDate?> {
     }
 }
 
-object InstantSerializer : KSerializer<Instant?> {
+object InstantSerializer : KSerializer<Instant> {
     override val descriptor = PrimitiveSerialDescriptor("org.orca.data.InstantSerializer", PrimitiveKind.STRING)
+    override fun serialize(encoder: Encoder, value: Instant) = encoder.encodeString(value.toString())
+    override fun deserialize(decoder: Decoder): Instant {
+        return decoder.decodeString().toInstant()
+    }
+}
+
+object InstantNullableSerializer : KSerializer<Instant?> {
+    override val descriptor = PrimitiveSerialDescriptor("org.orca.data.InstantNullableSerializer", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: Instant?) = encoder.encodeString(value.toString())
     override fun deserialize(decoder: Decoder): Instant? {
         return try {

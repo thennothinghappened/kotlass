@@ -3,54 +3,52 @@ package org.orca.kotlass.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.orca.kotlass.utils.InstantSerializer
+import org.orca.kotlass.utils.InstantNullableSerializer
 
 /**
  * Data to send to get the LearningTaskListContainer for a subject by its ID
  */
 @Serializable
 data class LearningTasksByActivityIdRequest(
-    val start: Int = 0,
-    val page: Int = 1,
-    val limit: Int = 2000,
-    val sort: String = Json.encodeToString(LearningTaskSortType()), // no idea why they expect this format
+    override val start: Int = 0,
+    override val page: Int = 1,
+    override val limit: Int = 2000,
+    @Transient val sort: LearningTaskSortType = LearningTaskSortType(), // no idea why they expect this format
     val activityId: String,
     val showHiddenTasks: Boolean = false
-)
+) : Request {
+    @SerialName("sort") private val _sort = json.encodeToString(sort)
+}
 
 /**
- * Data to send to get the LearningTaskListContainer for all subjects
+ * Data to send to get the LearningTask Array for all subjects
  */
 @Serializable
 data class LearningTasksByUserIdRequest(
-    val start: Int = 0,
-    val page: Int = 1,
-    val limit: Int = 2000,
-    val sort: String = Json.encodeToString(LearningTaskSortType()), // no idea why they expect this format
+    override val start: Int = 0,
+    override val page: Int = 1,
+    override val limit: Int = 2000,
+    @Transient val sort: LearningTaskSortType = LearningTaskSortType(), // no idea why they expect this format
     val academicGroupId: Int? = null, // null grabs the default year (this year), numbers grab a year defined by GetAllAcademicGroups
     val showHiddenTasks: Boolean = false,
     val userId: Int
-)
+) : Request {
+    @SerialName("sort") private val _sort = json.encodeToString(sort)
+}
 
 /**
  * Learning task sorting type
  */
 @Serializable
 data class LearningTaskSortType(
-    val property: String = type.dueDateTimestamp,
-    val direction: String = directions.ascending
-) {
-    companion object {
-        object type {
-            const val dueDateTimestamp = "dueDateTimestamp"
-            const val groupName = "groupName"
-        }
-        object directions {
-            const val ascending = "ASC"
-            const val descending = "DESC"
-        }
+    override val property: String = Types.dueDateTimestamp,
+    override val direction: String = SortType.Directions.ascending
+) : SortType {
+    object Types {
+        const val dueDateTimestamp = "dueDateTimestamp"
+        const val groupName = "groupName"
     }
 }
 
@@ -63,16 +61,16 @@ data class LearningTask(
     val activityId: Int,
     val activityName: String,
     val description: String,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val dueDateTimestamp: Instant?,
     val categoryId: Int,
     val gradingItems: Array<LearningTaskGradingItem>,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val createdTimestamp: Instant?,
     val hidden: Boolean,
     val name: String,
     val subjectName: String,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     private val activityStart: Instant?,
     private val assessmentPeriodId: Int? = null,
     private val attachments: Array<LearningTaskAttachment>? = null,
@@ -208,15 +206,15 @@ data class LearningTaskStudent(
     val selfAssessmentEnabled: Boolean,
     val submissions: Array<LearningTaskStudentSubmission>? = null,
     val teacherResponses: Array<LearningTaskStudentTeacherResponse>? = null,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     private val dueDateTimestamp: Instant?,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     private val lastSubmittedTimestamp: Instant?,
     private val primaryResult: Unit? = null,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     private val smsOutstandingSentTimestamp: Instant?,
     private val submissionStatus: Int,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val submittedTimestamp: Instant?,
     private val taskId: Int,
     private val userId: Int,
@@ -230,7 +228,7 @@ data class LearningTaskStudent(
 data class LearningTaskStudentComment(
     @SerialName("__type") private val dataType: String,
     val comment: String,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val timestamp: Instant?,
     val userIdPoster: Int,
     val userNamePoster: String,
@@ -251,7 +249,7 @@ data class LearningTaskStudentTeacherResponse(
     val fileName: String,
     val id: Int,
     val teacherResponseType: Int,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val timestamp: Instant?,
     private val contentUri: String? = null,
     private val taskStudentId: Int,
@@ -282,7 +280,7 @@ data class LearningTaskStudentResult(
     @SerialName("__type") private val dataType: String,
     val id: Int,
     val modifiedByUserId: Int,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val modifiedTimestamp: Instant?,
     val reportGradingSchemeOptionId: String? = null,
     val result: String,

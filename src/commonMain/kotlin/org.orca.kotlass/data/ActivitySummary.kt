@@ -3,7 +3,7 @@ package org.orca.kotlass.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.orca.kotlass.utils.InstantSerializer
+import org.orca.kotlass.utils.InstantNullableSerializer
 
 /**
  * Data to send to get the ActivitySummary by instanceId
@@ -99,9 +99,9 @@ data class Activity(
     @SerialName("SubjectName") val subjectName: String,
     @SerialName("SubjectShortname") val subjectShortName: String,
     @SerialName("UpcomingInstance") val upcomingInstance: Boolean, //todo: duplicate of FutureInstance?
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     @SerialName("st") val start: Instant?,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     @SerialName("fn") val finish: Instant?,
     @SerialName("id") val id: String,
     @SerialName("CoveringIid") val coveringIid: String? = null,
@@ -144,7 +144,7 @@ data class LocationDetailsContainer(
 )
 
 /**
- * "lp" - what does this do
+ * File reference to a lesson plan
  */
 @Serializable
 data class ActivityLessonPlan(

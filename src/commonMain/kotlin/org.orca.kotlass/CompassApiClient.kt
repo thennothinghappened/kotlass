@@ -30,26 +30,17 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
         install(HttpCache) {
             // todo: set this up (different implementations for desktop and android)
         }
-//        install(Logging) {
-//            logger = Logger.DEFAULT
-//            level = LogLevel.ALL
-//        }
     }
 
-    private val json = Json {
-        encodeDefaults = true
-    }
-
-    companion object {
-        private object Services {
-            const val referenceDataCache = "ReferenceDataCache"
-            const val newsFeed = "NewsFeed"
-            const val calendar = "Calendar"
-            const val activity = "Activity"
-            const val learningTasks = "LearningTasks"
-            const val fileAssets = "FileAssets"
-            const val taskService = "TaskService"
-        }
+    private object Services {
+        const val referenceDataCache = "ReferenceDataCache"
+        const val newsFeed = "NewsFeed"
+        const val calendar = "Calendar"
+        const val activity = "Activity"
+        const val learningTasks = "LearningTasks"
+        const val fileAssets = "FileAssets"
+        const val taskService = "TaskService"
+        const val subjects = "Subjects"
     }
 
     private suspend fun makeGetRequest(endpoint: String, location: String): HttpResponse {
@@ -81,22 +72,43 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
      * Edit an existing task item
      */
     suspend fun updateTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): CData<Unit?> =
-        makePostRequest(Services.taskService, "UpdateTaskItem", json.encodeToString(TaskItemRequest(taskItemRequestBody)))
+        makePostRequest(
+            Services.taskService,
+            "UpdateTaskItem",
+            json.encodeToString(TaskItemRequest(taskItemRequestBody))
+        )
             .body()
 
     /**
      * Delete an existing task item
      */
     suspend fun deleteTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): CData<Unit?> =
-        makePostRequest(Services.taskService, "DeleteTaskItem", json.encodeToString(TaskItemRequest(taskItemRequestBody)))
+        makePostRequest(
+            Services.taskService,
+            "DeleteTaskItem",
+            json.encodeToString(TaskItemRequest(taskItemRequestBody))
+        )
             .body()
 
     /**
      * Get list of user-defined "tasks"
      */
     suspend fun getTaskItems(baseApiRequest: BaseApiRequest = BaseApiRequest()): CData<Array<TaskItem>> =
-        makePostRequest(Services.taskService, "GetTaskItems", json.encodeToString(baseApiRequest))
-            .body()
+        makePostRequest(
+            Services.taskService,
+            "GetTaskItems",
+            json.encodeToString(baseApiRequest)
+        ).body()
+
+    /**
+     * Get the list of classes that the user is in
+     */
+    suspend fun getStandardClassesOfUserInAcademicGroup(standardClassesOfUserRequest: StandardClassesOfUserRequest): CData<DataExtGridDataContainer<StandardClass>> =
+        makePostRequest(
+            Services.subjects,
+            "GetStandardClassesOfUserInAcademicGroup",
+            json.encodeToString(standardClassesOfUserRequest)
+        ).body()
 
     /**
      * Download a file from compass
@@ -152,8 +164,8 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
     /**
      * Get list of learning tasks for the user for a year by their ID
      */
-    suspend fun getAllLearningTasksByUserId(academicGroupId: Int? = null): CData<DataExtGridDataContainer<LearningTask>> =
-        makePostRequest(Services.learningTasks, "GetAllLearningTasksByUserId", json.encodeToString(LearningTasksByUserIdRequest(userId = credentials.userId, academicGroupId = academicGroupId)))
+    suspend fun getAllLearningTasksByUserId(academicGroup: AcademicGroup?): CData<DataExtGridDataContainer<LearningTask>> =
+        makePostRequest(Services.learningTasks, "GetAllLearningTasksByUserId", json.encodeToString(LearningTasksByUserIdRequest(userId = credentials.userId, academicGroupId = academicGroup?.id)))
             .body()
 
     /**
@@ -199,6 +211,13 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
      */
     suspend fun getAllCampuses(): CData<Array<Campus>> =
         makeGetRequest(Services.referenceDataCache, "GetAllCampuses")
+            .body()
+
+    /**
+     * Get list of Academic Groups
+     */
+    suspend fun getAllAcademicGroups(): CData<Array<AcademicGroup>> =
+        makeGetRequest(Services.referenceDataCache, "GetAllAcademicGroups")
             .body()
 
     ////////////////////////////////////////////////////////////////////////////////////

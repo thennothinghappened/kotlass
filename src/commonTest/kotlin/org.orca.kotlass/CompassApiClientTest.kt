@@ -3,6 +3,7 @@ package org.orca.kotlass
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.*
+import org.orca.kotlass.data.StandardClassesOfUserRequest
 import org.orca.kotlass.data.TaskItemRequest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -15,13 +16,12 @@ class CompassApiClientTest {
     // userId: numerical ID corresponding to your user which is sent in requests such as getCalendarEventsByUser                         //
     // testInstanceId: an ID of a class session to test                                                                                  //
     // testActivityId: an ID of a class to test                                                                                          //
-    // testAcademicYear: a number corresponding to an ID from getAllAcademicGroups                                                       //
+    // testAcademicGroup: instance of an AcademicGroup from getAllAcademicGroups                                                         //
     // testFileAssetId: a FileAssetId on the server                                                                                      //
     // cookies: cookie storage of the login cookies that compass issues the user                                                         //
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private val client = CompassApiClient(SampleClientCredentials)
-    private val now = Clock.System.now()
 
     @Test
     fun testGetTaskItems() = runBlocking {
@@ -50,6 +50,15 @@ class CompassApiClientTest {
         // delete the task
         delay(500L)
         assertNull(client.deleteTaskItem(taskItem).error, "Error in deleteTaskItem")
+    }
+
+    @Test
+    fun testGetStandardClassesOfUserInAcademicGroup() = runBlocking {
+        assertNull(client.getStandardClassesOfUserInAcademicGroup(
+            StandardClassesOfUserRequest(
+                userId = SampleClientCredentials.userId
+            )
+        ).error, "Error in getStandardClassesOfUserInAcademicGroup")
     }
 
     @Test
@@ -84,7 +93,7 @@ class CompassApiClientTest {
 
     @Test
     fun testGetAllLearningTasksByUserId() = runBlocking {
-        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicYear).error, "Error in getAllLearningTasksByUserId")
+        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicGroup).error, "Error in getAllLearningTasksByUserId")
     }
 
     @Test
@@ -120,5 +129,10 @@ class CompassApiClientTest {
     @Test
     fun testGetAllCampuses() = runBlocking {
         assertNull(client.getAllCampuses().error, "Error in getAllCampuses")
+    }
+
+    @Test
+    fun testGetAllAcademicGroups() = runBlocking {
+        assertNull(client.getAllAcademicGroups().error, "Error in getAllAcademicGroups")
     }
 }

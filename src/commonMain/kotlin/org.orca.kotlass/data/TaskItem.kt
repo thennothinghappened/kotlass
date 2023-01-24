@@ -3,7 +3,7 @@ package org.orca.kotlass.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.orca.kotlass.utils.InstantSerializer
+import org.orca.kotlass.utils.InstantNullableSerializer
 
 /**
  * Data to send to create or modify a TaskItem
@@ -17,7 +17,7 @@ data class TaskItemRequest(
         var id: Int = 0,
         var status: Boolean = false,
         var taskName: String,
-        @Serializable(InstantSerializer::class)
+        @Serializable(InstantNullableSerializer::class)
         var dueDate: Instant? = null
     )
 }
@@ -30,7 +30,7 @@ data class TaskItemRequest(
 @Serializable
 data class TaskItem(
     @SerialName("__type") private val dataType: String? = null,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val dueDate: Instant? = null,
     val id: Int = 0,
     val status: Boolean = false,

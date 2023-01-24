@@ -3,7 +3,7 @@ package org.orca.kotlass.data
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.orca.kotlass.utils.InstantSerializer
+import org.orca.kotlass.utils.InstantNullableSerializer
 
 /**
  * Data to send to get the newsfeed
@@ -32,11 +32,11 @@ data class NewsItem(
     @SerialName("SenderId") val senderId: Int,
     @SerialName("UserImageUrl") val userImageUrl: String,
     @SerialName("UserName") val userName: String,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     @SerialName("PostDateTime") val postDateTime: Instant?, // todo: time post was made?
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     @SerialName("Start") val startDate: Instant?, // todo: point post will be shown from?
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     @SerialName("Finish") val finishDate: Instant?, // useful to know when post expires
     @SerialName("NewsItemGroupTargets") val newsItemGroupTargets: Array<NewsItemGroupTarget>, // the group of people this will be sent to
     @SerialName("ShowImagesFullScreen") val showImagesFullscreen: Boolean,

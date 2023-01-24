@@ -4,7 +4,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.orca.kotlass.utils.InstantSerializer
+import org.orca.kotlass.utils.InstantNullableSerializer
 import org.orca.kotlass.utils.LocalDateSerializer
 
 /**
@@ -39,9 +39,9 @@ data class CalendarEvent(
     val activityId: Int,
     val activityType: Int,
     val backgroundColor: String,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val start: Instant?,
-    @Serializable(InstantSerializer::class)
+    @Serializable(InstantNullableSerializer::class)
     val finish: Instant?,
     val instanceId: String? = null,
     val title: String,
