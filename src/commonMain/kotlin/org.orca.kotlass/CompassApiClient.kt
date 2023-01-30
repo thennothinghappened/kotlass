@@ -16,6 +16,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
+import kotlin.reflect.KClass
 
 class CompassApiClient(private val credentials: CompassClientCredentials) {
     private val client = HttpClient() {
@@ -43,191 +44,243 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
         const val subjects = "Subjects"
     }
 
-    private suspend fun makeGetRequest(endpoint: String, location: String): HttpResponse {
-        return client.get("https://${credentials.domain}/Services/${endpoint}.svc/${location}") {
-            headers {
-                append(HttpHeaders.Cookie, credentials.cookie)
+    private fun buildApiRequestUrl(endpoint: String, location: String) = "https://${credentials.domain}/Services/${endpoint}.svc/${location}"
+    private suspend inline fun <reified T> makeApiGetRequestPlain(endpoint: String, location: String): NetResponse<T> {
+        val reply: HttpResponse
+
+        try {
+            reply = client.get(buildApiRequestUrl(endpoint, location)) {
+                headers {
+                    append(HttpHeaders.Cookie, credentials.cookie)
+                }
             }
+            if (reply.status != HttpStatusCode.OK)
+                return NetResponse.RequestFailure(reply.status)
+
+        } catch (e: Throwable) {
+            return NetResponse.ClientError(e)
         }
+
+        return NetResponse.Success(reply.body())
     }
 
-    private suspend fun makePostRequest(endpoint: String, location: String, body: String): HttpResponse {
-        return client.post("https://${credentials.domain}/Services/${endpoint}.svc/${location}") {
-            headers {
-                append(HttpHeaders.Cookie, credentials.cookie)
+    private suspend inline fun <reified T, reified B> makeApiPostRequestPlain(endpoint: String, location: String, body: B): NetResponse<T> {
+        val reply: HttpResponse
+
+        try {
+            reply = client.post(buildApiRequestUrl(endpoint, location)) {
+                headers {
+                    append(HttpHeaders.Cookie, credentials.cookie)
+                }
+                contentType(ContentType.Application.Json)
+                setBody(json.encodeToString(body))
             }
-            contentType(ContentType.Application.Json)
-            setBody(body)
+
+            if (reply.status != HttpStatusCode.OK)
+                return NetResponse.RequestFailure(reply.status)
+
+        } catch (e: Throwable) {
+            return NetResponse.ClientError(e)
         }
+
+        return NetResponse.Success(reply.body())
+    }
+
+    private suspend inline fun <reified T> makeApiGetRequest(endpoint: String, location: String): NetResponse<T> {
+        val reply: CData<T>
+
+        try {
+            val _reply = client.get(buildApiRequestUrl(endpoint, location)) {
+                headers {
+                    append(HttpHeaders.Cookie, credentials.cookie)
+                }
+            }
+
+            if (_reply.status != HttpStatusCode.OK)
+                return NetResponse.RequestFailure(_reply.status)
+
+            reply = _reply.body()
+        } catch (e: Throwable) {
+            return NetResponse.ClientError(e)
+        }
+
+        return NetResponse.Success(reply.data!!)
+    }
+
+    private suspend inline fun <reified T, reified B> makeApiPostRequest(endpoint: String, location: String, body: B): NetResponse<T> {
+        val reply: CData<T>
+
+        try {
+            val _reply = client.post(buildApiRequestUrl(endpoint, location)) {
+                headers {
+                    append(HttpHeaders.Cookie, credentials.cookie)
+                }
+                contentType(ContentType.Application.Json)
+                setBody(json.encodeToString(body))
+            }
+
+            if (_reply.status != HttpStatusCode.OK)
+                return NetResponse.RequestFailure(_reply.status)
+
+            reply = _reply.body()
+        } catch (e: Throwable) {
+            return NetResponse.ClientError(e)
+        }
+
+        return NetResponse.Success(reply.data!!)
     }
 
     /**
      * Create a new task item
      */
-    suspend fun saveTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): CData<Int> =
-        makePostRequest(Services.taskService, "SaveTaskItem", json.encodeToString(TaskItemRequest(taskItemRequestBody)))
-            .body()
+    suspend fun saveTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): NetResponse<Int> =
+        makeApiPostRequest(Services.taskService, "SaveTaskItem", TaskItemRequest(taskItemRequestBody))
 
     /**
      * Edit an existing task item
      */
-    suspend fun updateTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): CData<Unit?> =
-        makePostRequest(
+    suspend fun updateTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): NetResponse<Unit?> =
+        makeApiPostRequestPlain(
             Services.taskService,
             "UpdateTaskItem",
-            json.encodeToString(TaskItemRequest(taskItemRequestBody))
+            TaskItemRequest(taskItemRequestBody)
         )
-            .body()
 
     /**
      * Delete an existing task item
      */
-    suspend fun deleteTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): CData<Unit?> =
-        makePostRequest(
+    suspend fun deleteTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): NetResponse<Unit?> =
+        makeApiPostRequestPlain(
             Services.taskService,
             "DeleteTaskItem",
-            json.encodeToString(TaskItemRequest(taskItemRequestBody))
+            TaskItemRequest(taskItemRequestBody)
         )
-            .body()
 
     /**
      * Get list of user-defined "tasks"
      */
-    suspend fun getTaskItems(baseApiRequest: BaseApiRequest = BaseApiRequest()): CData<Array<TaskItem>> =
-        makePostRequest(
+    suspend fun getTaskItems(baseApiRequest: BaseApiRequest = BaseApiRequest()): NetResponse<Array<TaskItem>> =
+        makeApiPostRequest(
             Services.taskService,
             "GetTaskItems",
-            json.encodeToString(baseApiRequest)
-        ).body()
+            baseApiRequest
+        )
 
     /**
      * Get the list of classes that the user is in
      */
-    suspend fun getStandardClassesOfUserInAcademicGroup(standardClassesOfUserRequest: StandardClassesOfUserRequest): CData<DataExtGridDataContainer<StandardClass>> =
-        makePostRequest(
+    suspend fun getStandardClassesOfUserInAcademicGroup(standardClassesOfUserRequest: StandardClassesOfUserRequest): NetResponse<DataExtGridDataContainer<StandardClass>> =
+        makeApiPostRequest(
             Services.subjects,
             "GetStandardClassesOfUserInAcademicGroup",
-            json.encodeToString(standardClassesOfUserRequest)
-        ).body()
+            standardClassesOfUserRequest
+        )
 
     /**
      * Download a file from compass
      */
-    suspend fun downloadFile(assetId: String): CData<String> {
-        val res = makeGetRequest(Services.fileAssets, "DownloadFile?id=$assetId")
-        if (res.status != HttpStatusCode.OK) return res.body()
-        return CData(data = res.bodyAsText())
-    }
+    suspend fun downloadFile(assetId: String): NetResponse<String> =
+        makeApiGetRequestPlain(Services.fileAssets, "DownloadFile?id=$assetId")
 
     /**
      * Get list of lessons for a class instance by its ID
      */
-    suspend fun getLessonsByInstanceId(instanceId: String): CData<ActivitySummary> =
-        makePostRequest(Services.activity, "GetLessonsByInstanceId", json.encodeToString(ActivitySummaryByInstanceIdRequest(instanceId)))
-            .body()
+    suspend fun getLessonsByInstanceId(instanceId: String): NetResponse<ActivitySummary> =
+        makeApiPostRequest(Services.activity, "GetLessonsByInstanceId", ActivitySummaryByInstanceIdRequest(instanceId))
 
     /**
      * Get class instance by its ID
      */
-    suspend fun getLessonsByInstanceIdQuick(instanceId: String): CData<Activity> =
-        makePostRequest(Services.activity, "GetLessonsByInstanceIdQuick", json.encodeToString(ActivitySummaryByInstanceIdRequest(instanceId)))
-            .body()
+    suspend fun getLessonsByInstanceIdQuick(instanceId: String): NetResponse<Activity> =
+        makeApiPostRequest(Services.activity, "GetLessonsByInstanceIdQuick", ActivitySummaryByInstanceIdRequest(instanceId))
 
     /**
      * Get list of lessons for a class by its activity ID
      */
-    suspend fun getLessonsByActivityId(activityId: String): CData<ActivitySummary> =
-        makePostRequest(Services.activity, "GetLessonsByActivityId", json.encodeToString(ActivitySummaryByActivityIdRequest(activityId)))
-            .body()
+    suspend fun getLessonsByActivityId(activityId: String): NetResponse<ActivitySummary> =
+        makeApiPostRequest(Services.activity, "GetLessonsByActivityId", ActivitySummaryByActivityIdRequest(activityId))
 
     /**
      * Get current class instance its activity ID
      */
-    suspend fun getLessonsByActivityIdQuick(activityId: String): CData<Activity> =
-        makePostRequest(Services.activity, "GetLessonsByActivityIdQuick", json.encodeToString(ActivitySummaryByActivityIdRequest(activityId)))
-            .body()
+    suspend fun getLessonsByActivityIdQuick(activityId: String): NetResponse<Activity> =
+        makeApiPostRequest(Services.activity, "GetLessonsByActivityIdQuick", ActivitySummaryByActivityIdRequest(activityId))
 
     /**
      * Get list of learning task categories
      */
-    suspend fun getAllTaskCategories(baseApiRequest: BaseApiRequest = BaseApiRequest()): CData<Array<TaskCategory>> =
-        makePostRequest(Services.learningTasks, "GetAllTaskCategories", json.encodeToString(baseApiRequest))
-            .body()
+    suspend fun getAllTaskCategories(baseApiRequest: BaseApiRequest = BaseApiRequest()): NetResponse<Array<TaskCategory>> =
+        makeApiPostRequest(Services.learningTasks, "GetAllTaskCategories", baseApiRequest)
 
     /**
      * Get list of learning tasks for a class by class ID
      */
-    suspend fun getAllLearningTasksByActivityId(activityId: String): CData<DataExtGridDataContainer<LearningTask>> =
-        makePostRequest(Services.learningTasks, "GetAllLearningTasksByActivityId", json.encodeToString(LearningTasksByActivityIdRequest(activityId = activityId)))
-            .body()
+    suspend fun getAllLearningTasksByActivityId(activityId: String): NetResponse<DataExtGridDataContainer<LearningTask>> =
+        makeApiPostRequest(Services.learningTasks, "GetAllLearningTasksByActivityId", LearningTasksByActivityIdRequest(activityId = activityId))
 
     /**
      * Get list of learning tasks for the user for a year by their ID
      */
-    suspend fun getAllLearningTasksByUserId(academicGroup: AcademicGroup?): CData<DataExtGridDataContainer<LearningTask>> =
-        makePostRequest(Services.learningTasks, "GetAllLearningTasksByUserId", json.encodeToString(LearningTasksByUserIdRequest(userId = credentials.userId, academicGroupId = academicGroup?.id)))
-            .body()
+    suspend fun getAllLearningTasksByUserId(academicGroup: AcademicGroup?): NetResponse<DataExtGridDataContainer<LearningTask>> =
+        makeApiPostRequest(Services.learningTasks, "GetAllLearningTasksByUserId", LearningTasksByUserIdRequest(userId = credentials.userId, academicGroupId = academicGroup?.id))
 
     /**
      * Get the compass Newsfeed
      */
-    suspend fun getMyNewsFeedPaged(): CData<DataExtGridDataContainer<NewsItem>> =
-        makePostRequest(Services.newsFeed, "GetMyNewsFeedPaged", json.encodeToString(NewsFeedRequest()))
-            .body()
+    suspend fun getMyNewsFeedPaged(): NetResponse<DataExtGridDataContainer<NewsItem>> =
+        makeApiPostRequest(Services.newsFeed, "GetMyNewsFeedPaged", NewsFeedRequest())
 
     /**
      * Get calendar layers
      */
-    suspend fun getCalendarsByUser(): CData<Array<CalendarLayer>> =
-        makePostRequest(Services.calendar, "GetCalendarsByUser", json.encodeToString(CalendarLayersRequest()))
-            .body()
+    suspend fun getCalendarsByUser(): NetResponse<Array<CalendarLayer>> =
+        makeApiPostRequest(Services.calendar, "GetCalendarsByUser", CalendarLayersRequest())
 
     /**
      * Get a list of items on the schedule between two dates
      */
-    suspend fun getCalendarEventsByUser(startDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date, endDate: LocalDate = startDate): CData<Array<CalendarEvent>> =
-        makePostRequest(Services.calendar, "GetCalendarEventsByUser", json.encodeToString(CalendarEventsRequest(
+    suspend fun getCalendarEventsByUser(
+        startDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+        endDate: LocalDate = startDate
+    ): NetResponse<Array<CalendarEvent>> =
+        makeApiPostRequest(Services.calendar, "GetCalendarEventsByUser", CalendarEventsRequest(
             startDate = startDate,
             endDate = endDate,
             userId = credentials.userId
-        ))).body()
+        ))
 
     /**
      * Get list of compass alerts (Messages that appear above newsfeed asking for your attention)
      */
-    suspend fun getMyAlerts(): CData<Array<Alert>> =
-        makePostRequest(Services.newsFeed, "GetMyAlerts", "")
-            .body()
+    suspend fun getMyAlerts(): NetResponse<Array<Alert>> =
+        makeApiPostRequest(Services.newsFeed, "GetMyAlerts", "")
 
     /**
      * Get list of rooms and their attributes
      */
-    suspend fun getAllLocations(): CData<Array<Location>> =
-        makeGetRequest(Services.referenceDataCache, "GetAllLocations")
-            .body()
+    suspend fun getAllLocations(): NetResponse<Array<Location>> =
+        makeApiGetRequest(Services.referenceDataCache, "GetAllLocations")
 
     /**
      * Get list of school campuses
      */
-    suspend fun getAllCampuses(): CData<Array<Campus>> =
-        makeGetRequest(Services.referenceDataCache, "GetAllCampuses")
-            .body()
+    suspend fun getAllCampuses(): NetResponse<Array<Campus>> =
+        makeApiGetRequest(Services.referenceDataCache, "GetAllCampuses")
 
     /**
      * Get list of Academic Groups
      */
-    suspend fun getAllAcademicGroups(): CData<Array<AcademicGroup>> =
-        makeGetRequest(Services.referenceDataCache, "GetAllAcademicGroups")
-            .body()
+    suspend fun getAllAcademicGroups(): NetResponse<Array<AcademicGroup>> =
+        makeApiGetRequest(Services.referenceDataCache, "GetAllAcademicGroups")
 
     ////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * Download the lesson plan for a class instance
      */
-    suspend fun getLessonPlanString(activityLessonPlan: ActivityLessonPlan): String? {
-        if (activityLessonPlan.fileAssetId == null) return null
-        return downloadFile(activityLessonPlan.fileAssetId).data
+    suspend fun getLessonPlanString(activityLessonPlan: ActivityLessonPlan): NetResponse<String> {
+        if (activityLessonPlan.fileAssetId == null) return NetResponse.ClientError(Throwable("The file asset does not exist"))
+        return downloadFile(activityLessonPlan.fileAssetId)
     }
 }
 

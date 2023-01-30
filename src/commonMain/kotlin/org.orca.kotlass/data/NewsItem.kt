@@ -27,9 +27,9 @@ data class NewsItem(
     @SerialName("Attachments") val attachments: Array<NewsItemAttachment>,
     @SerialName("CommunicationType") val communicationType: Int, //todo: what are communication types
     @SerialName("Priority") val priority: Boolean,
-    @SerialName("NotificationStatus") val notificationStatus: Int, //todo: what are the statuses
+    @SerialName("NotificationStatus") val notificationStatus: Int? = null, //todo: what are the statuses
     @SerialName("CreatedByAdmin") val createdByAdmin: Boolean,
-    @SerialName("SenderId") val senderId: Int,
+    @SerialName("SenderId") val senderId: Int? = null,
     @SerialName("UserImageUrl") val userImageUrl: String,
     @SerialName("UserName") val userName: String,
     @Serializable(InstantNullableSerializer::class)

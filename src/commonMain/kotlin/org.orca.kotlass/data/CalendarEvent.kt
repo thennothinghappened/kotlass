@@ -55,7 +55,7 @@ data class CalendarEvent(
     private val categoryIds: Unit? = null,
     private val comment: String? = null,
     private val description: String,
-    private val eventSetupStatus: Unit? = null,
+    private val eventSetupStatus: Int? = null,
     private val guid: String,
     private val inClassStatus: Unit? = null,
     private val isRecurring: Boolean,

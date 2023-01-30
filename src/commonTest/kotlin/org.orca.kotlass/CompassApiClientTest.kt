@@ -3,11 +3,8 @@ package org.orca.kotlass
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.*
-import org.orca.kotlass.data.StandardClassesOfUserRequest
-import org.orca.kotlass.data.TaskItemRequest
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import org.orca.kotlass.data.*
+import kotlin.test.*
 
 class CompassApiClientTest {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,116 +20,130 @@ class CompassApiClientTest {
 
     private val client = CompassApiClient(SampleClientCredentials)
 
-    @Test
-    fun testGetTaskItems() = runBlocking {
-        assertNull(client.getTaskItems().error, "Error in getTaskItems")
-    }
-
     // this one must happen sequentially and tests creation, modification and deletion of an item.
     @Test
-    fun testTaskItem() = runBlocking {
+    fun testTaskItem(): Unit = runBlocking {
         // create the task
         val taskItem = TaskItemRequest.TaskItemRequestBody(taskName = "api_test_task")
         val itemId = client.saveTaskItem(taskItem)
-        assertNull(itemId.error, "Error in saveTaskItem")
+        assertIs<NetResponse.Success<Int>>(itemId, "Error in saveTaskItem")
 
         // update the task
         delay(500L)
-        taskItem.id = itemId.data!!
+        taskItem.id = itemId.data
         taskItem.taskName = "modified_api_test_task"
-        assertNull(client.updateTaskItem(taskItem).error, "Error in updateTaskItem")
+
+        assertIs<NetResponse.Success<Unit>>(client.updateTaskItem(taskItem), "Error in updateTaskItem")
 
         // check update successful
         delay(500L)
-        val serversideTask = client.getTaskItems().data!!.filter { it.id == taskItem.id }[0]
+        val reply = client.getTaskItems()
+        assertIs<NetResponse.Success<Array<TaskItem>>>(reply, "Error in getTaskItems")
+        val serversideTask = reply.data.filter { it.id == taskItem.id }[0]
         assertEquals(serversideTask.taskName, taskItem.taskName, "Error in updateTaskItem")
 
         // delete the task
         delay(500L)
-        assertNull(client.deleteTaskItem(taskItem).error, "Error in deleteTaskItem")
+        assertIs<NetResponse.Success<Unit>>(client.deleteTaskItem(taskItem), "Error in deleteTaskItem")
     }
 
     @Test
-    fun testGetStandardClassesOfUserInAcademicGroup() = runBlocking {
-        assertNull(client.getStandardClassesOfUserInAcademicGroup(
+    fun testGetStandardClassesOfUserInAcademicGroup(): Unit = runBlocking {
+        val reply = client.getStandardClassesOfUserInAcademicGroup(
             StandardClassesOfUserRequest(
                 userId = SampleClientCredentials.userId
             )
-        ).error, "Error in getStandardClassesOfUserInAcademicGroup")
+        )
+        assertIs<NetResponse.Success<DataExtGridDataContainer<StandardClass>>>(reply, "Error in getStandardClassesOfUserInAcademicGroup")
     }
 
     @Test
-    fun testDownloadFile() = runBlocking {
-        assertNull(client.downloadFile(SampleClientCredentials.testFileAssetId).error, "Error in downloadFile")
+    fun testDownloadFile(): Unit = runBlocking {
+        val reply = client.downloadFile(SampleClientCredentials.testFileAssetId)
+        assertIs<NetResponse.Success<String>>(reply, "Error in downloadFile: $reply")
     }
 
     @Test
-    fun testGetLessonsByInstanceId() = runBlocking {
-        assertNull(client.getLessonsByInstanceId(SampleClientCredentials.testInstanceId).error, "Error in getLessonsByInstanceId")
+    fun testGetLessonsByInstanceId(): Unit = runBlocking {
+        val reply = client.getLessonsByInstanceId(SampleClientCredentials.testInstanceId)
+        assertIs<NetResponse.Success<ActivitySummary>>(reply, "Error in getLessonsByInstanceId: $reply")
     }
 
     @Test
-    fun testGetLessonsByInstanceIdQuick() = runBlocking {
-        assertNull(client.getLessonsByInstanceIdQuick(SampleClientCredentials.testInstanceId).error, "Error in getLessonsByInstanceIdQuick")
+    fun testGetLessonsByInstanceIdQuick(): Unit = runBlocking {
+        val reply = client.getLessonsByInstanceIdQuick(SampleClientCredentials.testInstanceId)
+        assertIs<NetResponse.Success<Activity>>(reply, "Error in getLessonsByInstanceIdQuick: $reply")
     }
 
     @Test
-    fun testGetLessonsByActivityId() = runBlocking {
-        assertNull(client.getLessonsByActivityId(SampleClientCredentials.testActivityId).error, "Error in getLessonsByActivityId")
+    fun testGetLessonsByActivityId(): Unit = runBlocking {
+        val reply = client.getLessonsByActivityId(SampleClientCredentials.testActivityId)
+        assertIs<NetResponse.Success<ActivitySummary>>(reply, "Error in getLessonsByActivityId: $reply")
     }
 
     @Test
-    fun testGetLessonsByActivityIdQuick() = runBlocking {
-        assertNull(client.getLessonsByActivityIdQuick(SampleClientCredentials.testActivityId).error, "Error in getLessonsByActivityIdQuick")
+    fun testGetLessonsByActivityIdQuick(): Unit = runBlocking {
+        val reply = client.getLessonsByActivityIdQuick(SampleClientCredentials.testActivityId)
+        assertIs<NetResponse.Success<Activity>>(reply, "Error in getLessonsByActivityIdQuick: $reply")
     }
 
     @Test
-    fun testGetAllLearningTasksByActivityId() = runBlocking {
-        assertNull(client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId).error, "Error in getAllLearningTasksByActivityId")
+    fun testGetAllLearningTasksByActivityId(): Unit = runBlocking {
+        val reply = client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId)
+        assertIs<NetResponse.Success<DataExtGridDataContainer<LearningTask>>>(reply, "Error in getAllLearningTasksByActivityId: $reply")
     }
 
     @Test
-    fun testGetAllLearningTasksByUserId() = runBlocking {
-        assertNull(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicGroup).error, "Error in getAllLearningTasksByUserId")
+    fun testGetAllLearningTasksByUserId(): Unit = runBlocking {
+        val reply = client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicGroup)
+        assertIs<NetResponse.Success<DataExtGridDataContainer<LearningTask>>>(reply, "Error in getAllLearningTasksByUserId: $reply")
     }
 
     @Test
-    fun testGetAllTaskCategories() = runBlocking {
-        assertNull(client.getAllTaskCategories().error, "Error in getAllTaskCategories")
+    fun testGetAllTaskCategories(): Unit = runBlocking {
+        val reply = client.getAllTaskCategories()
+        assertIs<NetResponse.Success<Array<TaskCategory>>>(reply, "Error in getAllTaskCategories: $reply")
     }
 
     @Test
-    fun testGetCalendarEventsByUser() = runBlocking {
-        assertNull(client.getCalendarEventsByUser().error, "Error in getCalendarEventsByUser")
+    fun testGetCalendarEventsByUser(): Unit = runBlocking {
+        val reply = client.getCalendarEventsByUser(LocalDate(2023, 1, 30))
+        assertIs<NetResponse.Success<Array<CalendarEvent>>>(reply, "Error in getCalendarEventsByUser: $reply")
     }
 
     @Test
-    fun testGetCalendarsByUser() = runBlocking {
-        assertNull(client.getCalendarsByUser().error, "Error in getCalendarsByUser")
+    fun testGetCalendarsByUser(): Unit = runBlocking {
+        val reply = client.getCalendarsByUser()
+        assertIs<NetResponse.Success<Array<CalendarLayer>>>(reply, "Error in getCalendarsByUser: $reply")
     }
 
     @Test
-    fun testGetMyNewsFeedPaged() = runBlocking {
-        assertNull(client.getMyNewsFeedPaged().error, "Error in getMyNewsFeedPaged")
+    fun testGetMyNewsFeedPaged(): Unit = runBlocking {
+        val reply = client.getMyNewsFeedPaged()
+        assertIs<NetResponse.Success<DataExtGridDataContainer<NewsItem>>>(reply, "Error in getMyNewsFeedPaged: $reply")
     }
 
     @Test
-    fun testGetMyAlerts() = runBlocking {
-        assertNull(client.getMyAlerts().error, "Error in getMyAlerts")
+    fun testGetMyAlerts(): Unit = runBlocking {
+        val reply = client.getMyAlerts()
+        assertIs<NetResponse.Success<Array<Alert>>>(reply, "Error in getMyAlerts: $reply")
     }
 
     @Test
-    fun testGetAllLocations() = runBlocking {
-        assertNull(client.getAllLocations().error, "Error in getAllLocations")
+    fun testGetAllLocations(): Unit = runBlocking {
+        val reply = client.getAllLocations()
+        assertIs<NetResponse.Success<Array<Location>>>(reply, "Error in getAllLocations: $reply")
     }
 
     @Test
-    fun testGetAllCampuses() = runBlocking {
-        assertNull(client.getAllCampuses().error, "Error in getAllCampuses")
+    fun testGetAllCampuses(): Unit = runBlocking {
+        val reply = client.getAllCampuses()
+        assertIs<NetResponse.Success<Array<Campus>>>(reply, "Error in getAllCampuses: $reply")
     }
 
     @Test
-    fun testGetAllAcademicGroups() = runBlocking {
-        assertNull(client.getAllAcademicGroups().error, "Error in getAllAcademicGroups")
+    fun testGetAllAcademicGroups(): Unit = runBlocking {
+        val reply = client.getAllAcademicGroups()
+        assertIs<NetResponse.Success<Array<AcademicGroup>>>(reply, "Error in getAllAcademicGroups: $reply")
     }
 }
