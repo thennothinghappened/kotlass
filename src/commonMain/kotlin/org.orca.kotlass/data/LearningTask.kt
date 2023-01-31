@@ -96,7 +96,7 @@ data class LearningTask(
     private val rubricItems: Unit? = null,
     private val rubricWikiNodeIds: Array<Int>? = null,
     private val securityOptions: Array<LearningTaskSecurityOption>,
-    private val semesterReportCycles: Unit? = null,
+    private val semesterReportCycles: Array<LearningTaskSemesterReportsTaskCycle>? = null,
     private val sendSmsOutstanding: Boolean,
     private val showAverageBoxPlot: Boolean? = null,
     private val showLegendBoxPlot: Boolean? = null,
@@ -113,11 +113,23 @@ data class LearningTask(
 )
 
 /**
+ *
+ */
+@Serializable
+data class LearningTaskSemesterReportsTaskCycle(
+    @SerialName("__type") private val dataType: String,
+    val includeInSemesterReports: Boolean,
+    val reportCycleId: Int,
+    val reportOrdinal: Boolean? = null,
+    val taskId: Int
+)
+
+/**
  * An attachment on a learning task
  */
 @Serializable
 data class LearningTaskAttachment(
-    private @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     private val contentUrl: String? = null,
     val fileName: String,
     val id: String,
