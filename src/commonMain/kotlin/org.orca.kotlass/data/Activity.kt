@@ -137,7 +137,7 @@ data class LocationDetailsContainer(
     @SerialName("__type") private val dataType: String,
     @SerialName("LocationDetails") val locationDetails: Location,
     @SerialName("LocationId") val locationId: Int,
-    @SerialName("CoveringLocationDetails") val coveringLocationDetails: String? = null,
+    @SerialName("CoveringLocationDetails") val coveringLocationDetails: Location? = null,
     @SerialName("CoveringLocationId") val coveringLocationId: Int? = null,
     private val campusId: Int? = null,
     private val customLocation: Unit? = null
