@@ -3,6 +3,7 @@ package org.orca.kotlass.data
 import io.ktor.http.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlinx.serialization.json.Json
 
 @Serializable
@@ -56,13 +57,16 @@ sealed interface NetResponse<T> {
     /**
      * When compass returns a 'h' code, this means error, either in our packet, or the cookie we used. Unfortunately it doesn't specify which is which.
      */
-    data class RequestFailure<T>(val httpStatusCode: HttpStatusCode) : NetResponse<T>
+    data class RequestFailure<T>(private val httpStatusCode: HttpStatusCode) : NetResponse<T> {
+        val error = Throwable("Failed to connect with status code $httpStatusCode")
+    }
 
     /**
      * When the client itself experiences an error.
      * The client intentionally has the JSON serialization setting to ignore unknown fields disabled, this makes sure I don't miss anything to document them correctly where possible.
      */
     data class ClientError<T>(val error: Throwable) : NetResponse<T>
+
     /**
      * Request succeeded!
      */

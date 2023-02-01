@@ -26,7 +26,7 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
             })
         }
         install(HttpTimeout) {
-            requestTimeoutMillis = 5000 // it's a slow site
+            requestTimeoutMillis = 30000 // it's a slow site
         }
         install(HttpCache) {
             // todo: set this up (different implementations for desktop and android)
