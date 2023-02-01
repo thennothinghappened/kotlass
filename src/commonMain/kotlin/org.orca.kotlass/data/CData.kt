@@ -54,18 +54,22 @@ class EmptyRequest()
  */
 sealed interface NetResponse<T> {
 
+    interface Error<T> {
+        val error: Throwable
+    }
+
     /**
      * When compass returns a 'h' code, this means error, either in our packet, or the cookie we used. Unfortunately it doesn't specify which is which.
      */
-    data class RequestFailure<T>(private val httpStatusCode: HttpStatusCode) : NetResponse<T> {
-        val error = Throwable("Failed to connect with status code $httpStatusCode")
+    data class RequestFailure<T>(private val httpStatusCode: HttpStatusCode) : Error<T>, NetResponse<T> {
+        override val error = Throwable("Failed to connect with status code $httpStatusCode")
     }
 
     /**
      * When the client itself experiences an error.
      * The client intentionally has the JSON serialization setting to ignore unknown fields disabled, this makes sure I don't miss anything to document them correctly where possible.
      */
-    data class ClientError<T>(val error: Throwable) : NetResponse<T>
+    data class ClientError<T>(override val error: Throwable) : Error<T>, NetResponse<T>
 
     /**
      * Request succeeded!
