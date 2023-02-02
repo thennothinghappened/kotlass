@@ -24,7 +24,7 @@ import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
 import kotlin.reflect.KClass
 
-class CompassApiClient(
+open class CompassApiClient(
     private val credentials: CompassClientCredentials,
     private val scope: CoroutineScope,
     private val refreshIntervals: RefreshIntervals = RefreshIntervals()
@@ -424,7 +424,7 @@ class CompassApiClient(
         if (newsfeed is State.Loading<*>) return
 
         val reply = getMyNewsFeedPaged()
-        if (reply is State.Success<*>)
+        if (reply is NetResponse.Success<*>)
             @Suppress("UNCHECKED_CAST")
             _newsfeed.value = State.Success((reply.data as DataExtGridDataContainer<NewsItem>).data)
         else
