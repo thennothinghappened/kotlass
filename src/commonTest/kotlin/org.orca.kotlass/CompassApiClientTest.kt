@@ -56,7 +56,7 @@ class CompassApiClientTest {
                 userId = SampleClientCredentials.userId
             )
         )
-        assertIs<NetResponse.Success<*>>(reply, "Error in getStandardClassesOfUserInAcademicGroup")
+        assertIs<NetResponse.Success<*>>(reply, "Error in getStandardClassesOfUserInAcademicGroup: $reply")
     }
 
     @Test
