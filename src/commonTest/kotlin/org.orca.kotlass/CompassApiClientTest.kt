@@ -1,5 +1,7 @@
 package org.orca.kotlass
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.*
@@ -18,7 +20,7 @@ class CompassApiClientTest {
     // cookies: cookie storage of the login cookies that compass issues the user                                                         //
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private val client = CompassApiClient(SampleClientCredentials)
+    private val client = CompassApiClient(SampleClientCredentials, CoroutineScope(Dispatchers.Default))
 
     // this one must happen sequentially and tests creation, modification and deletion of an item.
     @Test
