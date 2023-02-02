@@ -9,6 +9,12 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -18,7 +24,11 @@ import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
 import kotlin.reflect.KClass
 
-class CompassApiClient(private val credentials: CompassClientCredentials) {
+class CompassApiClient(
+    private val credentials: CompassClientCredentials,
+    private val scope: CoroutineScope,
+    private val refreshIntervals: RefreshIntervals = RefreshIntervals()
+) {
     private val client = HttpClient() {
         install(ContentNegotiation) {
             json(Json {
@@ -273,8 +283,6 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
     suspend fun getAllAcademicGroups(): NetResponse<Array<AcademicGroup>> =
         makeApiGetRequest(Services.referenceDataCache, "GetAllAcademicGroups")
 
-    ////////////////////////////////////////////////////////////////////////////////////
-
     /**
      * Download the lesson plan for a class instance
      */
@@ -282,6 +290,184 @@ class CompassApiClient(private val credentials: CompassClientCredentials) {
         if (activityLessonPlan.fileAssetId == null) return NetResponse.ClientError(Throwable("The file asset does not exist"))
         return downloadFile(activityLessonPlan.fileAssetId)
     }
+
+    ////////////////////////////////////////////////////////////////////////////////////
+    //                                     Flows!                                     //
+    ////////////////////////////////////////////////////////////////////////////////////
+
+    private val _schedule: MutableStateFlow<State<Array<ScheduleEntry>>> = MutableStateFlow(State.NotInitiated())
+    val schedule: StateFlow<State<Array<ScheduleEntry>>> = _schedule
+    private var schedulePollingEnabled = false
+
+    private val _newsfeed: MutableStateFlow<State<List<NewsItem>>> = MutableStateFlow(State.NotInitiated())
+    val newsfeed: StateFlow<State<List<NewsItem>>> = _newsfeed
+    private var newsfeedPollingEnabled = false
+
+    sealed interface State<T> {
+        class NotInitiated<T> : State<T>
+        class Loading<T> : State<T>
+        data class Error<T>(val error: Throwable) : State<T>
+        data class Success<T>(val data: T) : State<T>
+    }
+
+    data class RefreshIntervals(
+        val schedule: Long = 2 * 60 * 1000,
+        val newsfeed: Long = 10 * 60 * 1000,
+    )
+
+    sealed class ScheduleEntry(open val event: CalendarEvent) {
+
+        abstract class ActivityEntry(
+            override val event: CalendarEvent,
+            open var activity: State<Activity> = State.NotInitiated()
+        ) : ScheduleEntry(event)
+        data class BaseEntry(
+            override val event: CalendarEvent
+        ) : ScheduleEntry(event) // if we dont know what it is
+        data class Lesson(
+            override val event: CalendarEvent,
+            override var activity: State<Activity> = State.NotInitiated(),
+            var lessonPlan: State<String?> = State.NotInitiated()
+        ) : ActivityEntry(event, activity)
+        data class Event(
+            override val event: CalendarEvent,
+            override var activity: State<Activity> = State.NotInitiated()
+        ) : ActivityEntry(event, activity)
+        data class LearningTask(
+            override val event: CalendarEvent
+        ) : ScheduleEntry(event)
+    }
+
+    private suspend fun pollScheduleUpdate(
+        startDate: LocalDate,
+        endDate: LocalDate = startDate,
+        preloadActivities: Boolean = true,
+        preloadLessonPlans: Boolean = false
+    ) {
+        if (schedule is State.Loading<*>) return
+
+        val _reply = getCalendarEventsByUser(startDate, endDate)
+        if (_reply !is NetResponse.Success<*>) {
+            _schedule.value = State.Error((_reply as NetResponse.Error<*>).error)
+            return
+        }
+
+        val reply = _reply as NetResponse.Success<Array<CalendarEvent>>
+        reply.data.sortByDescending { it.start }
+        reply.data.reverse()
+
+        val array = Array(
+            reply.data.size
+        ) {
+            val event = reply.data[it]
+
+            return@Array when (event.activityType) {
+                1 -> ScheduleEntry.Lesson(event)
+                2 -> ScheduleEntry.Event(event)
+                10 -> ScheduleEntry.LearningTask(event)
+                else -> {
+                    println("Unrecognised activityType ${event.activityType} in event $event")
+                    return@Array ScheduleEntry.BaseEntry(event)
+                }
+            }
+        }
+
+        _schedule.value = State.Success(array)
+
+        if (!preloadActivities) return
+
+        array.forEachIndexed { index, it ->
+            scope.launch {
+                if (
+                    it !is ScheduleEntry.Lesson &&
+                    it !is ScheduleEntry.Event
+                ) return@launch
+
+                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
+                    .activity = State.Loading()
+
+                val activityReply = getLessonsByInstanceIdQuick(it.event.instanceId!!)
+                if (activityReply !is NetResponse.Success)
+                    return@launch
+
+                // i really hope there's a better way to do this...
+                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
+                    .activity = State.Success(activityReply.data)
+
+                if (!preloadLessonPlans || it is ScheduleEntry.Event) return@launch
+
+                loadLessonPlan(index)
+            }
+        }
+    }
+
+    fun loadLessonPlan(scheduleIndex: Int) {
+        scope.launch {
+            ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[scheduleIndex] as ScheduleEntry.Lesson)
+                .lessonPlan = State.Loading()
+
+            val activity = ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[scheduleIndex] as ScheduleEntry.Lesson)
+                .activity
+            if (activity !is State.Success) return@launch
+
+            val reply = getLessonPlanString(activity.data.lessonPlan)
+
+            ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[scheduleIndex] as ScheduleEntry.Lesson)
+                .lessonPlan = if (reply is NetResponse.Success)
+                State.Success(reply.data)
+            else
+                State.Error((reply as NetResponse.Error<*>).error)
+        }
+    }
+
+    private suspend fun pollNewsfeedUpdate() {
+        if (newsfeed is State.Loading<*>) return
+
+        val reply = getMyNewsFeedPaged()
+        if (reply is State.Success<*>)
+            @Suppress("UNCHECKED_CAST")
+            _newsfeed.value = State.Success((reply.data as DataExtGridDataContainer<NewsItem>).data)
+        else
+            _newsfeed.value = State.Error((reply as NetResponse.Error<*>).error)
+    }
+
+    fun manualPollScheduleUpdate() {
+        scope.launch { pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date) }
+    }
+
+    fun manualPollNewsfeedUpdate() {
+        scope.launch { pollNewsfeedUpdate() }
+    }
+
+    fun beginPollingSchedule() {
+        schedulePollingEnabled = true
+        scope.launch {
+            while (schedulePollingEnabled) {
+                pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
+                delay(refreshIntervals.schedule)
+            }
+        }
+    }
+
+    fun endPollingSchedule() {
+        schedulePollingEnabled = false
+    }
+
+    fun beginPollingNewsfeed() {
+        newsfeedPollingEnabled = true
+        scope.launch {
+            while (newsfeedPollingEnabled) {
+                pollNewsfeedUpdate()
+                delay(refreshIntervals.newsfeed)
+            }
+        }
+    }
+
+    fun endPollingNewsfeed() {
+        newsfeedPollingEnabled = false
+    }
+
+
 }
 
 interface CompassClientCredentials {
