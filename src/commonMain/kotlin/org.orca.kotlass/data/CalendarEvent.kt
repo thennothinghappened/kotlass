@@ -39,6 +39,7 @@ data class CalendarEvent(
     val activityId: Int,
     val activityType: Int,
     val backgroundColor: String,
+    val description: String,
     @Serializable(InstantNullableSerializer::class)
     val start: Instant?,
     @Serializable(InstantNullableSerializer::class)
@@ -54,7 +55,6 @@ data class CalendarEvent(
     private val calendarId: Unit? = null,
     private val categoryIds: Unit? = null,
     private val comment: String? = null,
-    private val description: String,
     private val eventSetupStatus: Int? = null,
     private val guid: String,
     private val inClassStatus: Unit? = null,
