@@ -151,7 +151,7 @@ class CompassApiClientTest {
 
     @Test
     fun testGetHeaderImageUrlByActivityId(): Unit = runBlocking {
-        val reply = client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId)
+        val reply = client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId.toInt())
         assertIs<NetResponse.Success<*>>(reply, "Error in getHeaderImageUrlByActivityId: $reply")
     }
 }

@@ -284,9 +284,9 @@ open class CompassApiClient(
     /**
      * Get the URL for the banner image for an activity.
      */
-    suspend fun getHeaderImageUrlByActivityId(activityId: String): NetResponse<String> =
+    suspend fun getHeaderImageUrlByActivityId(activityId: Int): NetResponse<String> =
         makeApiPostRequest(Services.activity, "GetHeaderImageUrlByActivityId", ActivitySummaryByActivityIdRequest(
-            activityId
+            activityId.toString()
         ))
 
         /**
@@ -323,22 +323,21 @@ open class CompassApiClient(
 
     sealed class ScheduleEntry(open val event: CalendarEvent) {
 
-        abstract class ActivityEntry(
-            override val event: CalendarEvent,
-            open var activity: State<Activity> = State.NotInitiated()
-        ) : ScheduleEntry(event)
         data class BaseEntry(
             override val event: CalendarEvent
         ) : ScheduleEntry(event) // if we dont know what it is
+        abstract class ActivityEntry(
+            override val event: CalendarEvent,
+            open var activity: State<Activity> = State.NotInitiated(),
+            open var bannerUrl: State<String> = State.NotInitiated()
+        ) : ScheduleEntry(event)
         data class Lesson(
             override val event: CalendarEvent,
-            override var activity: State<Activity> = State.NotInitiated(),
             var lessonPlan: State<String?> = State.NotInitiated()
-        ) : ActivityEntry(event, activity)
+        ) : ActivityEntry(event)
         data class Event(
-            override val event: CalendarEvent,
-            override var activity: State<Activity> = State.NotInitiated()
-        ) : ActivityEntry(event, activity)
+            override val event: CalendarEvent
+        ) : ActivityEntry(event)
         data class LearningTask(
             override val event: CalendarEvent
         ) : ScheduleEntry(event)
@@ -348,6 +347,7 @@ open class CompassApiClient(
         startDate: LocalDate,
         endDate: LocalDate = startDate,
         preloadActivities: Boolean = true,
+        preloadBannerUrls: Boolean = true,
         preloadLessonPlans: Boolean = false
     ) {
         if (schedule is State.Loading<*>) return
@@ -380,29 +380,41 @@ open class CompassApiClient(
 
         _schedule.value = State.Success(array)
 
-        if (!preloadActivities) return
-
         array.forEachIndexed { index, it ->
-            scope.launch {
-                if (
-                    it !is ScheduleEntry.Lesson &&
-                    it !is ScheduleEntry.Event
-                ) return@launch
+            if (it !is ScheduleEntry.ActivityEntry) return@forEachIndexed
 
+            if (preloadActivities) scope.launch {
+
+                // i really hope there's a better way to do this...
                 ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
                     .activity = State.Loading()
 
                 val activityReply = getLessonsByInstanceIdQuick(it.event.instanceId!!)
-                if (activityReply !is NetResponse.Success)
+                if (activityReply !is NetResponse.Success) {
+                    ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
+                        .activity = State.Error((activityReply as NetResponse.Error<*>).error)
                     return@launch
+                }
 
-                // i really hope there's a better way to do this...
                 ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
                     .activity = State.Success(activityReply.data)
 
-                if (!preloadLessonPlans || it is ScheduleEntry.Event) return@launch
+                if (preloadLessonPlans && it is ScheduleEntry.Lesson) loadLessonPlan(index)
+            }
 
-                loadLessonPlan(index)
+            if (preloadBannerUrls) scope.launch {
+                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
+                    .bannerUrl = State.Loading()
+
+                val bannerReply = getHeaderImageUrlByActivityId(it.event.activityId)
+                if (bannerReply !is NetResponse.Success) {
+                    ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
+                        .bannerUrl = State.Error((bannerReply as NetResponse.Error<*>).error)
+                    return@launch
+                }
+
+                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
+                    .bannerUrl = State.Success(bannerReply.data)
             }
         }
     }
@@ -430,9 +442,8 @@ open class CompassApiClient(
         if (newsfeed is State.Loading<*>) return
 
         val reply = getMyNewsFeedPaged()
-        if (reply is NetResponse.Success<*>)
-            @Suppress("UNCHECKED_CAST")
-            _newsfeed.value = State.Success((reply.data as DataExtGridDataContainer<NewsItem>).data)
+        if (reply is NetResponse.Success<DataExtGridDataContainer<NewsItem>>)
+            _newsfeed.value = State.Success(reply.data.data.sortedByDescending { it.postDateTime })
         else
             _newsfeed.value = State.Error((reply as NetResponse.Error<*>).error)
     }
