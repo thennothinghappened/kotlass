@@ -148,4 +148,10 @@ class CompassApiClientTest {
         val reply = client.getAllAcademicGroups()
         assertIs<NetResponse.Success<*>>(reply, "Error in getAllAcademicGroups: $reply")
     }
+
+    @Test
+    fun testGetHeaderImageUrlByActivityId(): Unit = runBlocking {
+        val reply = client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId)
+        assertIs<NetResponse.Success<*>>(reply, "Error in getHeaderImageUrlByActivityId: $reply")
+    }
 }

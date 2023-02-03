@@ -10,7 +10,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,7 +21,6 @@ import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
-import kotlin.reflect.KClass
 
 open class CompassApiClient(
     private val credentials: CompassClientCredentials,
@@ -284,6 +282,14 @@ open class CompassApiClient(
         makeApiGetRequest(Services.referenceDataCache, "GetAllAcademicGroups")
 
     /**
+     * Get the URL for the banner image for an activity.
+     */
+    suspend fun getHeaderImageUrlByActivityId(activityId: String): NetResponse<String> =
+        makeApiPostRequest(Services.activity, "GetHeaderImageUrlByActivityId", ActivitySummaryByActivityIdRequest(
+            activityId
+        ))
+
+        /**
      * Download the lesson plan for a class instance
      */
     suspend fun getLessonPlanString(activityLessonPlan: ActivityLessonPlan): NetResponse<String> {
