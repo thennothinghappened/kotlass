@@ -14,17 +14,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.*
 
 open class CompassApiClient(
     private val credentials: CompassClientCredentials,
-    private val scope: CoroutineScope,
+    protected val scope: CoroutineScope,
     private val refreshIntervals: RefreshIntervals = RefreshIntervals()
 ) {
     private val client = HttpClient() {
@@ -301,8 +298,8 @@ open class CompassApiClient(
     //                                     Flows!                                     //
     ////////////////////////////////////////////////////////////////////////////////////
 
-    private val _schedule: MutableStateFlow<State<Array<ScheduleEntry>>> = MutableStateFlow(State.NotInitiated())
-    val schedule: StateFlow<State<Array<ScheduleEntry>>> = _schedule
+    private val _schedule: MutableStateFlow<State<List<ScheduleEntry>>> = MutableStateFlow(State.NotInitiated())
+    val schedule: StateFlow<State<List<ScheduleEntry>>> = _schedule
     private var schedulePollingEnabled = false
 
     private val _newsfeed: MutableStateFlow<State<List<NewsItem>>> = MutableStateFlow(State.NotInitiated())
@@ -328,16 +325,25 @@ open class CompassApiClient(
         ) : ScheduleEntry(event) // if we dont know what it is
         abstract class ActivityEntry(
             override val event: CalendarEvent,
-            open var activity: State<Activity> = State.NotInitiated(),
-            open var bannerUrl: State<String> = State.NotInitiated()
-        ) : ScheduleEntry(event)
+            internal open val _bannerUrl: MutableStateFlow<State<String>>,
+            internal open val _activity: MutableStateFlow<State<Activity>>
+        ) : ScheduleEntry(event) {
+            val bannerUrl: StateFlow<State<String>> by lazy { _bannerUrl }
+            val activity: StateFlow<State<Activity>> by lazy { _activity }
+        }
         data class Lesson(
             override val event: CalendarEvent,
-            var lessonPlan: State<String?> = State.NotInitiated()
-        ) : ActivityEntry(event)
+            override val _bannerUrl: MutableStateFlow<State<String>>,
+            override val _activity: MutableStateFlow<State<Activity>>,
+            internal val _lessonPlan: MutableStateFlow<State<String?>>
+        ) : ActivityEntry(event, _bannerUrl, _activity) {
+            val lessonPlan: StateFlow<State<String?>> = _lessonPlan
+        }
         data class Event(
-            override val event: CalendarEvent
-        ) : ActivityEntry(event)
+            override val event: CalendarEvent,
+            override val _bannerUrl: MutableStateFlow<State<String>>,
+            override val _activity: MutableStateFlow<State<Activity>>
+        ) : ActivityEntry(event, _bannerUrl, _activity)
         data class LearningTask(
             override val event: CalendarEvent
         ) : ScheduleEntry(event)
@@ -362,79 +368,129 @@ open class CompassApiClient(
         reply.data.sortByDescending { it.start }
         reply.data.reverse()
 
-        val array = Array(
+        val list = List(
             reply.data.size
         ) {
             val event = reply.data[it]
 
-            return@Array when (event.activityType) {
-                1 -> ScheduleEntry.Lesson(event)
-                2 -> ScheduleEntry.Event(event)
+            return@List when (event.activityType) {
+                1 -> {
+                    val bannerUrl: MutableStateFlow<State<String>> = MutableStateFlow(State.NotInitiated())
+                    val activity: MutableStateFlow<State<Activity>> = MutableStateFlow(State.NotInitiated())
+                    val lessonPlan: MutableStateFlow<State<String?>> = MutableStateFlow(State.NotInitiated())
+
+                    val entry = ScheduleEntry.Lesson(event, bannerUrl, activity, lessonPlan)
+
+                    if (preloadBannerUrls)
+                        loadBannerUrl(entry)
+
+                    if (preloadActivities)
+                        loadActivity(entry)
+
+                    if (preloadLessonPlans)
+                        loadLessonPlan(entry)
+
+                    return@List entry
+                }
+                2 -> {
+                    val bannerUrl: MutableStateFlow<State<String>> = MutableStateFlow(State.NotInitiated())
+                    val activity: MutableStateFlow<State<Activity>> = MutableStateFlow(State.NotInitiated())
+
+                    val entry = ScheduleEntry.Event(event, bannerUrl, activity)
+
+                    if (preloadBannerUrls)
+                        loadBannerUrl(entry)
+
+                    if (preloadActivities)
+                        loadActivity(entry)
+
+                    return@List entry
+                }
                 10 -> ScheduleEntry.LearningTask(event)
                 else -> {
                     println("Unrecognised activityType ${event.activityType} in event $event")
-                    return@Array ScheduleEntry.BaseEntry(event)
+                    return@List ScheduleEntry.BaseEntry(event)
                 }
             }
         }
 
-        _schedule.value = State.Success(array)
+        _schedule.value = State.Success(list)
+    }
 
-        array.forEachIndexed { index, it ->
-            if (it !is ScheduleEntry.ActivityEntry) return@forEachIndexed
+    fun loadBannerUrl(scheduleEntry: ScheduleEntry.ActivityEntry) {
 
-            if (preloadActivities) scope.launch {
+        if (scheduleEntry.bannerUrl.value is State.Loading) return
 
-                // i really hope there's a better way to do this...
-                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
-                    .activity = State.Loading()
+        scope.launch {
 
-                val activityReply = getLessonsByInstanceIdQuick(it.event.instanceId!!)
-                if (activityReply !is NetResponse.Success) {
-                    ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
-                        .activity = State.Error((activityReply as NetResponse.Error<*>).error)
-                    return@launch
-                }
+            scheduleEntry._bannerUrl.value = State.Loading()
 
-                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
-                    .activity = State.Success(activityReply.data)
+            val bannerUrl = getHeaderImageUrlByActivityId(scheduleEntry.event.activityId)
 
-                if (preloadLessonPlans && it is ScheduleEntry.Lesson) loadLessonPlan(index)
+            if (bannerUrl is NetResponse.Error<*>) {
+                scheduleEntry._bannerUrl.value = State.Error(bannerUrl.error)
+                return@launch
             }
 
-            if (preloadBannerUrls) scope.launch {
-                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
-                    .bannerUrl = State.Loading()
-
-                val bannerReply = getHeaderImageUrlByActivityId(it.event.activityId)
-                if (bannerReply !is NetResponse.Success) {
-                    ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
-                        .bannerUrl = State.Error((bannerReply as NetResponse.Error<*>).error)
-                    return@launch
-                }
-
-                ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[index] as ScheduleEntry.ActivityEntry)
-                    .bannerUrl = State.Success(bannerReply.data)
-            }
+            scheduleEntry._bannerUrl.value = State.Success((bannerUrl as NetResponse.Success).data)
         }
     }
 
-    fun loadLessonPlan(scheduleIndex: Int) {
+    fun loadActivity(scheduleEntry: ScheduleEntry.ActivityEntry) {
+
+        if (scheduleEntry.activity.value is State.Loading) return
+
         scope.launch {
-            ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[scheduleIndex] as ScheduleEntry.Lesson)
-                .lessonPlan = State.Loading()
 
-            val activity = ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[scheduleIndex] as ScheduleEntry.Lesson)
-                .activity
-            if (activity !is State.Success) return@launch
+            // we know for an ActivityEntry instanceId will always exist.
+            val activity = getLessonsByInstanceIdQuick(scheduleEntry.event.instanceId!!)
 
-            val reply = getLessonPlanString(activity.data.lessonPlan)
+            if (activity is NetResponse.Error<*>) {
+                scheduleEntry._activity.value = State.Error(activity.error)
+                return@launch
+            }
 
-            ((_schedule.value as State.Success<Array<ScheduleEntry>>).data[scheduleIndex] as ScheduleEntry.Lesson)
-                .lessonPlan = if (reply is NetResponse.Success)
-                State.Success(reply.data)
-            else
-                State.Error((reply as NetResponse.Error<*>).error)
+            scheduleEntry._activity.value = State.Success((activity as NetResponse.Success).data)
+        }
+    }
+
+    fun loadLessonPlan(scheduleEntry: ScheduleEntry.Lesson) {
+
+        if (scheduleEntry.lessonPlan.value is State.Loading) return
+
+        scope.launch {
+
+            scheduleEntry._lessonPlan.value = State.Loading()
+
+            // We need the activity to get the lesson plan's file ID
+            if (scheduleEntry.activity.value is State.NotInitiated) {
+                loadActivity(scheduleEntry)
+            }
+
+            while (scheduleEntry.activity.value is State.Loading) {
+                delay(10L)
+            }
+
+            if (scheduleEntry.activity.value is State.Error) {
+                scheduleEntry._lessonPlan.value = State.Error((scheduleEntry.activity.value as State.Error<*>).error)
+                return@launch
+            }
+
+            val activity = (scheduleEntry.activity.value as State.Success)
+
+            if (activity.data.lessonPlan.fileAssetId == null) {
+                scheduleEntry._lessonPlan.value = State.Success(null)
+                return@launch
+            }
+
+            val lessonPlan = getLessonPlanString(activity.data.lessonPlan)
+
+            if (lessonPlan is NetResponse.Error<*>) {
+                scheduleEntry._lessonPlan.value = State.Error(lessonPlan.error)
+                return@launch
+            }
+
+            scheduleEntry._lessonPlan.value = State.Success((lessonPlan as NetResponse.Success).data)
         }
     }
 
@@ -448,8 +504,11 @@ open class CompassApiClient(
             _newsfeed.value = State.Error((reply as NetResponse.Error<*>).error)
     }
 
-    fun manualPollScheduleUpdate() {
-        scope.launch { pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date) }
+    fun manualPollScheduleUpdate(
+        startDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
+        endDate: LocalDate = startDate
+    ) {
+        scope.launch { pollScheduleUpdate(startDate, endDate) }
     }
 
     fun manualPollNewsfeedUpdate() {
@@ -460,7 +519,7 @@ open class CompassApiClient(
         schedulePollingEnabled = true
         scope.launch {
             while (schedulePollingEnabled) {
-                pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
+                pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.minus(1, DateTimeUnit.DAY))
                 delay(refreshIntervals.schedule)
             }
         }
