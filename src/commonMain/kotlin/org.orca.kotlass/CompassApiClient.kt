@@ -417,6 +417,7 @@ open class CompassApiClient(
         _schedule.value = State.Success(list)
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun loadBannerUrl(scheduleEntry: ScheduleEntry.ActivityEntry) {
 
         if (scheduleEntry.bannerUrl.value is State.Loading) return
@@ -436,6 +437,7 @@ open class CompassApiClient(
         }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun loadActivity(scheduleEntry: ScheduleEntry.ActivityEntry) {
 
         if (scheduleEntry.activity.value is State.Loading) return
@@ -454,6 +456,7 @@ open class CompassApiClient(
         }
     }
 
+    @Suppress("MemberVisibilityCanBePrivate")
     fun loadLessonPlan(scheduleEntry: ScheduleEntry.Lesson) {
 
         if (scheduleEntry.lessonPlan.value is State.Loading) return
@@ -519,7 +522,7 @@ open class CompassApiClient(
         schedulePollingEnabled = true
         scope.launch {
             while (schedulePollingEnabled) {
-                pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date.minus(1, DateTimeUnit.DAY))
+                pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
                 delay(refreshIntervals.schedule)
             }
         }
