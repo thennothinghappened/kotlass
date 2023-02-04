@@ -529,6 +529,8 @@ open class CompassApiClient(
         schedulePollingEnabled = false
     }
 
+    fun isPollingSchedule() = schedulePollingEnabled
+
     fun beginPollingNewsfeed() {
         newsfeedPollingEnabled = true
         scope.launch {
@@ -542,6 +544,8 @@ open class CompassApiClient(
     fun endPollingNewsfeed() {
         newsfeedPollingEnabled = false
     }
+
+    fun isPollingNewsfeed() = newsfeedPollingEnabled
 
 
 }
