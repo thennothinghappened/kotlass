@@ -14,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -133,6 +134,14 @@ open class CompassApiClient(
         }
 
         return NetResponse.Success(reply.data!!)
+    }
+
+    /**
+     * Make sure our credentials are valid
+     */
+    fun validateCredentials(): Boolean = runBlocking {
+        val reply = getAllCampuses()
+        return@runBlocking reply is NetResponse.Success
     }
 
     /**

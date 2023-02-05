@@ -22,6 +22,11 @@ class CompassApiClientTest {
 
     private val client = CompassApiClient(SampleClientCredentials, CoroutineScope(Dispatchers.Default))
 
+    @Test
+    fun testValidateCredentials(): Unit {
+        assertTrue(client.validateCredentials(), "Credentials are invalid!")
+    }
+
     // this one must happen sequentially and tests creation, modification and deletion of an item.
     @Test
     fun testTaskItem(): Unit = runBlocking {
