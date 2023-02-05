@@ -84,7 +84,7 @@ data class NewsItemCustomGroupTarget(
 @Serializable
 data class NewsItemGroupTarget(
     @SerialName("__type") private val dataType: String,
-    @SerialName("ActivityIds") val activityIds: Array<Unit>,
+    @SerialName("ActivityIds") val activityIds: Array<Int>,
     @SerialName("BaseRole") val baseRole: Int,
     @SerialName("CampusIds") val campusIds: Array<Int>,
     @SerialName("FormGroups") val formGroups: Array<Unit>,
