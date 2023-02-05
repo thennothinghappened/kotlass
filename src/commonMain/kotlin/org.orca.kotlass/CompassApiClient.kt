@@ -307,13 +307,28 @@ open class CompassApiClient(
     //                                     Flows!                                     //
     ////////////////////////////////////////////////////////////////////////////////////
 
-    private val _schedule: MutableStateFlow<State<List<ScheduleEntry>>> = MutableStateFlow(State.NotInitiated())
-    val schedule: StateFlow<State<List<ScheduleEntry>>> = _schedule
-    private var schedulePollingEnabled = false
+    data class RefreshIntervals(
+        val schedule: Long = 2 * 60 * 1000,
+        val newsfeed: Long = 10 * 60 * 1000,
+    )
+    abstract class Pollable<T>(
+        internal val _state: MutableStateFlow<State<T>> = MutableStateFlow(State.NotInitiated()),
+        val state: StateFlow<State<T>> = _state,
+        var pollingEnabled: Boolean = false,
+        val pollRate: Long
+    )
 
-    private val _newsfeed: MutableStateFlow<State<List<NewsItem>>> = MutableStateFlow(State.NotInitiated())
-    val newsfeed: StateFlow<State<List<NewsItem>>> = _newsfeed
-    private var newsfeedPollingEnabled = false
+    class Schedule(
+        pollRate: Long,
+        val preloadBannerUrls: Boolean = true,
+        val preloadActivities: Boolean = true,
+        val preloadLessonPlans: Boolean = false
+    ) : Pollable<List<ScheduleEntry>>(pollRate = pollRate)
+    class Newsfeed(pollRate: Long) : Pollable<List<NewsItem>>(pollRate = pollRate)
+
+    val defaultSchedule = Schedule(refreshIntervals.schedule)
+    val defaultNewsfeed = Newsfeed(refreshIntervals.newsfeed)
+
 
     sealed interface State<T> {
         class NotInitiated<T> : State<T>
@@ -321,11 +336,6 @@ open class CompassApiClient(
         data class Error<T>(val error: Throwable) : State<T>
         data class Success<T>(val data: T) : State<T>
     }
-
-    data class RefreshIntervals(
-        val schedule: Long = 2 * 60 * 1000,
-        val newsfeed: Long = 10 * 60 * 1000,
-    )
 
     sealed class ScheduleEntry(open val event: CalendarEvent) {
 
@@ -361,15 +371,16 @@ open class CompassApiClient(
     private suspend fun pollScheduleUpdate(
         startDate: LocalDate,
         endDate: LocalDate = startDate,
+        schedule: Schedule = defaultSchedule,
         preloadActivities: Boolean = true,
         preloadBannerUrls: Boolean = true,
         preloadLessonPlans: Boolean = false
     ) {
-        if (schedule is State.Loading<*>) return
+        if (schedule.state is State.Loading<*>) return
 
         val _reply = getCalendarEventsByUser(startDate, endDate)
         if (_reply !is NetResponse.Success<*>) {
-            _schedule.value = State.Error((_reply as NetResponse.Error<*>).error)
+            schedule._state.value = State.Error((_reply as NetResponse.Error<*>).error)
             return
         }
 
@@ -423,7 +434,7 @@ open class CompassApiClient(
             }
         }
 
-        _schedule.value = State.Success(list)
+        schedule._state.value = State.Success(list)
     }
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -506,60 +517,62 @@ open class CompassApiClient(
         }
     }
 
-    private suspend fun pollNewsfeedUpdate() {
-        if (newsfeed is State.Loading<*>) return
+    private suspend fun pollNewsfeedUpdate(newsfeed: Newsfeed = defaultNewsfeed) {
+        if (newsfeed.state is State.Loading<*>) return
 
         val reply = getMyNewsFeedPaged()
         if (reply is NetResponse.Success<DataExtGridDataContainer<NewsItem>>)
-            _newsfeed.value = State.Success(reply.data.data.sortedByDescending { it.postDateTime })
+            newsfeed._state.value = State.Success(reply.data.data.sortedByDescending { it.postDateTime })
         else
-            _newsfeed.value = State.Error((reply as NetResponse.Error<*>).error)
+            newsfeed._state.value = State.Error((reply as NetResponse.Error<*>).error)
     }
 
     fun manualPollScheduleUpdate(
         startDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
-        endDate: LocalDate = startDate
+        endDate: LocalDate = startDate,
+        schedule: Schedule = defaultSchedule
     ) {
-        scope.launch { pollScheduleUpdate(startDate, endDate) }
+        scope.launch { pollScheduleUpdate(startDate, endDate, schedule) }
     }
 
-    fun manualPollNewsfeedUpdate() {
-        scope.launch { pollNewsfeedUpdate() }
+    fun manualPollNewsfeedUpdate(newsfeed: Newsfeed = defaultNewsfeed) {
+        scope.launch { pollNewsfeedUpdate(newsfeed) }
     }
 
-    fun beginPollingSchedule() {
-        if (isPollingSchedule()) return
-        schedulePollingEnabled = true
+    fun beginPollingSchedule(
+        schedule: Schedule = defaultSchedule
+    ) { if (isPollingSchedule(schedule)) return
+        schedule.pollingEnabled = true
         scope.launch {
-            while (schedulePollingEnabled) {
+            while (isPollingSchedule(schedule)) {
                 pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
                 delay(refreshIntervals.schedule)
             }
         }
     }
 
-    fun endPollingSchedule() {
-        schedulePollingEnabled = false
+    fun endPollingSchedule(schedule: Schedule = defaultSchedule) {
+        schedule.pollingEnabled = false
     }
 
-    fun isPollingSchedule() = schedulePollingEnabled
+    fun isPollingSchedule(schedule: Schedule) = schedule.pollingEnabled
 
-    fun beginPollingNewsfeed() {
-        if (isPollingNewsfeed()) return
-        newsfeedPollingEnabled = true
+    fun beginPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
+        if (isPollingNewsfeed(newsfeed)) return
+        newsfeed.pollingEnabled = true
         scope.launch {
-            while (newsfeedPollingEnabled) {
+            while (isPollingNewsfeed(newsfeed)) {
                 pollNewsfeedUpdate()
                 delay(refreshIntervals.newsfeed)
             }
         }
     }
 
-    fun endPollingNewsfeed() {
-        newsfeedPollingEnabled = false
+    fun endPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
+        newsfeed.pollingEnabled = false
     }
 
-    fun isPollingNewsfeed() = newsfeedPollingEnabled
+    fun isPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) =  newsfeed.pollingEnabled
 
 
 }
