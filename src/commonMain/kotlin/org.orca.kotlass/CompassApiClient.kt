@@ -528,6 +528,7 @@ open class CompassApiClient(
     }
 
     fun beginPollingSchedule() {
+        if (isPollingSchedule()) return
         schedulePollingEnabled = true
         scope.launch {
             while (schedulePollingEnabled) {
@@ -544,6 +545,7 @@ open class CompassApiClient(
     fun isPollingSchedule() = schedulePollingEnabled
 
     fun beginPollingNewsfeed() {
+        if (isPollingNewsfeed()) return
         newsfeedPollingEnabled = true
         scope.launch {
             while (newsfeedPollingEnabled) {
