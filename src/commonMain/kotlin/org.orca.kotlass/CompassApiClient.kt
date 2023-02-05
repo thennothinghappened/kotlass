@@ -140,7 +140,7 @@ open class CompassApiClient(
      * Make sure our credentials are valid
      */
     fun validateCredentials(): Boolean = runBlocking {
-        val reply = getAllCampuses()
+        val reply = getCalendarEventsByUser()
         return@runBlocking reply is NetResponse.Success
     }
 
