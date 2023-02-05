@@ -23,7 +23,7 @@ import org.orca.kotlass.data.*
 open class CompassApiClient(
     private val credentials: CompassClientCredentials,
     protected val scope: CoroutineScope,
-    private val refreshIntervals: RefreshIntervals = RefreshIntervals()
+    protected val refreshIntervals: RefreshIntervals = RefreshIntervals()
 ) {
     private val client = HttpClient() {
         install(ContentNegotiation) {
