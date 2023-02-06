@@ -96,8 +96,8 @@ data class Activity(
     @SerialName("ManagerTextReadable") val managerTextReadable: String,
     @SerialName("PastInstance") val pastInstance: Boolean,
     @SerialName("RunningStatus") val runningStatus: Boolean,
-    @SerialName("SubjectName") val subjectName: String,
-    @SerialName("SubjectShortname") val subjectShortName: String,
+    @SerialName("SubjectName") val subjectName: String? = null,
+    @SerialName("SubjectShortname") val subjectShortName: String? = null,
     @SerialName("UpcomingInstance") val upcomingInstance: Boolean, //todo: duplicate of FutureInstance?
     @Serializable(InstantNullableSerializer::class)
     @SerialName("st") val start: Instant?,
@@ -113,7 +113,7 @@ data class Activity(
     @SerialName("ActivityImportIdentifier") private val activityImportIdentifier: String,
     @SerialName("AttendanceMode") private val attendanceMode: Int,
     @SerialName("AttendeeLimit") private val attendeeLimit: Int? = null,
-    @SerialName("ExtendedStatusId") private val extendedStatusId: Int,
+    @SerialName("ExtendedStatusId") private val extendedStatusId: Int? = null,
     @SerialName("LocationDetails") private val locationDetails: Location,
     @SerialName("LocationId") private val locationId: Int,
     @SerialName("locations") private val locations: Array<LocationDetailsContainer>, // very redundant... big waste of memory

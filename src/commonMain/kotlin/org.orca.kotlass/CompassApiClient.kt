@@ -2,6 +2,7 @@ package org.orca.kotlass
 
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.cache.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -23,7 +24,8 @@ import org.orca.kotlass.data.*
 open class CompassApiClient(
     private val credentials: CompassClientCredentials,
     protected val scope: CoroutineScope,
-    protected val refreshIntervals: RefreshIntervals = RefreshIntervals()
+    protected val refreshIntervals: RefreshIntervals = RefreshIntervals(),
+    protected val proxyIp: String? = null
 ) {
     private val client = HttpClient() {
         install(ContentNegotiation) {
@@ -36,6 +38,11 @@ open class CompassApiClient(
         }
         install(HttpCache) {
             // todo: set this up (different implementations for desktop and android)
+        }
+        proxyIp?.let {
+            engine {
+                proxy = ProxyBuilder.http(proxyIp)
+            }
         }
     }
 
@@ -50,7 +57,9 @@ open class CompassApiClient(
         const val subjects = "Subjects"
     }
 
-    private fun buildApiRequestUrl(endpoint: String, location: String) = "https://${credentials.domain}/Services/${endpoint}.svc/${location}"
+    fun buildDomainUrlString(endpoint: String): String = "https://${credentials.domain}$endpoint"
+
+    private fun buildApiRequestUrl(endpoint: String, location: String) = buildDomainUrlString("/Services/${endpoint}.svc/${location}")
     private suspend inline fun <reified T> makeApiGetRequestPlain(endpoint: String, location: String): NetResponse<T> {
         val reply: HttpResponse
 
@@ -541,10 +550,10 @@ open class CompassApiClient(
 
     fun beginPollingSchedule(
         schedule: Schedule = defaultSchedule
-    ) { if (isPollingSchedule(schedule)) return
+    ) { if (schedule.pollingEnabled) return
         schedule.pollingEnabled = true
         scope.launch {
-            while (isPollingSchedule(schedule)) {
+            while (schedule.pollingEnabled) {
                 pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
                 delay(refreshIntervals.schedule)
             }
@@ -555,13 +564,11 @@ open class CompassApiClient(
         schedule.pollingEnabled = false
     }
 
-    fun isPollingSchedule(schedule: Schedule) = schedule.pollingEnabled
-
     fun beginPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
-        if (isPollingNewsfeed(newsfeed)) return
+        if (newsfeed.pollingEnabled) return
         newsfeed.pollingEnabled = true
         scope.launch {
-            while (isPollingNewsfeed(newsfeed)) {
+            while (newsfeed.pollingEnabled) {
                 pollNewsfeedUpdate()
                 delay(refreshIntervals.newsfeed)
             }
@@ -571,8 +578,6 @@ open class CompassApiClient(
     fun endPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
         newsfeed.pollingEnabled = false
     }
-
-    fun isPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) =  newsfeed.pollingEnabled
 
 
 }
