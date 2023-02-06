@@ -244,7 +244,7 @@ open class CompassApiClient(
     /**
      * Get list of learning tasks for the user for a year by their ID
      */
-    suspend fun getAllLearningTasksByUserId(academicGroup: AcademicGroup?): NetResponse<DataExtGridDataContainer<LearningTask>> =
+    suspend fun getAllLearningTasksByUserId(academicGroup: AcademicGroup? = null): NetResponse<DataExtGridDataContainer<LearningTask>> =
         makeApiPostRequest(Services.learningTasks, "GetAllLearningTasksByUserId", LearningTasksByUserIdRequest(userId = credentials.userId, academicGroupId = academicGroup?.id))
 
     /**
@@ -319,6 +319,7 @@ open class CompassApiClient(
     data class RefreshIntervals(
         val schedule: Long = 2 * 60 * 1000,
         val newsfeed: Long = 10 * 60 * 1000,
+        val learningTasks: Long = 20 * 60 * 1000
     )
     abstract class Pollable<T>(
         internal val _state: MutableStateFlow<State<T>> = MutableStateFlow(State.NotInitiated()),
@@ -334,9 +335,18 @@ open class CompassApiClient(
         val preloadLessonPlans: Boolean = false
     ) : Pollable<List<ScheduleEntry>>(pollRate = pollRate)
     class Newsfeed(pollRate: Long) : Pollable<List<NewsItem>>(pollRate = pollRate)
+    class LearningTasks(
+        pollRate: Long,
+        val academicGroup: AcademicGroup? = null
+    ) : Pollable<List<LearningTask>>(pollRate = pollRate)
 
+
+    @Suppress("MemberVisibilityCanBePrivate")
     val defaultSchedule = Schedule(refreshIntervals.schedule)
+    @Suppress("MemberVisibilityCanBePrivate")
     val defaultNewsfeed = Newsfeed(refreshIntervals.newsfeed)
+    @Suppress("MemberVisibilityCanBePrivate")
+    val defaultLearningTasks = LearningTasks(refreshIntervals.learningTasks)
 
 
     sealed interface State<T> {
@@ -385,7 +395,8 @@ open class CompassApiClient(
         preloadBannerUrls: Boolean = true,
         preloadLessonPlans: Boolean = false
     ) {
-        if (schedule.state is State.Loading<*>) return
+        if (schedule.state.value is State.Loading<*>) return
+        schedule._state.value = State.Loading()
 
         val _reply = getCalendarEventsByUser(startDate, endDate)
         if (_reply !is NetResponse.Success<*>) {
@@ -450,10 +461,9 @@ open class CompassApiClient(
     fun loadBannerUrl(scheduleEntry: ScheduleEntry.ActivityEntry) {
 
         if (scheduleEntry.bannerUrl.value is State.Loading) return
+        scheduleEntry._bannerUrl.value = State.Loading()
 
         scope.launch {
-
-            scheduleEntry._bannerUrl.value = State.Loading()
 
             val bannerUrl = getHeaderImageUrlByActivityId(scheduleEntry.event.activityId)
 
@@ -470,6 +480,7 @@ open class CompassApiClient(
     fun loadActivity(scheduleEntry: ScheduleEntry.ActivityEntry) {
 
         if (scheduleEntry.activity.value is State.Loading) return
+        scheduleEntry._activity.value = State.Loading()
 
         scope.launch {
 
@@ -528,12 +539,43 @@ open class CompassApiClient(
 
     private suspend fun pollNewsfeedUpdate(newsfeed: Newsfeed = defaultNewsfeed) {
         if (newsfeed.state is State.Loading<*>) return
+        newsfeed._state.value = State.Loading()
 
         val reply = getMyNewsFeedPaged()
         if (reply is NetResponse.Success<DataExtGridDataContainer<NewsItem>>)
             newsfeed._state.value = State.Success(reply.data.data.sortedByDescending { it.postDateTime })
         else
             newsfeed._state.value = State.Error((reply as NetResponse.Error<*>).error)
+    }
+
+    private suspend fun pollLearningTasksUpdate(learningTasks: LearningTasks = defaultLearningTasks) {
+        if (learningTasks.state is State.Loading<*>) return
+        learningTasks._state.value = State.Loading()
+
+        val reply = getAllLearningTasksByUserId(learningTasks.academicGroup)
+        if (reply is NetResponse.Success<DataExtGridDataContainer<LearningTask>>)
+            learningTasks._state.value = State.Success(reply.data.data)
+        else
+            learningTasks._state.value = State.Error((reply as NetResponse.Error<*>).error)
+    }
+
+    fun manualPollNewsfeedUpdate(newsfeed: Newsfeed = defaultNewsfeed) {
+        scope.launch { pollNewsfeedUpdate(newsfeed) }
+    }
+
+    fun beginPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
+        if (newsfeed.pollingEnabled) return
+        newsfeed.pollingEnabled = true
+        scope.launch {
+            while (newsfeed.pollingEnabled) {
+                pollNewsfeedUpdate()
+                delay(newsfeed.pollRate)
+            }
+        }
+    }
+
+    fun endPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
+        newsfeed.pollingEnabled = false
     }
 
     fun manualPollScheduleUpdate(
@@ -544,18 +586,12 @@ open class CompassApiClient(
         scope.launch { pollScheduleUpdate(startDate, endDate, schedule) }
     }
 
-    fun manualPollNewsfeedUpdate(newsfeed: Newsfeed = defaultNewsfeed) {
-        scope.launch { pollNewsfeedUpdate(newsfeed) }
-    }
-
-    fun beginPollingSchedule(
-        schedule: Schedule = defaultSchedule
-    ) { if (schedule.pollingEnabled) return
+    fun beginPollingSchedule(schedule: Schedule = defaultSchedule) { if (schedule.pollingEnabled) return
         schedule.pollingEnabled = true
         scope.launch {
             while (schedule.pollingEnabled) {
                 pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
-                delay(refreshIntervals.schedule)
+                delay(schedule.pollRate)
             }
         }
     }
@@ -564,19 +600,24 @@ open class CompassApiClient(
         schedule.pollingEnabled = false
     }
 
-    fun beginPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
-        if (newsfeed.pollingEnabled) return
-        newsfeed.pollingEnabled = true
+    fun manualPollLearningTasks(learningTasks: LearningTasks = defaultLearningTasks) {
+        scope.launch { pollLearningTasksUpdate(learningTasks) }
+    }
+
+    fun beginPollingLearningTasks(learningTasks: LearningTasks = defaultLearningTasks) {
+        if (learningTasks.pollingEnabled) return
+        learningTasks.pollingEnabled = true
+
         scope.launch {
-            while (newsfeed.pollingEnabled) {
-                pollNewsfeedUpdate()
-                delay(refreshIntervals.newsfeed)
+            while (learningTasks.pollingEnabled) {
+                pollLearningTasksUpdate()
+                delay(learningTasks.pollRate)
             }
         }
     }
 
-    fun endPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
-        newsfeed.pollingEnabled = false
+    fun endPollingLearningTasks(learningTasks: LearningTasks = defaultLearningTasks) {
+        learningTasks.pollingEnabled = false
     }
 
 
