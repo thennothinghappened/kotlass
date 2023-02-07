@@ -217,6 +217,7 @@ data class LearningTaskStudent(
     val rubricResults: Array<LearningTaskStudentRubricResult>? = null,
     val selfAssessmentEnabled: Boolean,
     val submissions: Array<LearningTaskStudentSubmission>? = null,
+    @SerialName("submissionStatus") private val _submissionStatus: Int,
     val teacherResponses: Array<LearningTaskStudentTeacherResponse>? = null,
     @Serializable(InstantNullableSerializer::class)
     private val dueDateTimestamp: Instant?,
@@ -225,13 +226,27 @@ data class LearningTaskStudent(
     private val primaryResult: Unit? = null,
     @Serializable(InstantNullableSerializer::class)
     private val smsOutstandingSentTimestamp: Instant?,
-    private val submissionStatus: Int,
     @Serializable(InstantNullableSerializer::class)
     val submittedTimestamp: Instant?,
     private val taskId: Int,
     private val userId: Int,
     private val userName: String
-)
+) {
+    @Transient val submissionStatus = when(_submissionStatus) {
+        1 -> SubmissionStatus.PENDING
+        2 -> SubmissionStatus.OVERDUE
+        3 -> SubmissionStatus.SUBMITTED_ON_TIME
+        4 -> SubmissionStatus.SUBMITTED_LATE
+        else -> { throw Throwable("Unknown submission status $_submissionStatus") }
+    }
+}
+
+enum class SubmissionStatus {
+    PENDING,
+    OVERDUE,
+    SUBMITTED_ON_TIME,
+    SUBMITTED_LATE
+}
 
 /**
  * Comment on learning task
