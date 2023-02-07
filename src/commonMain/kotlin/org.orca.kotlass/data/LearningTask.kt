@@ -233,15 +233,15 @@ data class LearningTaskStudent(
     private val userName: String
 ) {
     @Transient val submissionStatus = when(_submissionStatus) {
-        1 -> SubmissionStatus.PENDING
-        2 -> SubmissionStatus.OVERDUE
-        3 -> SubmissionStatus.SUBMITTED_ON_TIME
-        4 -> SubmissionStatus.SUBMITTED_LATE
+        1 -> LearningTaskSubmissionStatus.PENDING
+        2 -> LearningTaskSubmissionStatus.OVERDUE
+        3 -> LearningTaskSubmissionStatus.SUBMITTED_ON_TIME
+        4 -> LearningTaskSubmissionStatus.SUBMITTED_LATE
         else -> { throw Throwable("Unknown submission status $_submissionStatus") }
     }
 }
 
-enum class SubmissionStatus {
+enum class LearningTaskSubmissionStatus {
     PENDING,
     OVERDUE,
     SUBMITTED_ON_TIME,
