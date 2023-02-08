@@ -2,6 +2,7 @@ package org.orca.kotlass.data
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.orca.kotlass.utils.ColourSerializer
 
 // todo: how are these used?
 
@@ -21,7 +22,8 @@ data class CalendarLayersRequest(
 @Serializable
 data class CalendarLayer(
     private @SerialName("__type") val dataType: String,
-    val color: String,
+    @Serializable(ColourSerializer::class)
+    val color: Long,
     val defaultHidden: Boolean,
     val id: Int,
     val isCustom: Boolean,
