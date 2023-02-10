@@ -182,7 +182,7 @@ open class CompassApiClient(
     /**
      * Get list of user-defined "tasks"
      */
-    suspend fun getTaskItems(baseApiRequest: BaseApiRequest = BaseApiRequest()): NetResponse<Array<TaskItem>> =
+    suspend fun getTaskItems(baseApiRequest: BaseApiRequest = BaseApiRequest()): NetResponse<List<TaskItem>> =
         makeApiPostRequest(
             Services.taskService,
             "GetTaskItems",
@@ -232,7 +232,7 @@ open class CompassApiClient(
     /**
      * Get list of learning task categories
      */
-    suspend fun getAllTaskCategories(baseApiRequest: BaseApiRequest = BaseApiRequest()): NetResponse<Array<TaskCategory>> =
+    suspend fun getAllTaskCategories(baseApiRequest: BaseApiRequest = BaseApiRequest()): NetResponse<List<TaskCategory>> =
         makeApiPostRequest(Services.learningTasks, "GetAllTaskCategories", baseApiRequest)
 
     /**
@@ -256,7 +256,7 @@ open class CompassApiClient(
     /**
      * Get calendar layers
      */
-    suspend fun getCalendarsByUser(): NetResponse<Array<CalendarLayer>> =
+    suspend fun getCalendarsByUser(): NetResponse<List<CalendarLayer>> =
         makeApiPostRequest(Services.calendar, "GetCalendarsByUser", CalendarLayersRequest())
 
     /**
@@ -275,25 +275,25 @@ open class CompassApiClient(
     /**
      * Get list of compass alerts (Messages that appear above newsfeed asking for your attention)
      */
-    suspend fun getMyAlerts(): NetResponse<Array<Alert>> =
+    suspend fun getMyAlerts(): NetResponse<List<Alert>> =
         makeApiPostRequest(Services.newsFeed, "GetMyAlerts", "")
 
     /**
      * Get list of rooms and their attributes
      */
-    suspend fun getAllLocations(): NetResponse<Array<Location>> =
+    suspend fun getAllLocations(): NetResponse<List<Location>> =
         makeApiGetRequest(Services.referenceDataCache, "GetAllLocations")
 
     /**
      * Get list of school campuses
      */
-    suspend fun getAllCampuses(): NetResponse<Array<Campus>> =
+    suspend fun getAllCampuses(): NetResponse<List<Campus>> =
         makeApiGetRequest(Services.referenceDataCache, "GetAllCampuses")
 
     /**
      * Get list of Academic Groups
      */
-    suspend fun getAllAcademicGroups(): NetResponse<Array<AcademicGroup>> =
+    suspend fun getAllAcademicGroups(): NetResponse<List<AcademicGroup>> =
         makeApiGetRequest(Services.referenceDataCache, "GetAllAcademicGroups")
 
     /**
@@ -319,7 +319,8 @@ open class CompassApiClient(
     data class RefreshIntervals(
         val schedule: Long = 2 * 60 * 1000,
         val newsfeed: Long = 10 * 60 * 1000,
-        val learningTasks: Long = 20 * 60 * 1000
+        val learningTasks: Long = 20 * 60 * 1000,
+        val taskCategories: Long = 5 * 60 * 60 * 1000
     )
     abstract class Pollable<T>(
         internal val _state: MutableStateFlow<State<T>> = MutableStateFlow(State.NotInitiated()),
@@ -332,13 +333,27 @@ open class CompassApiClient(
         pollRate: Long,
         val preloadBannerUrls: Boolean = true,
         val preloadActivities: Boolean = true,
-        val preloadLessonPlans: Boolean = false
-    ) : Pollable<List<ScheduleEntry>>(pollRate = pollRate)
+        val preloadLessonPlans: Boolean = false,
+        startDate: LocalDate? = null,
+        endDate: LocalDate? = startDate
+    ) : Pollable<List<ScheduleEntry>>(pollRate = pollRate) {
+        private val _startDate: MutableStateFlow<LocalDate?> = MutableStateFlow(startDate)
+        private val _endDate: MutableStateFlow<LocalDate?> = MutableStateFlow(endDate)
+        val startDate: StateFlow<LocalDate?> = _startDate
+        val endDate: StateFlow<LocalDate?> = _endDate
+        fun setDate(startDate: LocalDate, endDate: LocalDate = startDate) {
+            _startDate.value = startDate
+            _endDate.value = endDate
+        }
+    }
     class Newsfeed(pollRate: Long) : Pollable<List<NewsItem>>(pollRate = pollRate)
     class LearningTasks(
         pollRate: Long,
         val academicGroup: AcademicGroup? = null
     ) : Pollable<List<LearningTask>>(pollRate = pollRate)
+    class TaskCategories(
+        pollRate: Long
+    ) : Pollable<List<TaskCategory>>(pollRate = pollRate)
 
 
     @Suppress("MemberVisibilityCanBePrivate")
@@ -347,6 +362,8 @@ open class CompassApiClient(
     val defaultNewsfeed = Newsfeed(refreshIntervals.newsfeed)
     @Suppress("MemberVisibilityCanBePrivate")
     val defaultLearningTasks = LearningTasks(refreshIntervals.learningTasks)
+    @Suppress("MemberVisibilityCanBePrivate")
+    val defaultTaskCategories = TaskCategories(refreshIntervals.taskCategories)
 
 
     sealed interface State<T> {
@@ -388,17 +405,13 @@ open class CompassApiClient(
     }
 
     private suspend fun pollScheduleUpdate(
-        startDate: LocalDate,
-        endDate: LocalDate = startDate,
-        schedule: Schedule = defaultSchedule,
-        preloadActivities: Boolean = true,
-        preloadBannerUrls: Boolean = true,
-        preloadLessonPlans: Boolean = false
+        schedule: Schedule = defaultSchedule
     ) {
-        if (schedule.state.value is State.Loading<*>) return
+        if (schedule.state.value is State.Loading) return
         schedule._state.value = State.Loading()
 
-        val _reply = getCalendarEventsByUser(startDate, endDate)
+        val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val _reply = getCalendarEventsByUser(schedule.startDate.value ?: now, schedule.endDate.value ?: now)
         if (_reply !is NetResponse.Success<*>) {
             schedule._state.value = State.Error((_reply as NetResponse.Error<*>).error)
             return
@@ -421,13 +434,13 @@ open class CompassApiClient(
 
                     val entry = ScheduleEntry.Lesson(event, bannerUrl, activity, lessonPlan)
 
-                    if (preloadBannerUrls)
+                    if (schedule.preloadBannerUrls)
                         loadBannerUrl(entry)
 
-                    if (preloadActivities)
+                    if (schedule.preloadActivities)
                         loadActivity(entry)
 
-                    if (preloadLessonPlans)
+                    if (schedule.preloadLessonPlans)
                         loadLessonPlan(entry)
 
                     return@List entry
@@ -438,10 +451,10 @@ open class CompassApiClient(
 
                     val entry = ScheduleEntry.Event(event, bannerUrl, activity)
 
-                    if (preloadBannerUrls)
+                    if (schedule.preloadBannerUrls)
                         loadBannerUrl(entry)
 
-                    if (preloadActivities)
+                    if (schedule.preloadActivities)
                         loadActivity(entry)
 
                     return@List entry
@@ -538,7 +551,7 @@ open class CompassApiClient(
     }
 
     private suspend fun pollNewsfeedUpdate(newsfeed: Newsfeed = defaultNewsfeed) {
-        if (newsfeed.state is State.Loading<*>) return
+        if (newsfeed.state.value is State.Loading) return
         newsfeed._state.value = State.Loading()
 
         val reply = getMyNewsFeedPaged()
@@ -549,7 +562,7 @@ open class CompassApiClient(
     }
 
     private suspend fun pollLearningTasksUpdate(learningTasks: LearningTasks = defaultLearningTasks) {
-        if (learningTasks.state is State.Loading<*>) return
+        if (learningTasks.state.value is State.Loading) return
         learningTasks._state.value = State.Loading()
 
         val reply = getAllLearningTasksByUserId(learningTasks.academicGroup)
@@ -559,68 +572,43 @@ open class CompassApiClient(
             learningTasks._state.value = State.Error((reply as NetResponse.Error<*>).error)
     }
 
-    fun manualPollNewsfeedUpdate(newsfeed: Newsfeed = defaultNewsfeed) {
-        scope.launch { pollNewsfeedUpdate(newsfeed) }
+    private suspend fun pollTaskCategoriesUpdate(taskCategories: TaskCategories = defaultTaskCategories) {
+        if (taskCategories.state.value is State.Loading) return
+        taskCategories._state.value = State.Loading()
+
+        val reply = getAllTaskCategories()
+        if (reply is NetResponse.Success<List<TaskCategory>>)
+            taskCategories._state.value = State.Success(reply.data)
+        else
+            taskCategories._state.value = State.Error((reply as NetResponse.Error<*>).error)
     }
 
-    fun beginPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
-        if (newsfeed.pollingEnabled) return
-        newsfeed.pollingEnabled = true
+    private suspend fun pollItem(item: Pollable<*>) =
+        when (item) {
+            is Schedule -> pollScheduleUpdate(item)
+            is LearningTasks -> pollLearningTasksUpdate(item)
+            is Newsfeed -> pollNewsfeedUpdate(item)
+            is TaskCategories -> pollTaskCategoriesUpdate(item)
+            else -> throw Throwable("Unhandled Pollable item type $item")
+        }
+
+    fun manualPoll(item: Pollable<*>) =
+        scope.launch { pollItem(item) }
+
+    fun beginPolling(item: Pollable<*>) {
+        if (item.pollingEnabled) return
+        item.pollingEnabled = true
         scope.launch {
-            while (newsfeed.pollingEnabled) {
-                pollNewsfeedUpdate()
-                delay(newsfeed.pollRate)
+            while (item.pollingEnabled) {
+                pollItem(item)
+                delay(item.pollRate)
             }
         }
     }
 
-    fun endPollingNewsfeed(newsfeed: Newsfeed = defaultNewsfeed) {
-        newsfeed.pollingEnabled = false
+    fun finishPolling(item: Pollable<*>) {
+        item.pollingEnabled = false
     }
-
-    fun manualPollScheduleUpdate(
-        startDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
-        endDate: LocalDate = startDate,
-        schedule: Schedule = defaultSchedule
-    ) {
-        scope.launch { pollScheduleUpdate(startDate, endDate, schedule) }
-    }
-
-    fun beginPollingSchedule(schedule: Schedule = defaultSchedule) { if (schedule.pollingEnabled) return
-        schedule.pollingEnabled = true
-        scope.launch {
-            while (schedule.pollingEnabled) {
-                pollScheduleUpdate(Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
-                delay(schedule.pollRate)
-            }
-        }
-    }
-
-    fun endPollingSchedule(schedule: Schedule = defaultSchedule) {
-        schedule.pollingEnabled = false
-    }
-
-    fun manualPollLearningTasks(learningTasks: LearningTasks = defaultLearningTasks) {
-        scope.launch { pollLearningTasksUpdate(learningTasks) }
-    }
-
-    fun beginPollingLearningTasks(learningTasks: LearningTasks = defaultLearningTasks) {
-        if (learningTasks.pollingEnabled) return
-        learningTasks.pollingEnabled = true
-
-        scope.launch {
-            while (learningTasks.pollingEnabled) {
-                pollLearningTasksUpdate()
-                delay(learningTasks.pollRate)
-            }
-        }
-    }
-
-    fun endPollingLearningTasks(learningTasks: LearningTasks = defaultLearningTasks) {
-        learningTasks.pollingEnabled = false
-    }
-
-
 }
 
 interface CompassClientCredentials {
