@@ -21,7 +21,7 @@ data class CalendarLayersRequest(
  */
 @Serializable
 data class CalendarLayer(
-    private @SerialName("__type") val dataType: String,
+    @SerialName("__type") private val dataType: String,
     @Serializable(ColourSerializer::class)
     val color: Long,
     val defaultHidden: Boolean,

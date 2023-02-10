@@ -16,7 +16,7 @@ data class StandardClassesOfUserRequest(
     override val start: Int = 0,
     override val limit: Int = 50,
     override val page: Int = 1,
-    @Transient val sort: Array<StandardClassListSortType> = arrayOf(
+    @Transient val sort: List<StandardClassListSortType> = listOf(
         StandardClassListSortType(), StandardClassListSortType(property = StandardClassListSortType.Types.name)
     ),
     val academicGroupId: Int = -1,

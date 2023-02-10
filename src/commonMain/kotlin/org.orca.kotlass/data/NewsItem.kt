@@ -24,7 +24,7 @@ data class NewsItem(
     @SerialName("Title") val title: String,
     @SerialName("Content1") val content1: String?,
     @SerialName("Content2") val content2: String?,
-    @SerialName("Attachments") val attachments: Array<NewsItemAttachment>,
+    @SerialName("Attachments") val attachments: List<NewsItemAttachment>,
     @SerialName("CommunicationType") val communicationType: Int, //todo: what are communication types
     @SerialName("Priority") val priority: Boolean,
     @SerialName("NotificationStatus") val notificationStatus: Int? = null, //todo: what are the statuses
@@ -38,7 +38,7 @@ data class NewsItem(
     @SerialName("Start") val startDate: Instant?, // todo: point post will be shown from?
     @Serializable(InstantNullableSerializer::class)
     @SerialName("Finish") val finishDate: Instant?, // useful to know when post expires
-    @SerialName("NewsItemGroupTargets") val newsItemGroupTargets: Array<NewsItemGroupTarget>, // the group of people this will be sent to
+    @SerialName("NewsItemGroupTargets") val newsItemGroupTargets: List<NewsItemGroupTarget>, // the group of people this will be sent to
     @SerialName("ShowImagesFullScreen") val showImagesFullscreen: Boolean,
     @SerialName("UserId") private val userId: Int, // duplicate of above
     @SerialName("EmailSentDate") private val emailSentDate: String,
@@ -49,7 +49,7 @@ data class NewsItem(
     @SerialName("PublishToLinkedSchools") private val publishToLinkedSchools: Boolean,
     @SerialName("PublishToTalkingPoints") private val publishToTalkingPoints: Boolean,
     @SerialName("StartFinishString") private val startFinishString: String,
-    @SerialName("TalkingPointsTags") private val talkingPointsTags: Array<String>,
+    @SerialName("TalkingPointsTags") private val talkingPointsTags: List<String>,
 )
 
 /**
@@ -74,8 +74,8 @@ data class NewsItemAttachment(
 @Serializable
 data class NewsItemCustomGroupTarget(
     @SerialName("__type") private val dataType: String,
-    @SerialName("CampusIds") val campusIds: Array<Int>,
-    @SerialName("CustomGroupIds") val customGroupIds: Array<Int>
+    @SerialName("CampusIds") val campusIds: List<Int>,
+    @SerialName("CustomGroupIds") val customGroupIds: List<Int>
 )
 
 /**
@@ -84,12 +84,12 @@ data class NewsItemCustomGroupTarget(
 @Serializable
 data class NewsItemGroupTarget(
     @SerialName("__type") private val dataType: String,
-    @SerialName("ActivityIds") val activityIds: Array<Int>,
+    @SerialName("ActivityIds") val activityIds: List<Int>,
     @SerialName("BaseRole") val baseRole: Int,
-    @SerialName("CampusIds") val campusIds: Array<Int>,
-    @SerialName("FormGroups") val formGroups: Array<Unit>,
+    @SerialName("CampusIds") val campusIds: List<Int>,
+    @SerialName("FormGroups") val formGroups: List<Unit>,
     @SerialName("Future") val future: Boolean,
-    @SerialName("Houses") val houses: Array<String>, // todo: what format (is this a string?)
-    @SerialName("UserIds") val userIds: Array<Int>,
-    @SerialName("YearLevels") val yearLevsl: Array<Int>
+    @SerialName("Houses") val houses: List<String>, // todo: what format (is this a string?)
+    @SerialName("UserIds") val userIds: List<Int>,
+    @SerialName("YearLevels") val yearLevsl: List<Int>
 )

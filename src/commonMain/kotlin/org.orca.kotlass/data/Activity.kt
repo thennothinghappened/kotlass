@@ -79,7 +79,7 @@ data class Activity(
     @SerialName("ActivityManagerId") val activityManagerId: Int,
     @SerialName("ActivitySingular") val activitySingular: String,
     @SerialName("AttendeeCount") val attendeeCount: Int,
-    @SerialName("AttendeeUserIdList") val attendeeUserIdList: Array<Int>,
+    @SerialName("AttendeeUserIdList") val attendeeUserIdList: List<Int>,
     @SerialName("CampusId") val campusId: Int,
     @SerialName("CurrentInstance") val currentInstance: Boolean,
     @SerialName("FutureInstance") val futureInstance: Boolean,
