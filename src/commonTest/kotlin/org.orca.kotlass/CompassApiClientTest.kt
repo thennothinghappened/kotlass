@@ -21,7 +21,7 @@ class CompassApiClientTest {
     // cookies: cookie storage of the login cookies that compass issues the user                                                         //
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private val client = CompassApiClient(SampleClientCredentials, CoroutineScope(Dispatchers.Default))
+    private val client = KotlassClient(SampleClientCredentials)
 
     @Test
     fun testValidateCredentials(): Unit {

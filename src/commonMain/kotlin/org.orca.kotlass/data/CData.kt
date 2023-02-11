@@ -61,7 +61,7 @@ sealed interface NetResponse<T> {
     /**
      * When compass returns a 'h' code, this means error, either in our packet, or the cookie we used. Unfortunately it doesn't specify which is which.
      */
-    data class RequestFailure<T>(private val httpStatusCode: HttpStatusCode) : Error<T>, NetResponse<T> {
+    data class RequestFailure<T>(val httpStatusCode: HttpStatusCode) : Error<T>, NetResponse<T> {
         override val error = Throwable("Failed to connect with status code $httpStatusCode")
     }
 
