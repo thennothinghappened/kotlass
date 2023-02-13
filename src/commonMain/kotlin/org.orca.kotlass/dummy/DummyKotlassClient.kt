@@ -1,6 +1,7 @@
 package org.orca.kotlass.dummy
 
 import io.ktor.http.*
+import kotlinx.coroutines.delay
 import kotlinx.datetime.*
 import org.orca.kotlass.IKotlassClient
 import org.orca.kotlass.data.*
@@ -90,6 +91,7 @@ open class DummyKotlassClient(
             status = taskItemRequestBody.status
         ))
 
+        delay(fakeWaitTime)
         return NetResponse.Success(newTaskId)
     }
 
@@ -105,6 +107,7 @@ open class DummyKotlassClient(
             status = taskItemRequestBody.status
         )
 
+        delay(fakeWaitTime)
         return NetResponse.Success(null)
     }
 
@@ -115,14 +118,20 @@ open class DummyKotlassClient(
             return NetResponse.RequestFailure(HttpStatusCode.InternalServerError)
 
         taskItems.removeAt(item)
+
+        delay(fakeWaitTime)
         return NetResponse.Success(null)
     }
 
-    override suspend fun getTaskItems(baseApiRequest: BaseApiRequest): NetResponse<List<TaskItem>> =
-        NetResponse.Success(taskItems)
+    override suspend fun getTaskItems(baseApiRequest: BaseApiRequest): NetResponse<List<TaskItem>> {
+        delay(fakeWaitTime)
+        return NetResponse.Success(taskItems)
+    }
 
-    override suspend fun getStandardClassesOfUserInAcademicGroup(standardClassesOfUserRequest: StandardClassesOfUserRequest): NetResponse<DataExtGridDataContainer<StandardClass>> =
-        NetResponse.Success(DataExtGridDataContainer(data = standardClasses))
+    override suspend fun getStandardClassesOfUserInAcademicGroup(standardClassesOfUserRequest: StandardClassesOfUserRequest): NetResponse<DataExtGridDataContainer<StandardClass>> {
+        delay(fakeWaitTime)
+        return NetResponse.Success(DataExtGridDataContainer(data = standardClasses))
+    }
 
     override suspend fun downloadFile(assetId: String): NetResponse<String> {
         TODO("Not yet implemented")
