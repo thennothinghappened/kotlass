@@ -216,7 +216,7 @@ open class KotlassClient(
     override suspend fun getCalendarEventsByUser(
         startDate: LocalDate,
         endDate: LocalDate
-    ): NetResponse<Array<CalendarEvent>> =
+    ): NetResponse<List<CalendarEvent>> =
         makeApiPostRequest(Services.calendar, "GetCalendarEventsByUser", CalendarEventsRequest(
             startDate = startDate,
             endDate = endDate,

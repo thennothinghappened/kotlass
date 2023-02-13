@@ -14,9 +14,9 @@ internal data class CData<T>(
 
 @Serializable
 data class DataExtGridDataContainer<T>(
-    @SerialName("__type") private val dataType: String,
+    @SerialName("__type") private val dataType: String = "",
     val data: List<T>,
-    private val total: Int
+    private val total: Int = data.size
 )
 
 internal val json = Json {

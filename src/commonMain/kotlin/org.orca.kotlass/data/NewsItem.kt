@@ -87,7 +87,7 @@ data class NewsItemGroupTarget(
     @SerialName("ActivityIds") val activityIds: List<Int>,
     @SerialName("BaseRole") val baseRole: Int,
     @SerialName("CampusIds") val campusIds: List<Int>,
-    @SerialName("FormGroups") val formGroups: List<Unit>,
+    @SerialName("FormGroups") val formGroups: List<String>,
     @SerialName("Future") val future: Boolean,
     @SerialName("Houses") val houses: List<String>, // todo: what format (is this a string?)
     @SerialName("UserIds") val userIds: List<Int>,

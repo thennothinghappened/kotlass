@@ -44,7 +44,7 @@ data class StandardClassListSortType(
  */
 @Serializable
 data class StandardClass(
-    @SerialName("__type") private val dataType: String,
+    @SerialName("__type") private val dataType: String = "",
     val campusId: Int? = null,
     val facultyName: String,
     @Serializable(InstantSerializer::class)

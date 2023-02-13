@@ -11,14 +11,15 @@ import org.orca.kotlass.data.*
 import org.orca.kotlass.IFlowKotlassClient.*
 
 open class FlowKotlassClient(
-    credentials: CompassClientCredentials,
+    credentials: KotlassClient.CompassClientCredentials,
     private val scope: CoroutineScope,
     override val refreshIntervals: RefreshIntervals = RefreshIntervals(),
-    proxyIp: String? = null
-) : KotlassClient(
-    credentials,
-    proxyIp
-), IFlowKotlassClient {
+    proxyIp: String? = null,
+    kotlassClient: IKotlassClient = KotlassClient(
+        credentials,
+        proxyIp
+    )
+) : IKotlassClient by kotlassClient, IFlowKotlassClient {
     ////////////////////////////////////////////////////////////////////////////////////
     //                                     Flows!                                     //
     ////////////////////////////////////////////////////////////////////////////////////
@@ -42,14 +43,14 @@ open class FlowKotlassClient(
             return
         }
 
-        val reply = _reply as NetResponse.Success<Array<CalendarEvent>>
-        reply.data.sortByDescending { it.start }
-        reply.data.reverse()
+        val reply = (_reply as NetResponse.Success<List<CalendarEvent>>).data
+            .sortedByDescending { it.start }
+            .reversed()
 
         val list = List(
-            reply.data.size
+            reply.size
         ) {
-            val event = reply.data[it]
+            val event = reply[it]
 
             return@List when (event.activityType) {
                 1 -> {

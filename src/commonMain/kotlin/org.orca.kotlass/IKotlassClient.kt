@@ -114,7 +114,7 @@ interface IKotlassClient {
     suspend fun getCalendarEventsByUser(
         startDate: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
         endDate: LocalDate = startDate
-    ): NetResponse<Array<CalendarEvent>>
+    ): NetResponse<List<CalendarEvent>>
 
     /**
      * Get list of compass alerts (Messages that appear above newsfeed asking for your attention)

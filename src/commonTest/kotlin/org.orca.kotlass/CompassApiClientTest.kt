@@ -46,7 +46,7 @@ class CompassApiClientTest {
         // check update successful
         delay(500L)
         val reply = client.getTaskItems()
-        assertIs<NetResponse.Success<Array<TaskItem>>>(reply, "Error in getTaskItems")
+        assertIs<NetResponse.Success<List<TaskItem>>>(reply, "Error in getTaskItems")
         val serversideTask = reply.data.filter { it.id == taskItem.id }[0]
         assertEquals(serversideTask.taskName, taskItem.taskName, "Error in updateTaskItem")
 

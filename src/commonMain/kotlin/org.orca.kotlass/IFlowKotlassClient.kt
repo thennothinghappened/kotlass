@@ -1,15 +1,17 @@
 package org.orca.kotlass
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import org.orca.kotlass.data.*
 
 /**
  * An extended Kotlass Client with flows.
  */
-interface IFlowKotlassClient : IKotlassClient {
+interface IFlowKotlassClient {
 
     val refreshIntervals: RefreshIntervals
 
