@@ -61,6 +61,7 @@ data class LearningTask(
     @SerialName("__type") private val dataType: String,
     val activityId: Int,
     val activityName: String,
+    val attachments: List<LearningTaskAttachment>? = null,
     val description: String,
     @Serializable(InstantNullableSerializer::class)
     val dueDateTimestamp: Instant?,
@@ -75,7 +76,6 @@ data class LearningTask(
     @Serializable(InstantNullableSerializer::class)
     private val activityStart: Instant?,
     private val assessmentPeriodId: Int? = null,
-    private val attachments: List<LearningTaskAttachment>? = null,
     private val canEditResults: Boolean,
     private val canManage: Boolean,
     private val canvasIntegrationId: String? = null,
