@@ -80,7 +80,7 @@ open class DummyKotlassClient(
     override fun buildDomainUrlString(endpoint: String): String =
         "https://$domain$endpoint"
 
-    override fun validateCredentials(): Boolean = true
+    override fun validateCredentials(): NetResponse<Unit?> = NetResponse.Success(null)
     override suspend fun saveTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): NetResponse<Int> {
         val newTaskId = taskItems.size
 
@@ -145,11 +145,11 @@ open class DummyKotlassClient(
         TODO("Not yet implemented")
     }
 
-    override suspend fun getLessonsByActivityId(activityId: String): NetResponse<ActivitySummary> {
+    override suspend fun getLessonsByActivityId(activityId: Int): NetResponse<ActivitySummary> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun getLessonsByActivityIdQuick(activityId: String): NetResponse<Activity> {
+    override suspend fun getLessonsByActivityIdQuick(activityId: Int): NetResponse<Activity> {
         TODO("Not yet implemented")
     }
 
@@ -157,7 +157,7 @@ open class DummyKotlassClient(
         TODO("Not yet implemented")
     }
 
-    override suspend fun getAllLearningTasksByActivityId(activityId: String): NetResponse<DataExtGridDataContainer<LearningTask>> {
+    override suspend fun getAllLearningTasksByActivityId(activityId: Int): NetResponse<DataExtGridDataContainer<LearningTask>> {
         TODO("Not yet implemented")
     }
 

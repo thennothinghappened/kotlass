@@ -15,9 +15,14 @@ interface IKotlassClient {
 
     /**
      * Make sure our credentials are valid.
+     * If the result is NetResponse.Success, our credentials are valid.
+     *
+     * If the result is NetResponse.ClientError, we probably don't have internet.
+     *
+     * If the result is NetResponse.RequestFailure, there's something wrong with our credentials, or the Compass server.
      */
     fun validateCredentials():
-            Boolean
+            NetResponse<Unit?>
 
     /**
      * Create a new task item
@@ -70,13 +75,13 @@ interface IKotlassClient {
     /**
      * Get list of lessons for a class by its activity ID
      */
-    suspend fun getLessonsByActivityId(activityId: String):
+    suspend fun getLessonsByActivityId(activityId: Int):
             NetResponse<ActivitySummary>
 
     /**
      * Get current class instance its activity ID
      */
-    suspend fun getLessonsByActivityIdQuick(activityId: String): NetResponse<Activity>
+    suspend fun getLessonsByActivityIdQuick(activityId: Int): NetResponse<Activity>
 
     /**
      * Get list of learning task categories
@@ -87,7 +92,7 @@ interface IKotlassClient {
     /**
      * Get list of learning tasks for a class by class ID
      */
-    suspend fun getAllLearningTasksByActivityId(activityId: String):
+    suspend fun getAllLearningTasksByActivityId(activityId: Int):
             NetResponse<DataExtGridDataContainer<LearningTask>>
 
     /**
@@ -145,6 +150,10 @@ interface IKotlassClient {
      */
     suspend fun getHeaderImageUrlByActivityId(activityId: Int):
             NetResponse<String>
+
+    /**
+     *
+     */
 
     /**
      * Download the lesson plan for a class instance

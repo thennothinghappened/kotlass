@@ -25,7 +25,7 @@ class CompassApiClientTest {
 
     @Test
     fun testValidateCredentials(): Unit {
-        assertTrue(client.validateCredentials(), "Credentials are invalid!")
+        assertTrue(client.validateCredentials() is NetResponse.Success, "Credentials are invalid!")
     }
 
     // this one must happen sequentially and tests creation, modification and deletion of an item.
@@ -157,7 +157,7 @@ class CompassApiClientTest {
 
     @Test
     fun testGetHeaderImageUrlByActivityId(): Unit = runBlocking {
-        val reply = client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId.toInt())
+        val reply = client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId)
         assertIs<NetResponse.Success<*>>(reply, "Error in getHeaderImageUrlByActivityId: $reply")
     }
 }

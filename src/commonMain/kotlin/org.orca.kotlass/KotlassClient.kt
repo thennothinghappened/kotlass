@@ -33,12 +33,22 @@ open class KotlassClient(
                 prettyPrint = true
             })
         }
+
+        install(HttpCache)
+
+        // In combination with Timeout, since Compass has very inconsistent response times ranging from
+        // a few hundred millis to <1m, we drop all our connections which take an unreasonable time and
+        // try again, to avoid them getting lost in the Compass networking abyss.
+        install(HttpRequestRetry) {
+            maxRetries = 3
+            retryOnException(retryOnTimeout = true)
+            exponentialDelay()
+        }
+
         install(HttpTimeout) {
-            requestTimeoutMillis = 30000 // it's a slow site
+            requestTimeoutMillis = 10_000
         }
-        install(HttpCache) {
-            // todo: set this up (different implementations for desktop and android)
-        }
+
         proxyIp?.let {
             engine {
                 proxy = ProxyBuilder.http(proxyIp)
@@ -147,9 +157,14 @@ open class KotlassClient(
         return NetResponse.Success(reply.data!!)
     }
 
-    override fun validateCredentials(): Boolean = runBlocking {
-        val reply = getCalendarEventsByUser()
-        return@runBlocking reply is NetResponse.Success
+    override fun validateCredentials(): NetResponse<Unit?> = runBlocking {
+        // We use getAllCampuses here since it'll generally have the smallest reply, and takes no input,
+        // eliminating API changes as a possible issue if we fail.
+        return@runBlocking when(val reply = getAllCampuses()) {
+            is NetResponse.Success -> NetResponse.Success(null)
+            is NetResponse.ClientError -> NetResponse.ClientError(reply.error)
+            is NetResponse.RequestFailure -> NetResponse.RequestFailure(reply.httpStatusCode)
+        }
     }
 
     override suspend fun saveTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): NetResponse<Int> =
@@ -192,17 +207,17 @@ open class KotlassClient(
     override suspend fun getLessonsByInstanceIdQuick(instanceId: String): NetResponse<Activity> =
         makeApiPostRequest(Services.activity, "GetLessonsByInstanceIdQuick", ActivitySummaryByInstanceIdRequest(instanceId))
 
-    override suspend fun getLessonsByActivityId(activityId: String): NetResponse<ActivitySummary> =
-        makeApiPostRequest(Services.activity, "GetLessonsByActivityId", ActivitySummaryByActivityIdRequest(activityId))
+    override suspend fun getLessonsByActivityId(activityId: Int): NetResponse<ActivitySummary> =
+        makeApiPostRequest(Services.activity, "GetLessonsByActivityId", ActivitySummaryByActivityIdRequest(activityId.toString()))
 
-    override suspend fun getLessonsByActivityIdQuick(activityId: String): NetResponse<Activity> =
-        makeApiPostRequest(Services.activity, "GetLessonsByActivityIdQuick", ActivitySummaryByActivityIdRequest(activityId))
+    override suspend fun getLessonsByActivityIdQuick(activityId: Int): NetResponse<Activity> =
+        makeApiPostRequest(Services.activity, "GetLessonsByActivityIdQuick", ActivitySummaryByActivityIdRequest(activityId.toString()))
 
     override suspend fun getAllTaskCategories(baseApiRequest: BaseApiRequest): NetResponse<List<TaskCategory>> =
         makeApiPostRequest(Services.learningTasks, "GetAllTaskCategories", baseApiRequest)
 
-    override suspend fun getAllLearningTasksByActivityId(activityId: String): NetResponse<DataExtGridDataContainer<LearningTask>> =
-        makeApiPostRequest(Services.learningTasks, "GetAllLearningTasksByActivityId", LearningTasksByActivityIdRequest(activityId = activityId))
+    override suspend fun getAllLearningTasksByActivityId(activityId: Int): NetResponse<DataExtGridDataContainer<LearningTask>> =
+        makeApiPostRequest(Services.learningTasks, "GetAllLearningTasksByActivityId", LearningTasksByActivityIdRequest(activityId = activityId.toString()))
 
     override suspend fun getAllLearningTasksByUserId(academicGroup: AcademicGroup?): NetResponse<DataExtGridDataContainer<LearningTask>> =
         makeApiPostRequest(Services.learningTasks, "GetAllLearningTasksByUserId", LearningTasksByUserIdRequest(userId = credentials.userId, academicGroupId = academicGroup?.id))
