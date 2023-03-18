@@ -27,7 +27,8 @@ interface IFlowKotlassClient {
         val schedule: Long = 2 * 60 * 1000,
         val newsfeed: Long = 10 * 60 * 1000,
         val learningTasks: Long = 20 * 60 * 1000,
-        val taskCategories: Long = 5 * 60 * 60 * 1000
+        val taskCategories: Long = 24 * 60 * 60 * 1000,
+        val activityResources: Long = 15 * 60 * 1000
     )
 
     /**
@@ -84,6 +85,21 @@ interface IFlowKotlassClient {
         class TaskCategories(
             pollRate: Long
         ) : Pollable<List<TaskCategory>>(pollRate = pollRate)
+
+        /**
+         * Resources for a specific activity
+         */
+
+        class ActivityResources(
+            pollRate: Long,
+            activityId: Int
+        ) : Pollable<ResourceNode>(pollRate = pollRate) {
+            private val _activityId: MutableStateFlow<Int> = MutableStateFlow(activityId)
+            val activityId: StateFlow<Int> = _activityId
+            fun setActivity(activityId: Int) {
+                _activityId.value = activityId
+            }
+        }
     }
 
     /**

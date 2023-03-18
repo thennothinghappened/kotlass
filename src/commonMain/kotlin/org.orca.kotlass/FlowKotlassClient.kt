@@ -206,12 +206,24 @@ open class FlowKotlassClient(
             taskCategories._state.value = State.Error(reply as NetResponse.Error<*>)
     }
 
+    private suspend fun pollActivityResourcesUpdate(activityResources: Pollable.ActivityResources) {
+        if (activityResources.state.value is State.Loading) return
+        activityResources._state.value = State.Loading()
+
+        val reply = getActivityAndSubjectResourcesNode(activityResources.activityId.value)
+        if (reply is NetResponse.Success<ResourceNode>)
+            activityResources._state.value = State.Success(reply.data)
+        else
+            activityResources._state.value = State.Error(reply as NetResponse.Error<*>)
+    }
+
     private suspend fun pollItem(item: Pollable<*>) =
         when (item) {
             is Pollable.Schedule -> pollScheduleUpdate(item)
             is Pollable.LearningTasks -> pollLearningTasksUpdate(item)
             is Pollable.Newsfeed -> pollNewsfeedUpdate(item)
             is Pollable.TaskCategories -> pollTaskCategoriesUpdate(item)
+            is Pollable.ActivityResources -> pollActivityResourcesUpdate(item)
         }
 
     override fun manualPoll(item: Pollable<*>) =
