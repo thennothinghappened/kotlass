@@ -200,6 +200,10 @@ open class DummyKotlassClient(
         TODO("Not yet implemented")
     }
 
+    override suspend fun getActivityAndSubjectResourcesNode(activityId: Int): NetResponse<ResourceNode> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getLessonPlanString(activityLessonPlan: ActivityLessonPlan): NetResponse<String> {
         TODO("Not yet implemented")
     }

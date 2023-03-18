@@ -154,6 +154,8 @@ interface IKotlassClient {
     /**
      *
      */
+    suspend fun getActivityAndSubjectResourcesNode(activityId: Int):
+            NetResponse<ResourceNode>
 
     /**
      * Download the lesson plan for a class instance

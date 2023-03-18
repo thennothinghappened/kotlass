@@ -137,7 +137,9 @@ data class LearningTaskAttachment(
     val name: String,
     private val wikiNodeId: Int,
     private val wikiNodeType: Int
-)
+) {
+    @Transient val fileType = getFileType(wikiNodeType)
+}
 
 /**
  * Learning task grade
@@ -201,10 +203,12 @@ data class LearningTaskSubmissionItem(
     @SerialName("__type") private val dataType: String,
     val id: Int,
     val name: String,
-    val type: Int,
+    @SerialName("type") private val _type: Int,
     private val masterGradingComponentId: Unit? = null,
     private val taskId: Int,
-)
+) {
+    @Transient val fileType = getFileType(_type)
+}
 
 /**
  * Learning task student info
@@ -335,8 +339,10 @@ data class LearningTaskStudentSubmission(
     val timestamp: Instant,
     val taskSubmissionItemId: Int,
     private val contentUrl: String? = null,
-    private val submissionFileType: Int,
+    @SerialName("submissionFileType") private val _submissionFileType: Int,
     private val submitterBaseRole: Int,
     private val taskStudentId: Int,
     private val wikiNodeId: Int? = null
-)
+) {
+    @Transient val fileType = getFileType(_submissionFileType)
+}

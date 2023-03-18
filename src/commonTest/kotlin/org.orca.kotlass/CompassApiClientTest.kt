@@ -1,5 +1,7 @@
 package org.orca.kotlass
 
+import io.ktor.util.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -159,5 +161,11 @@ class CompassApiClientTest {
     fun testGetHeaderImageUrlByActivityId(): Unit = runBlocking {
         val reply = client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId)
         assertIs<NetResponse.Success<*>>(reply, "Error in getHeaderImageUrlByActivityId: $reply")
+    }
+
+    @Test
+    fun testGetActivityAndSubjectResourcesNode(): Unit = runBlocking {
+        val reply = client.getActivityAndSubjectResourcesNode(SampleClientCredentials.testActivityId)
+        assertIs<NetResponse.Success<*>>(reply, "Error in getActivityAndSubjectResourcesNode: $reply")
     }
 }

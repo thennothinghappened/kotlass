@@ -53,7 +53,7 @@ open class KotlassClient(
             engine {
                 proxy = ProxyBuilder.http(proxyIp)
             }
-        }
+        }//
     }
 
     private object Services {
@@ -65,6 +65,7 @@ open class KotlassClient(
         const val fileAssets = "FileAssets"
         const val taskService = "TaskService"
         const val subjects = "Subjects"
+        const val wiki = "Wiki"
     }
 
     override fun buildDomainUrlString(endpoint: String) =
@@ -252,6 +253,10 @@ open class KotlassClient(
 
     override suspend fun getHeaderImageUrlByActivityId(activityId: Int): NetResponse<String> =
         makeApiPostRequest(Services.activity, "GetHeaderImageUrlByActivityId", ActivitySummaryByActivityIdRequest(
+            activityId.toString()
+        ))
+    override suspend fun getActivityAndSubjectResourcesNode(activityId: Int): NetResponse<ResourceNode> =
+        makeApiPostRequest(Services.wiki, "GetActivityAndSubjectResourcesNode", ActivityResourcesRequest(
             activityId.toString()
         ))
 
