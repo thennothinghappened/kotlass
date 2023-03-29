@@ -54,7 +54,7 @@ data class CalendarEvent(
     private val allDay: Boolean,
     private val attendanceMode: Int,
     private val attendeeUserId: Int,
-    private val calendarId: Unit? = null,
+    private val calendarId: Int? = null,
     private val categoryIds: Unit? = null,
     private val comment: String? = null,
     private val eventSetupStatus: Int? = null,

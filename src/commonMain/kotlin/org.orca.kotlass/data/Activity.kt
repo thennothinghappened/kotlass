@@ -121,7 +121,7 @@ data class Activity(
     @SerialName("SubjectId") private val subjectId: String,
     @SerialName("UserCanCancelOrDelete") private val userCanCancelOrDelete: Boolean,
     @SerialName("UserCanEdit") private val userCanEdit: Boolean,
-    @SerialName("bs") private val bs: List<Unit>,
+    @SerialName("bs") private val bs: List<ActivityBR>,
     @SerialName("dt") private val dateTime: String,
     @SerialName("irm") private val irm: Boolean,
     @SerialName("mi") private val mi: Int,
@@ -141,6 +141,20 @@ data class LocationDetailsContainer(
     @SerialName("CoveringLocationId") val coveringLocationId: Int? = null,
     private val campusId: Int? = null,
     private val customLocation: Unit? = null
+)
+
+/**
+ * TODO: what is this for?
+ */
+@Serializable
+data class ActivityBR(
+    @SerialName("__type") private val dataType: String,
+    @SerialName("en") val finish: String,
+    @SerialName("st") val start: String,
+    val rbid: Int,
+    val rid: Int,
+    @SerialName("rn") val roomName: String,
+    val uid: Int
 )
 
 /**
