@@ -36,7 +36,70 @@ open class DummyKotlassClient(
     )
 
     /**
-     * Generate a dummy standard class
+     * Serverside NewsItem list
+     */
+    private val newsfeed = listOf(
+        createDummyNewsItem(
+            title = "Some news item",
+            content = "A thingo",
+            userName = "Someone important"
+        )
+    )
+
+    /**
+     * Serverside Schedule
+     */
+    private val timeZone = TimeZone.currentSystemDefault()
+    private val startTime = Clock.System.now()
+        .toLocalDateTime(timeZone).date
+        .atTime(9, 0, 0)
+        .toInstant(timeZone)
+
+    private val schedule = listOf(
+        ScheduleEntry.BaseEntry(
+            createDummyCalendarEvent(
+                instanceId = "1",
+                start = startTime,
+                finish = startTime.plus(1, DateTimeUnit.HOUR),
+                title = "English"
+            )
+        ),
+        ScheduleEntry.BaseEntry(
+            createDummyCalendarEvent(
+                instanceId = "1",
+                start = startTime.plus(1, DateTimeUnit.HOUR),
+                finish = startTime.plus(2, DateTimeUnit.HOUR),
+                title = "Mathematics"
+            )
+        ),
+        ScheduleEntry.BaseEntry(
+            createDummyCalendarEvent(
+                instanceId = "1",
+                start = startTime.plus(2, DateTimeUnit.HOUR),
+                finish = startTime.plus(3, DateTimeUnit.HOUR),
+                title = "Science"
+            )
+        )
+    )
+
+    /**
+     * Bundle to group CalendarEntries with their other associated info.
+     */
+    sealed class ScheduleEntry(
+        val calendarEvent: CalendarEvent,
+    ) {
+
+        class BaseEntry(
+            calendarEvent: CalendarEvent
+        ) : ScheduleEntry(calendarEvent)
+        class ActivityEntry(
+            calendarEvent: CalendarEvent,
+            val activity: Activity
+        ) : ScheduleEntry(calendarEvent)
+    }
+
+    /**
+     * Generate a dummy StandardClass
      */
     private fun createDummyStandardClass(
         facultyName: String,
@@ -72,6 +135,88 @@ open class DummyKotlassClient(
         rollTapThreshold = 0,
         subjectImportIdentifier = name,
         timetableStructureId = 2
+    )
+
+    /**
+     * Generate a dummy NewsItem
+     */
+    private fun createDummyNewsItem(
+        title: String,
+        content: String,
+        attachments: List<NewsItemAttachment> = emptyList(),
+        priority: Boolean = false,
+        createdByAdmin: Boolean = false,
+        userImageUrl: String = "",
+        userName: String,
+        newsItemGroupTargets: List<NewsItemGroupTarget> = emptyList(),
+
+    ) = NewsItem(
+        dataType = "",
+        title = title,
+        content1 = content,
+        content2 = null,
+        attachments = attachments,
+        communicationType = 0,
+        priority = priority,
+        createdByAdmin = createdByAdmin,
+        userImageUrl = userImageUrl,
+        userName = userName,
+        newsItemGroupTargets = newsItemGroupTargets,
+        showImagesFullscreen = false,
+        userId = 0,
+        emailSentDate = "",
+        postDateTime = null,
+        startDate = null,
+        finishDate = null,
+        locked = true,
+        newsItemCustomGroupTargets = NewsItemCustomGroupTarget(
+            "",
+            emptyList(),
+            emptyList()
+        ),
+        newsItemId = "",
+        publicWebsite = false,
+        publishToLinkedSchools = false,
+        publishToTalkingPoints = false,
+        startFinishString = "",
+        talkingPointsTags = emptyList()
+    )
+
+    /**
+     * Generate a dummy CalendarEvent
+     */
+    private fun createDummyCalendarEvent(
+        activityId: Int = 0,
+        activityType: Int = 1,
+        backgroundColor: Long = 0xDCE6F4,
+        description: String = "",
+        start: Instant,
+        finish: Instant,
+        instanceId: String,
+        title: String = "",
+        longTitleWithoutTime: String = title
+
+    ) = CalendarEvent(
+        dataType = "",
+        activityId = activityId,
+        activityType = activityType,
+        backgroundColor = backgroundColor,
+        description = description,
+        start = start,
+        finish = finish,
+        instanceId = instanceId,
+        title = title,
+        longTitleWithoutTime = longTitleWithoutTime,
+        allDay = false,
+        attendanceMode = 1,
+        attendeeUserId = 0,
+        guid = "",
+        isRecurring = false,
+        repeatForever = false,
+        repeatFrequency = 0,
+        rollMarked = true,
+        runningStatus = 1,
+        teachingDaysOnly = false
     )
 
     private fun findTaskById(id: Int) =
@@ -166,7 +311,12 @@ open class DummyKotlassClient(
     }
 
     override suspend fun getMyNewsFeedPaged(): NetResponse<DataExtGridDataContainer<NewsItem>> {
-        TODO("Not yet implemented")
+        delay(fakeWaitTime)
+        return NetResponse.Success(
+            DataExtGridDataContainer(
+            data = newsfeed
+        )
+        )
     }
 
     override suspend fun getCalendarsByUser(): NetResponse<List<CalendarLayer>> {
@@ -177,7 +327,8 @@ open class DummyKotlassClient(
         startDate: LocalDate,
         endDate: LocalDate
     ): NetResponse<List<CalendarEvent>> {
-        TODO("Not yet implemented")
+        delay(fakeWaitTime)
+        return NetResponse.Success(schedule.map { entry -> entry.calendarEvent })
     }
 
     override suspend fun getMyAlerts(): NetResponse<List<Alert>> {
