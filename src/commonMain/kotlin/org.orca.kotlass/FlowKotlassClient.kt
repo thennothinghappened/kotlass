@@ -85,6 +85,20 @@ open class FlowKotlassClient(
 
                     return@List entry
                 }
+                7 -> { // todo: fix code duplication
+                    val bannerUrl: MutableStateFlow<State<String>> = MutableStateFlow(State.NotInitiated())
+                    val activity: MutableStateFlow<State<Activity>> = MutableStateFlow(State.NotInitiated())
+
+                    val entry = ScheduleEntry.Notice(event, bannerUrl, activity)
+
+                    if (schedule.preloadBannerUrls)
+                        loadBannerUrl(entry)
+
+                    if (schedule.preloadActivities)
+                        loadActivity(entry)
+
+                    return@List entry
+                }
                 10 -> ScheduleEntry.LearningTask(event)
                 else -> {
                     println("Unrecognised activityType ${event.activityType} in event $event")

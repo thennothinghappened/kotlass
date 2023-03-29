@@ -164,6 +164,15 @@ interface IFlowKotlassClient {
         }
 
         /**
+         * A Notice, TODO: we don't know what this is actually called internally.
+         */
+        data class Notice(
+            override val event: CalendarEvent,
+            override val _bannerUrl: MutableStateFlow<State<String>>,
+            override val _activity: MutableStateFlow<State<Activity>>
+        ) : ActivityEntry(event, _bannerUrl, _activity)
+
+        /**
          * An Event, such as an excursion or incursion.
          */
         data class Event(
