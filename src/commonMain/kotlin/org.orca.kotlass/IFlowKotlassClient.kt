@@ -51,7 +51,7 @@ interface IFlowKotlassClient {
             val preloadLessonPlans: Boolean = false,
             startDate: LocalDate? = null,
             endDate: LocalDate? = startDate
-        ) : Pollable<List<ScheduleEntry>>(pollRate = pollRate) {
+        ) : Pollable<Schedule.ScheduleStateHolder>(pollRate = pollRate) {
             private val _startDate: MutableStateFlow<LocalDate?> = MutableStateFlow(startDate)
             private val _endDate: MutableStateFlow<LocalDate?> = MutableStateFlow(endDate)
             val startDate: StateFlow<LocalDate?> = _startDate
@@ -60,6 +60,11 @@ interface IFlowKotlassClient {
                 _startDate.value = startDate
                 _endDate.value = endDate
             }
+            class ScheduleStateHolder(
+                val normal: List<ScheduleEntry>,
+                val allDay: List<ScheduleEntry>,
+                val learningTasks: List<ScheduleEntry.LearningTask>
+            )
         }
 
         /**
@@ -167,10 +172,8 @@ interface IFlowKotlassClient {
          * A Notice, TODO: we don't know what this is actually called internally.
          */
         data class Notice(
-            override val event: CalendarEvent,
-            override val _bannerUrl: MutableStateFlow<State<String>>,
-            override val _activity: MutableStateFlow<State<Activity>>
-        ) : ActivityEntry(event, _bannerUrl, _activity)
+            override val event: CalendarEvent
+        ) : ScheduleEntry(event)
 
         /**
          * An Event, such as an excursion or incursion.

@@ -85,20 +85,7 @@ open class FlowKotlassClient(
 
                     return@List entry
                 }
-                7 -> { // todo: fix code duplication
-                    val bannerUrl: MutableStateFlow<State<String>> = MutableStateFlow(State.NotInitiated())
-                    val activity: MutableStateFlow<State<Activity>> = MutableStateFlow(State.NotInitiated())
-
-                    val entry = ScheduleEntry.Notice(event, bannerUrl, activity)
-
-                    if (schedule.preloadBannerUrls)
-                        loadBannerUrl(entry)
-
-                    if (schedule.preloadActivities)
-                        loadActivity(entry)
-
-                    return@List entry
-                }
+                7 -> ScheduleEntry.Notice(event)
                 10 -> ScheduleEntry.LearningTask(event)
                 else -> {
                     println("Unrecognised activityType ${event.activityType} in event $event")
@@ -107,7 +94,14 @@ open class FlowKotlassClient(
             }
         }
 
-        schedule._state.value = State.Success(list)
+        val learningTasks = list.filterIsInstance<ScheduleEntry.LearningTask>()
+        val _notLearningTasks = list.filter { it !is ScheduleEntry.LearningTask }
+
+        schedule._state.value = State.Success(Pollable.Schedule.ScheduleStateHolder(
+            allDay = _notLearningTasks.filter { it.event.allDay },
+            normal = _notLearningTasks.filter { !it.event.allDay },
+            learningTasks = learningTasks
+        ))
     }
 
     override fun loadBannerUrl(scheduleEntry: ScheduleEntry.ActivityEntry) {
