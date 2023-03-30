@@ -197,8 +197,16 @@ open class FlowKotlassClient(
         learningTasks._state.value = State.Loading()
 
         val reply = getAllLearningTasksByUserId(learningTasks.academicGroup)
-        if (reply is NetResponse.Success<DataExtGridDataContainer<LearningTask>>)
-            learningTasks._state.value = State.Success(reply.data.data)
+        if (reply is NetResponse.Success<DataExtGridDataContainer<LearningTask>>) {
+
+            val subjects = reply.data.data.map { it.activityId }.distinct()
+
+            val taskMap = subjects.associateWith { subject ->
+                reply.data.data.filter { it.activityId == subject }
+            }
+
+            learningTasks._state.value = State.Success(taskMap)
+        }
         else
             learningTasks._state.value = State.Error(reply as NetResponse.Error<*>)
     }

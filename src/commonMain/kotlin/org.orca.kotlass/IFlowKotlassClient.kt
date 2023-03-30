@@ -80,7 +80,7 @@ interface IFlowKotlassClient {
         class LearningTasks(
             pollRate: Long,
             val academicGroup: AcademicGroup? = null
-        ) : Pollable<List<LearningTask>>(pollRate = pollRate)
+        ) : Pollable<Map<Int, List<LearningTask>>>(pollRate = pollRate)
 
         /**
          * List of TaskCategories, which are used together with learning tasks to define which 'category' they fall under,

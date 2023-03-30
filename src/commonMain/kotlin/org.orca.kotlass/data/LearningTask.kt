@@ -62,14 +62,15 @@ data class LearningTask(
     val activityId: Int,
     val activityName: String,
     val attachments: List<LearningTaskAttachment>? = null,
+    @Serializable(InstantSerializer::class)
+    val createdTimestamp: Instant,
     val description: String,
     @Serializable(InstantNullableSerializer::class)
     val dueDateTimestamp: Instant?,
     val categoryId: Int,
     val gradingItems: List<LearningTaskGradingItem>,
-    @Serializable(InstantSerializer::class)
-    val createdTimestamp: Instant,
     val hidden: Boolean,
+    val id: Int,
     val name: String,
     val subjectName: String,
     val submissionItems: List<LearningTaskSubmissionItem>? = null,
@@ -82,7 +83,6 @@ data class LearningTask(
     private val displayPrimaryGrading: Boolean,
     private val distributionType: Int,
     private val groupName: String,
-    private val id: Int,
     private val important: Boolean,
     private val includeBreakdownHeading: Boolean,
     private val includeInOverall: Boolean,
