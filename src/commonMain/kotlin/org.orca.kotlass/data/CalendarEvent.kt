@@ -39,6 +39,7 @@ data class CalendarEvent(
     @SerialName("__type") private val dataType: String,
     val activityId: Int,
     val activityType: Int,
+    val allDay: Boolean,
     @Serializable(ColourSerializer::class)
     val backgroundColor: Long,
     val description: String,
@@ -51,7 +52,6 @@ data class CalendarEvent(
     val longTitleWithoutTime: String,
     val managerId: Int? = null,
     private val activityImportIdentifier: Unit? = null,
-    private val allDay: Boolean,
     private val attendanceMode: Int,
     private val attendeeUserId: Int,
     private val calendarId: Int? = null,
