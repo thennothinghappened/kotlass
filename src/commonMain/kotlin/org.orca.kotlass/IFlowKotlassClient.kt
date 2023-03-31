@@ -19,6 +19,7 @@ interface IFlowKotlassClient {
     val defaultNewsfeed: Pollable.Newsfeed
     val defaultLearningTasks: Pollable.LearningTasks
     val defaultTaskCategories: Pollable.TaskCategories
+    val defaultResources: Map<Int, Pollable.ActivityResources>
 
     /**
      * Interval in milliseconds between automatic refreshes when using
@@ -28,7 +29,7 @@ interface IFlowKotlassClient {
         val newsfeed: Long = 10 * 60 * 1000,
         val learningTasks: Long = 20 * 60 * 1000,
         val taskCategories: Long = 24 * 60 * 60 * 1000,
-        val activityResources: Long = 15 * 60 * 1000
+        val activityResources: Long = 60 * 60 * 1000
     )
 
     /**
@@ -207,6 +208,16 @@ interface IFlowKotlassClient {
      * Load the lesson plan for a lesson.
      */
     fun loadLessonPlan(scheduleEntry: ScheduleEntry.Lesson)
+
+    /**
+     * Load resources for an activity from its ScheduleEntry
+     */
+    fun loadActivityResources(scheduleEntry: ScheduleEntry.ActivityEntry)
+
+    /**
+     * Load resources for an activity from its ID
+     */
+    fun loadActivityResources(activityId: Int)
 
     /**
      * Manually poll an update for an item once.

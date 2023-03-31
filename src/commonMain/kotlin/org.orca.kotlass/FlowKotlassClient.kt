@@ -24,11 +24,13 @@ open class FlowKotlassClient(
     //                                     Flows!                                     //
     ////////////////////////////////////////////////////////////////////////////////////
 
+    private val _defaultResources: MutableMap<Int, Pollable.ActivityResources> = mutableMapOf()
 
     override val defaultSchedule = Pollable.Schedule(refreshIntervals.schedule)
     override val defaultNewsfeed = Pollable.Newsfeed(refreshIntervals.newsfeed)
     override val defaultLearningTasks = Pollable.LearningTasks(refreshIntervals.learningTasks)
     override val defaultTaskCategories = Pollable.TaskCategories(refreshIntervals.taskCategories)
+    override val defaultResources: Map<Int, Pollable.ActivityResources> = _defaultResources
 
     private suspend fun pollScheduleUpdate(
         schedule: Pollable.Schedule = defaultSchedule
@@ -181,6 +183,34 @@ open class FlowKotlassClient(
         }
     }
 
+    override fun loadActivityResources(scheduleEntry: ScheduleEntry.ActivityEntry) {
+        loadActivityResources(scheduleEntry.event.activityId)
+    }
+
+    override fun loadActivityResources(activityId: Int) {
+        if (!defaultResources.containsKey(activityId)) {
+
+            _defaultResources[activityId] = Pollable.ActivityResources(
+                refreshIntervals.activityResources,
+                activityId
+            )
+
+        }
+
+        if (defaultResources[activityId]?.state?.value is State.Loading) return
+
+        scope.launch {
+            val resources = getActivityAndSubjectResourcesNode(activityId)
+
+            if (resources is NetResponse.Error<*>) {
+                defaultResources[activityId]?._state?.value = State.Error(resources)
+                return@launch
+            }
+
+            defaultResources[activityId]?._state?.value = State.Success((resources as NetResponse.Success).data)
+        }
+    }
+
     private suspend fun pollNewsfeedUpdate(newsfeed: Pollable.Newsfeed = defaultNewsfeed) {
         if (newsfeed.state.value is State.Loading) return
         newsfeed._state.value = State.Loading()
@@ -222,7 +252,9 @@ open class FlowKotlassClient(
             taskCategories._state.value = State.Error(reply as NetResponse.Error<*>)
     }
 
-    private suspend fun pollActivityResourcesUpdate(activityResources: Pollable.ActivityResources) {
+    private suspend fun pollActivityResourcesUpdate(
+        activityResources: Pollable.ActivityResources
+    ) {
         if (activityResources.state.value is State.Loading) return
         activityResources._state.value = State.Loading()
 
