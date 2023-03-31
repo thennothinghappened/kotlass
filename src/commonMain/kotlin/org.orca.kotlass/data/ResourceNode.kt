@@ -34,5 +34,9 @@ data class ResourceNode(
 @Serializable
 data class ResourceNodeContent(
     @SerialName("__type") private val dataType: String,
-    val fileAssetId: String
+    val author: String? = null,
+    val description: String? = null,
+    val filename: String? = null,
+    val fileAssetId: String,
+
 )
