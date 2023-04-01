@@ -53,7 +53,7 @@ open class KotlassClient(
             engine {
                 proxy = ProxyBuilder.http(proxyIp)
             }
-        }//
+        }
     }
 
     private object Services {
@@ -70,6 +70,9 @@ open class KotlassClient(
 
     override fun buildDomainUrlString(endpoint: String) =
         "https://${credentials.domain}$endpoint"
+
+    override fun buildDomainFileDownloadString(fileAssetId: String, originalFileName: String) =
+        buildApiRequestUrl(Services.fileAssets, "DownloadFile?id=$fileAssetId&originalFileName=$originalFileName")
 
     private fun buildApiRequestUrl(endpoint: String, location: String) =
         buildDomainUrlString("/Services/${endpoint}.svc/${location}")

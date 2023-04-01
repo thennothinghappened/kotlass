@@ -14,6 +14,11 @@ interface IKotlassClient {
     fun buildDomainUrlString(endpoint: String): String
 
     /**
+     * Returns a URL to download a file from its ID.
+     */
+    fun buildDomainFileDownloadString(fileAssetId: String, originalFileName: String = "file"): String
+
+    /**
      * Make sure our credentials are valid.
      * If the result is NetResponse.Success, our credentials are valid.
      *

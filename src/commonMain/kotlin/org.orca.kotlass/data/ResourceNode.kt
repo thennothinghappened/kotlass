@@ -21,10 +21,10 @@ data class ResourceNode(
     val icon: String,
     val id: Int,
     val name: String,
+    val parentNodeId: Int? = null,
 
     private val createdBy: Int? = null,
     private val inheritedPermissions: Boolean,
-    private val parentNodeId: Int? = null,
     private val permissions: List<Int>,
     @SerialName("type") private val _type: Int,
     private val viewLevel: Int

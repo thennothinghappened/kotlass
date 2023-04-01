@@ -225,6 +225,10 @@ open class DummyKotlassClient(
     override fun buildDomainUrlString(endpoint: String): String =
         "https://$domain$endpoint"
 
+    override fun buildDomainFileDownloadString(fileAssetId: String, originalFileName: String): String {
+        TODO("Not yet implemented")
+    }
+
     override fun validateCredentials(): NetResponse<Unit?> = NetResponse.Success(null)
     override suspend fun saveTaskItem(taskItemRequestBody: TaskItemRequest.TaskItemRequestBody): NetResponse<Int> {
         val newTaskId = taskItems.size
