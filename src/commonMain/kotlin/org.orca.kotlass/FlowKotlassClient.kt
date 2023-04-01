@@ -216,7 +216,7 @@ open class FlowKotlassClient(
         newsfeed._state.value = State.Loading()
 
         val reply = getMyNewsFeedPaged()
-        if (reply is NetResponse.Success<DataExtGridDataContainer<NewsItem>>)
+        if (reply is NetResponse.Success)
             newsfeed._state.value = State.Success(reply.data.data.sortedByDescending { it.postDateTime })
         else
             newsfeed._state.value = State.Error(reply as NetResponse.Error<*>)
@@ -227,7 +227,7 @@ open class FlowKotlassClient(
         learningTasks._state.value = State.Loading()
 
         val reply = getAllLearningTasksByUserId(learningTasks.academicGroup)
-        if (reply is NetResponse.Success<DataExtGridDataContainer<LearningTask>>) {
+        if (reply is NetResponse.Success) {
 
             val subjects = reply.data.data.map { it.activityId }.distinct()
 
@@ -246,7 +246,7 @@ open class FlowKotlassClient(
         taskCategories._state.value = State.Loading()
 
         val reply = getAllTaskCategories()
-        if (reply is NetResponse.Success<List<TaskCategory>>)
+        if (reply is NetResponse.Success)
             taskCategories._state.value = State.Success(reply.data)
         else
             taskCategories._state.value = State.Error(reply as NetResponse.Error<*>)
@@ -259,7 +259,7 @@ open class FlowKotlassClient(
         activityResources._state.value = State.Loading()
 
         val reply = getActivityAndSubjectResourcesNode(activityResources.activityId.value)
-        if (reply is NetResponse.Success<ResourceNode>)
+        if (reply is NetResponse.Success)
             activityResources._state.value = State.Success(reply.data)
         else
             activityResources._state.value = State.Error(reply as NetResponse.Error<*>)
@@ -273,6 +273,21 @@ open class FlowKotlassClient(
             is Pollable.TaskCategories -> pollTaskCategoriesUpdate(item)
             is Pollable.ActivityResources -> pollActivityResourcesUpdate(item)
         }
+
+    override fun downloadFile(fileStateFlow: MutableStateFlow<State<String>>, assetId: String) {
+        if (fileStateFlow.value is State.Loading) return
+
+        fileStateFlow.value = State.Loading()
+
+        scope.launch {
+            val file = downloadFile(assetId)
+
+            if (file is NetResponse.Success)
+                fileStateFlow.value = State.Success(file.data)
+            else
+                fileStateFlow.value = State.Error(file as NetResponse.Error<*>)
+        }
+    }
 
     override fun manualPoll(item: Pollable<*>) =
         scope.launch { pollItem(item) }

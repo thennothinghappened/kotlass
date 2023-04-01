@@ -220,6 +220,11 @@ interface IFlowKotlassClient {
     fun loadActivityResources(activityId: Int)
 
     /**
+     * Download a file using a MutableStateFlow as a container for async.
+     */
+    fun downloadFile(fileStateFlow: MutableStateFlow<State<String>>, assetId: String)
+
+    /**
      * Manually poll an update for an item once.
      */
     fun manualPoll(item: Pollable<*>): Job
