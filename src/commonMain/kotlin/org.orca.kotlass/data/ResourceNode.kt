@@ -37,6 +37,7 @@ data class ResourceNodeContent(
     val author: String? = null,
     val description: String? = null,
     val filename: String? = null,
-    val fileAssetId: String,
+    val uri: String? = null,
+    val fileAssetId: String? = null,
 
 )

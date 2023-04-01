@@ -4,13 +4,19 @@ package org.orca.kotlass.data
  * List of currently known compass file types.
  */
 enum class FileType {
-    Folder
+    Folder,
+    HTMLDocument,
+    Document,
+    Link,
 }
 
 // Order for the enum
 private val _fileTypes = listOf(
     null,
-    FileType.Folder
+    FileType.Folder,
+    FileType.HTMLDocument,
+    FileType.Document,
+    FileType.Link
 )
 
 /**
