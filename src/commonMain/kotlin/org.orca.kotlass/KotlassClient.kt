@@ -18,7 +18,8 @@ import org.orca.kotlass.data.*
 
 open class KotlassClient(
     private val credentials: CompassClientCredentials,
-    private val proxyIp: String? = null
+    private val proxyIp: String? = null,
+    devMode: Boolean = false
 ) : IKotlassClient {
 
     interface CompassClientCredentials {
@@ -31,6 +32,10 @@ open class KotlassClient(
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
+                if (!devMode) {
+                    ignoreUnknownKeys = true
+                    coerceInputValues = true
+                }
             })
         }
 

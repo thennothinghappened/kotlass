@@ -1,10 +1,8 @@
 package org.orca.kotlass.data
 
 import kotlinx.datetime.Instant
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
-import kotlinx.serialization.encodeToString
+import kotlinx.serialization.*
+import org.orca.kotlass.utils.FileTypeSerializer
 import org.orca.kotlass.utils.InstantNullableSerializer
 import org.orca.kotlass.utils.InstantSerializer
 
@@ -107,6 +105,7 @@ data class LearningTask(
     private val singleResultBreakdownCols: Int,
     val students: List<LearningTaskStudent>,
     private val subjectId: Unit? = null,
+    private val subjectHeader: Unit? = null,
     private val taskReportDescription: String,
     private val taskTitleOnReport: String,
     private val verticalBreakdownHeadings: Boolean,
@@ -136,10 +135,9 @@ data class LearningTaskAttachment(
     val id: String,
     val name: String,
     private val wikiNodeId: Int,
-    private val wikiNodeType: Int
-) {
-    @Transient val fileType = getFileType(wikiNodeType)
-}
+    @Serializable(FileTypeSerializer::class)
+    @SerialName("wikiNodeType") val fileType: FileType
+)
 
 /**
  * Learning task grade
@@ -201,14 +199,13 @@ data class LearningTaskSecurityOption(
 @Serializable
 data class LearningTaskSubmissionItem(
     @SerialName("__type") private val dataType: String,
+    @Serializable(FileTypeSerializer::class)
+    @SerialName("type") val fileType: FileType,
     val id: Int,
     val name: String,
-    @SerialName("type") private val _type: Int,
     private val masterGradingComponentId: Unit? = null,
     private val taskId: Int,
-) {
-    @Transient val fileType = getFileType(_type)
-}
+)
 
 /**
  * Learning task student info
@@ -223,6 +220,8 @@ data class LearningTaskStudent(
     val selfAssessmentEnabled: Boolean,
     val submissions: List<LearningTaskStudentSubmission>? = null,
     @SerialName("submissionStatus") private val _submissionStatus: Int,
+    @Serializable(InstantNullableSerializer::class)
+    val submittedTimestamp: Instant?,
     val teacherResponses: List<LearningTaskStudentTeacherResponse>? = null,
     @Serializable(InstantNullableSerializer::class)
     private val dueDateTimestamp: Instant?,
@@ -231,8 +230,6 @@ data class LearningTaskStudent(
     private val primaryResult: Unit? = null,
     @Serializable(InstantNullableSerializer::class)
     private val smsOutstandingSentTimestamp: Instant?,
-    @Serializable(InstantNullableSerializer::class)
-    val submittedTimestamp: Instant?,
     private val taskId: Int,
     private val userId: Int,
     private val userName: String
@@ -335,14 +332,14 @@ data class LearningTaskStudentSubmission(
     val fileId: String,
     val fileName: String,
     val id: Int,
+    @Serializable(FileTypeSerializer::class)
+    @SerialName("submissionFileType") val fileType: FileType,
     @Serializable(InstantSerializer::class)
     val timestamp: Instant,
     val taskSubmissionItemId: Int,
     private val contentUrl: String? = null,
-    @SerialName("submissionFileType") private val _submissionFileType: Int,
+
     private val submitterBaseRole: Int,
     private val taskStudentId: Int,
     private val wikiNodeId: Int? = null
-) {
-    @Transient val fileType = getFileType(_submissionFileType)
-}
+)

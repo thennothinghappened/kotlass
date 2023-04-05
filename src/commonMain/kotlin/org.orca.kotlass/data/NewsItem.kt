@@ -4,6 +4,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import org.orca.kotlass.utils.FileTypeSerializer
 import org.orca.kotlass.utils.InstantNullableSerializer
 
 /**
@@ -60,16 +61,15 @@ data class NewsItem(
 data class NewsItemAttachment(
     @SerialName("__type") private val dataType: String,
     @SerialName("AssetId") val assetId: Int,
-    @SerialName("FileAssetType") private val _fileAssetType: Int,
+    @Serializable(FileTypeSerializer::class)
+    @SerialName("FileAssetType") val fileType: FileType,
     @SerialName("IsImage") val isImage: Boolean,
     @SerialName("Name") val name: String,
     @SerialName("OriginalFileName") val originalFileName: String,
     @SerialName("UiLink") val uiLink: String,
     @SerialName("SourceOrganisationId") private val sourceOrganisationId: String?,
     @SerialName("Url") private val url: String?
-) {
-    @Transient val fileType = getFileType(_fileAssetType)
-}
+)
 
 /**
  * Custom target for newsfeed item
