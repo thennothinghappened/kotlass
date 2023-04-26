@@ -167,9 +167,9 @@ open class KotlassClient(
     }
 
     override fun validateCredentials(): NetResponse<Unit?> = runBlocking {
-        // We use getAllCampuses here since it'll generally have the smallest reply, and takes no input,
+        // We use getAllTaskCategories here since it generally has the smallest request and reply (while still requiring valid credentials)
         // eliminating API changes as a possible issue if we fail.
-        return@runBlocking when(val reply = getAllCampuses()) {
+        return@runBlocking when(val reply = getAllTaskCategories()) {
             is NetResponse.Success -> NetResponse.Success(null)
             is NetResponse.ClientError -> NetResponse.ClientError(reply.error)
             is NetResponse.RequestFailure -> NetResponse.RequestFailure(reply.httpStatusCode)
