@@ -93,6 +93,7 @@ data class Activity(
     @SerialName("IsYardDuty") val isYardDuty: Boolean,
     @SerialName("l") val locationName: String,
     @SerialName("LocationDetails") val locationDetails: Location? = null,
+    @SerialName("locations") val locations: List<LocationDetailsContainer>, // use this instead since it has covering too.
     @SerialName("ManagerPhotoPath") val managerPhotoPath: String,
     @SerialName("ManagerTextReadable") val managerTextReadable: String,
     @SerialName("PastInstance") val pastInstance: Boolean,
@@ -116,7 +117,6 @@ data class Activity(
     @SerialName("AttendeeLimit") private val attendeeLimit: Int? = null,
     @SerialName("ExtendedStatusId") private val extendedStatusId: Int? = null,
     @SerialName("LocationId") private val locationId: Int? = null,
-    @SerialName("locations") private val locations: List<LocationDetailsContainer>, // very redundant... big waste of memory
     @SerialName("ReadableAttendeeCount") private val readableAttendeeCount: String,
     @SerialName("SubjectId") private val subjectId: String,
     @SerialName("UserCanCancelOrDelete") private val userCanCancelOrDelete: Boolean,
