@@ -17,6 +17,7 @@ interface IFlowKotlassClient {
 
     val defaultSchedule: Pollable.Schedule
     val defaultNewsfeed: Pollable.Newsfeed
+    val defaultActionCentreEvents: Pollable.ActionCentreEvents
     val defaultLearningTasks: Pollable.LearningTasks
     val defaultTaskCategories: Pollable.TaskCategories
     val defaultResources: Map<Int, Pollable.ActivityResources>
@@ -28,6 +29,7 @@ interface IFlowKotlassClient {
         val schedule: Long = 2 * 60 * 1000,
         val newsfeed: Long = 10 * 60 * 1000,
         val learningTasks: Long = 20 * 60 * 1000,
+        val actionCentreEvents: Long = 24 * 60 * 60 * 1000,
         val taskCategories: Long = 24 * 60 * 60 * 1000,
         val activityResources: Long = 60 * 60 * 1000
     )
@@ -72,6 +74,11 @@ interface IFlowKotlassClient {
          * List of NewsItems for the Newsfeed.
          */
         class Newsfeed(pollRate: Long) : Pollable<List<NewsItem>>(pollRate = pollRate)
+
+        /**
+         * List of Events for the Action Centre.
+         */
+        class ActionCentreEvents(pollRate: Long) : Pollable<List<ActionCentreEvent>>(pollRate = pollRate)
 
         /**
          * List of LearningTasks, currently only concerning the whole year's worth. Making that request once rather than

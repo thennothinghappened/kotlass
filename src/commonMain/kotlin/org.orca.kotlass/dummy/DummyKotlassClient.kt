@@ -351,6 +351,10 @@ open class DummyKotlassClient(
         TODO("Not yet implemented")
     }
 
+    override suspend fun getEvents(): NetResponse<List<ActionCentreEvent>> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getHeaderImageUrlByActivityId(activityId: Int): NetResponse<String> {
         TODO("Not yet implemented")
     }

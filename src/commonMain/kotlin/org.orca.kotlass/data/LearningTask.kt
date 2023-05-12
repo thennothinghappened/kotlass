@@ -169,6 +169,7 @@ data class LearningTaskGradingItem(
     private val masterGradingComponentId: Unit? = null,
     private val max: String? = null,
     private val min: String? = null,
+    private val nzAssessmentStandard: Unit? = null,
     private val shortName: String,
     private val ordinal: Int,
     private val parentStudentAccess: Int,

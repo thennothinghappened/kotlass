@@ -150,6 +150,13 @@ interface IKotlassClient {
     suspend fun getAllAcademicGroups():
             NetResponse<List<AcademicGroup>>
 
+
+    /**
+     * Get list of Events (Action Centre)
+     */
+    suspend fun getEvents():
+            NetResponse<List<ActionCentreEvent>>
+
     /**
      * Get the URL for the banner image for an activity.
      */

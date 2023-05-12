@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Encoder
 // adding & removing 0xFF000000 is needed because this will most likely be used with compose and it makes that work properly
 // may remove later and transfer that responsibility to those apps
 object ColourSerializer : KSerializer<Long> {
-    override val descriptor = PrimitiveSerialDescriptor("org.orca.data.ColourSerializer", PrimitiveKind.STRING)
+    override val descriptor = PrimitiveSerialDescriptor("org.orca.utils.ColourSerializer", PrimitiveKind.STRING)
     override fun serialize(encoder: Encoder, value: Long) = encoder.encodeString("#${(value - 0xFF000000)
         .toString(16)
         .padStart(6, '0')}")

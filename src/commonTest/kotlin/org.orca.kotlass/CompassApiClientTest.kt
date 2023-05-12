@@ -27,7 +27,7 @@ class CompassApiClientTest {
 
     @Test
     fun testValidateCredentials(): Unit {
-        assertTrue(client.validateCredentials() is NetResponse.Success, "Credentials are invalid!")
+        doCheck(client.validateCredentials(), "credential validation, credentials are NOT VALID!")
     }
 
     // this one must happen sequentially and tests creation, modification and deletion of an item.
@@ -35,137 +35,129 @@ class CompassApiClientTest {
     fun testTaskItem(): Unit = runBlocking {
         // create the task
         val taskItem = TaskItemRequest.TaskItemRequestBody(taskName = "api_test_task")
-        val itemId = client.saveTaskItem(taskItem)
-        assertIs<NetResponse.Success<Int>>(itemId, "Error in saveTaskItem")
+        val itemId = doCheck(client.saveTaskItem(taskItem), "saveTaskItem")
 
         // update the task
         delay(500L)
         taskItem.id = itemId.data
         taskItem.taskName = "modified_api_test_task"
 
-        assertIs<NetResponse.Success<*>>(client.updateTaskItem(taskItem), "Error in updateTaskItem")
+        doCheck(client.updateTaskItem(taskItem), "updateTaskItem")
 
         // check update successful
         delay(500L)
-        val reply = client.getTaskItems()
-        assertIs<NetResponse.Success<List<TaskItem>>>(reply, "Error in getTaskItems")
+        val reply = doCheck(client.getTaskItems(), "getTaskItems")
         val serversideTask = reply.data.filter { it.id == taskItem.id }[0]
         assertEquals(serversideTask.taskName, taskItem.taskName, "Error in updateTaskItem")
 
         // delete the task
         delay(500L)
-        assertIs<NetResponse.Success<*>>(client.deleteTaskItem(taskItem), "Error in deleteTaskItem")
+        doCheck(client.deleteTaskItem(taskItem), "deleteTaskItem")
     }
 
     @Test
     fun testGetStandardClassesOfUserInAcademicGroup(): Unit = runBlocking {
-        val reply = client.getStandardClassesOfUserInAcademicGroup(
+        doCheck(client.getStandardClassesOfUserInAcademicGroup(
             StandardClassesOfUserRequest(
                 userId = SampleClientCredentials.userId
             )
-        )
-        assertIs<NetResponse.Success<*>>(reply, "Error in getStandardClassesOfUserInAcademicGroup: $reply")
+        ), "getStandardClassesOfUserInAcademicGroup")
     }
 
     @Test
     fun testDownloadFile(): Unit = runBlocking {
-        val reply = client.downloadFile(SampleClientCredentials.testFileAssetId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in downloadFile: $reply")
+        doCheck(client.downloadFile(SampleClientCredentials.testFileAssetId), "downloadFile")
     }
 
     @Test
     fun testGetLessonsByInstanceId(): Unit = runBlocking {
-        val reply = client.getLessonsByInstanceId(SampleClientCredentials.testInstanceId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getLessonsByInstanceId: $reply")
+        doCheck(client.getLessonsByInstanceId(SampleClientCredentials.testInstanceId), "getLessonsByInstanceId")
     }
 
     @Test
     fun testGetLessonsByInstanceIdQuick(): Unit = runBlocking {
-        val reply = client.getLessonsByInstanceIdQuick(SampleClientCredentials.testInstanceId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getLessonsByInstanceIdQuick: $reply")
+        doCheck(client.getLessonsByInstanceIdQuick(SampleClientCredentials.testInstanceId), "getLessonsByInstanceIdQuick")
     }
 
     @Test
     fun testGetLessonsByActivityId(): Unit = runBlocking {
-        val reply = client.getLessonsByActivityId(SampleClientCredentials.testActivityId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getLessonsByActivityId: $reply")
+        doCheck(client.getLessonsByActivityId(SampleClientCredentials.testActivityId), "getLessonsByActivityId")
     }
 
     @Test
     fun testGetLessonsByActivityIdQuick(): Unit = runBlocking {
-        val reply = client.getLessonsByActivityIdQuick(SampleClientCredentials.testActivityId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getLessonsByActivityIdQuick: $reply")
+        doCheck(client.getLessonsByActivityIdQuick(SampleClientCredentials.testActivityId), "getLessonsByActivityIdQuick")
     }
 
     @Test
     fun testGetAllLearningTasksByActivityId(): Unit = runBlocking {
-        val reply = client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getAllLearningTasksByActivityId: $reply")
+        doCheck(client.getAllLearningTasksByActivityId(SampleClientCredentials.testActivityId), "getAllLearningTasksByActivityId")
     }
 
     @Test
     fun testGetAllLearningTasksByUserId(): Unit = runBlocking {
-        val reply = client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicGroup)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getAllLearningTasksByUserId: $reply")
+        doCheck(client.getAllLearningTasksByUserId(SampleClientCredentials.testAcademicGroup), "getAllLearningTasksByUserId")
     }
 
     @Test
     fun testGetAllTaskCategories(): Unit = runBlocking {
-        val reply = client.getAllTaskCategories()
-        assertIs<NetResponse.Success<*>>(reply, "Error in getAllTaskCategories: $reply")
+        doCheck(client.getAllTaskCategories(), "getAllTaskCategories")
     }
 
     @Test
     fun testGetCalendarEventsByUser(): Unit = runBlocking {
-        val reply = client.getCalendarEventsByUser(LocalDate(2023, 1, 30))
-        assertIs<NetResponse.Success<*>>(reply, "Error in getCalendarEventsByUser: $reply")
+        doCheck(client.getCalendarEventsByUser(LocalDate(2023, 1, 30)), "getCalendarEventsByUser")
     }
 
     @Test
     fun testGetCalendarsByUser(): Unit = runBlocking {
-        val reply = client.getCalendarsByUser()
-        assertIs<NetResponse.Success<*>>(reply, "Error in getCalendarsByUser: $reply")
+        doCheck(client.getCalendarsByUser(), "getCalendarsByUser")
     }
 
     @Test
     fun testGetMyNewsFeedPaged(): Unit = runBlocking {
-        val reply = client.getMyNewsFeedPaged()
-        assertIs<NetResponse.Success<*>>(reply, "Error in getMyNewsFeedPaged: $reply")
+        doCheck(client.getMyNewsFeedPaged(), "getMyNewsFeedPaged")
     }
 
     @Test
     fun testGetMyAlerts(): Unit = runBlocking {
-        val reply = client.getMyAlerts()
-        assertIs<NetResponse.Success<*>>(reply, "Error in getMyAlerts: $reply")
+        doCheck(client.getMyAlerts(), "getMyAlerts")
     }
 
     @Test
     fun testGetAllLocations(): Unit = runBlocking {
-        val reply = client.getAllLocations()
-        assertIs<NetResponse.Success<*>>(reply, "Error in getAllLocations: $reply")
+        doCheck(client.getAllLocations(), "getAllLocations")
     }
 
     @Test
     fun testGetAllCampuses(): Unit = runBlocking {
-        val reply = client.getAllCampuses()
-        assertIs<NetResponse.Success<*>>(reply, "Error in getAllCampuses: $reply")
+        doCheck(client.getAllCampuses(), "getAllCampuses")
     }
 
     @Test
     fun testGetAllAcademicGroups(): Unit = runBlocking {
-        val reply = client.getAllAcademicGroups()
-        assertIs<NetResponse.Success<*>>(reply, "Error in getAllAcademicGroups: $reply")
+        doCheck(client.getAllAcademicGroups(), "getAllAcademicGroups")
+    }
+
+    @Test
+    fun testGetEvents(): Unit = runBlocking {
+        doCheck(client.getEvents(), "getEvents")
     }
 
     @Test
     fun testGetHeaderImageUrlByActivityId(): Unit = runBlocking {
-        val reply = client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getHeaderImageUrlByActivityId: $reply")
+        doCheck(client.getHeaderImageUrlByActivityId(SampleClientCredentials.testActivityId), "getHeaderImageUrlByActivityId")
     }
 
     @Test
     fun testGetActivityAndSubjectResourcesNode(): Unit = runBlocking {
-        val reply = client.getActivityAndSubjectResourcesNode(SampleClientCredentials.testActivityId)
-        assertIs<NetResponse.Success<*>>(reply, "Error in getActivityAndSubjectResourcesNode: $reply")
+        doCheck(client.getActivityAndSubjectResourcesNode(SampleClientCredentials.testActivityId), "getActivityAndSubjectResourcesNode")
+    }
+
+    private inline fun <reified T> doCheck(reply: NetResponse<T>, name: String): NetResponse.Success<T> {
+        if (reply is NetResponse.Error<*>) {
+            throw reply.error
+        }
+        return reply as NetResponse.Success<T>;
     }
 }

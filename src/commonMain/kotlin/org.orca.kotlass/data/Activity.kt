@@ -52,6 +52,7 @@ data class ActivitySummary(
     @SerialName("IsStandardClass") val isStandardClass: Boolean,
     @SerialName("IsYardDuty") val isYardDuty: Boolean,
     @SerialName("RollTapThreshold") private val rollTapThreshold: Int,
+    @SerialName("ShowNewsFeed") val showNewsFeed: Boolean? = null,
     @SerialName("SubjectCoordinatorId") private val subjectCoordinatorId: String? = null,
     @SerialName("SubjectId") private val subjectId: Int,
     @SerialName("SubjectName") val subjectName: String,
@@ -98,6 +99,7 @@ data class Activity(
     @SerialName("ManagerTextReadable") val managerTextReadable: String,
     @SerialName("PastInstance") val pastInstance: Boolean,
     @SerialName("RunningStatus") val runningStatus: Boolean,
+    @SerialName("ShowNewsFeed") val showNewsFeed: Boolean? = null,
     @SerialName("SubjectName") val subjectName: String? = null,
     @SerialName("SubjectShortname") val subjectShortName: String? = null,
     @SerialName("UpcomingInstance") val upcomingInstance: Boolean, //todo: duplicate of FutureInstance?

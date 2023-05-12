@@ -71,6 +71,7 @@ open class KotlassClient(
         const val taskService = "TaskService"
         const val subjects = "Subjects"
         const val wiki = "Wiki"
+        const val actionCentre = "ActionCentre"
     }
 
     override fun buildDomainUrlString(endpoint: String) =
@@ -258,6 +259,9 @@ open class KotlassClient(
 
     override suspend fun getAllAcademicGroups(): NetResponse<List<AcademicGroup>> =
         makeApiGetRequest(Services.referenceDataCache, "GetAllAcademicGroups")
+
+    override suspend fun getEvents(): NetResponse<List<ActionCentreEvent>> =
+        makeApiPostRequest(Services.actionCentre, "GetEvents", "")
 
     override suspend fun getHeaderImageUrlByActivityId(activityId: Int): NetResponse<String> =
         makeApiPostRequest(Services.activity, "GetHeaderImageUrlByActivityId", ActivitySummaryByActivityIdRequest(

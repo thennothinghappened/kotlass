@@ -28,6 +28,7 @@ open class FlowKotlassClient(
 
     override val defaultSchedule = Pollable.Schedule(refreshIntervals.schedule)
     override val defaultNewsfeed = Pollable.Newsfeed(refreshIntervals.newsfeed)
+    override val defaultActionCentreEvents = Pollable.ActionCentreEvents(refreshIntervals.actionCentreEvents)
     override val defaultLearningTasks = Pollable.LearningTasks(refreshIntervals.learningTasks)
     override val defaultTaskCategories = Pollable.TaskCategories(refreshIntervals.taskCategories)
     override val defaultResources: Map<Int, Pollable.ActivityResources> = _defaultResources
@@ -222,6 +223,17 @@ open class FlowKotlassClient(
             newsfeed._state.value = State.Error(reply as NetResponse.Error<*>)
     }
 
+    private suspend fun pollActionCentreEventsUpdate(events: Pollable.ActionCentreEvents = defaultActionCentreEvents) {
+        if (events.state.value is State.Loading) return
+        events._state.value = State.Loading()
+
+        val reply = getEvents()
+        if (reply is NetResponse.Success)
+            events._state.value = State.Success(reply.data)
+        else
+            events._state.value = State.Error(reply as NetResponse.Error<*>)
+    }
+
     private suspend fun pollLearningTasksUpdate(learningTasks: Pollable.LearningTasks = defaultLearningTasks) {
         if (learningTasks.state.value is State.Loading) return
         learningTasks._state.value = State.Loading()
@@ -270,6 +282,7 @@ open class FlowKotlassClient(
             is Pollable.Schedule -> pollScheduleUpdate(item)
             is Pollable.LearningTasks -> pollLearningTasksUpdate(item)
             is Pollable.Newsfeed -> pollNewsfeedUpdate(item)
+            is Pollable.ActionCentreEvents -> pollActionCentreEventsUpdate(item)
             is Pollable.TaskCategories -> pollTaskCategoriesUpdate(item)
             is Pollable.ActivityResources -> pollActivityResourcesUpdate(item)
         }
