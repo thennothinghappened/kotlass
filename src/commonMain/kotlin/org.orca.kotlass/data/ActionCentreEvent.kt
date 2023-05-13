@@ -11,6 +11,12 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import org.orca.kotlass.utils.InstantNullableSerializer
 import org.orca.kotlass.utils.InstantSerializer
 
+enum class ActionCentreEventAttendanceStatus {
+    PENDING,
+    ATTENDING,
+    AFTER_CONSENT_DATE
+}
+
 @Serializable
 data class ActionCentreEvent(
     @SerialName("__type") private val dataType: String,
@@ -22,7 +28,7 @@ data class ActionCentreEvent(
     val amountPaid: Float,
     val cost: Float,
     val attendeeLimit: Int? = null,
-    val attendeeStatus: Int,
+    @SerialName("attendeeStatus") private val _attendeeStatus: Int,
     val canProvideEventConsent: Boolean,
     val confirmedAttendeesCount: Int,
     @Serializable(InstantNullableSerializer::class)
@@ -84,6 +90,13 @@ data class ActionCentreEvent(
         val l = (_location as JsonObject)
         json.decodeFromJsonElement(_location)
     } else null
+
+    @Transient val attendanceStatus = when(_attendeeStatus) {
+        0 -> ActionCentreEventAttendanceStatus.PENDING
+        1 -> ActionCentreEventAttendanceStatus.ATTENDING
+        2 -> ActionCentreEventAttendanceStatus.AFTER_CONSENT_DATE
+        else -> { throw Throwable("Unknown attendance status $_attendeeStatus") }
+    }
 }
 
 @Serializable
