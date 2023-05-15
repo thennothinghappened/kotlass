@@ -16,7 +16,7 @@ private val _fileTypes = listOf(
     FileType.Link
 )
 
-object FileTypeSerializer : KSerializer<FileType> {
+internal object FileTypeSerializer : KSerializer<FileType> {
     override val descriptor = PrimitiveSerialDescriptor("org.orca.utils.FileTypeSerializer", PrimitiveKind.INT)
     override fun serialize(encoder: Encoder, value: FileType) = encoder.encodeInt(_fileTypes.indexOf(value))
     override fun deserialize(decoder: Decoder): FileType {

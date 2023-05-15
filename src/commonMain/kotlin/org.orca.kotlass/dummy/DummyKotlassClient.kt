@@ -7,6 +7,12 @@ import org.orca.kotlass.IKotlassClient
 import org.orca.kotlass.data.*
 import kotlin.random.Random
 
+/**
+ * Kotlass client that impersonates real responses from a Compass webserver.
+ *
+ * May be useful for testing to avoid making unneeded requests to the server
+ * where only sample data is needed.
+ */
 open class DummyKotlassClient(
     private val domain: String,
     private val fakeWaitTime: Long = 0L

@@ -1,9 +1,14 @@
 plugins {
-    kotlin("multiplatform") version "1.7.21"
+    kotlin("multiplatform") version "1.8.21"
     kotlin("plugin.serialization") version "1.8.0"
     id("com.android.library")
     id("maven-publish")
     id("org.jetbrains.kotlin.android") version "1.8.0" apply false
+    id("org.jetbrains.dokka") version "1.8.10"
+}
+
+subprojects {
+    apply(plugin = "org.jetbrains.dokka")
 }
 
 group = "org.orca"
@@ -41,18 +46,10 @@ kotlin {
             }
         }
     }
-//    macosX64 {
-//        binaries {
-//            executable {
-//                entryPoint = "main"
-//            }
-//        }
-//    }
     sourceSets {
         val ktorVersion = "2.2.2"
         val coroutinesVersion = "1.6.4"
         val datetimeVersion = "0.4.0"
-//        val okioVersion = "3.3.0"
         val commonMain by getting {
             dependencies {
                 implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -61,7 +58,6 @@ kotlin {
                 implementation("io.ktor:ktor-client-logging:$ktorVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-datetime:$datetimeVersion")
-//                implementation("com.squareup.okio:okio:$okioVersion")
             }
         }
         val commonTest by getting {
@@ -98,12 +94,6 @@ kotlin {
             }
         }
         val iosArm64Test by getting
-//        val macosX64Main by getting {
-//            dependencies {
-//                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
-//            }
-//        }
-//        val macosX64Test by getting
     }
 }
 

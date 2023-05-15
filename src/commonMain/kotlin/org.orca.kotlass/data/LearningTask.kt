@@ -52,7 +52,22 @@ data class LearningTaskSortType(
 }
 
 /**
- * Contains information about a specific class or "activity".
+ * A Learning Task is coursework set by a teacher usually with a due date.
+ *
+ * @see Activity
+ * @property activityId ID associated with the activity from which this task originated
+ * @property activityName Readable name of the activity associated
+ * @property attachments List of attachments specified by the teacher to download for this task
+ * @property createdTimestamp Time at which the task was created
+ * @property description Details of this task as HTML.
+ * @property dueDateTimestamp When the task is due
+ * @property categoryId Integer corresponding to the ID of a [TaskCategory] for which this task is associated
+ * @property gradingItems TODO
+ * @property hidden Whether this task should be displayed
+ * @property id Integer ID corresponding to this task
+ * @property name Name of the task
+ * @property subjectName Readable name of the activity this task is associated with
+ * @property submissionItems List of items submitted to the task
  */
 @Serializable
 data class LearningTask(
@@ -125,7 +140,12 @@ data class LearningTaskSemesterReportsTaskCycle(
 )
 
 /**
- * An attachment on a learning task
+ * An attachment for a [LearningTask] added by a teacher.
+ *
+ * @property fileName The name of the file when it was uploaded
+ * @property id ID for the associated file if stored on Compass for using with [org.orca.kotlass.IKotlassClient] `downloadFile()`
+ * @property name Display name
+ * @property fileType [FileType] of the file
  */
 @Serializable
 data class LearningTaskAttachment(
@@ -244,6 +264,13 @@ data class LearningTaskStudent(
     }
 }
 
+/**
+ * @see LearningTask
+ * @property PENDING Not yet been received, and the deadline hasn't hit.
+ * @property OVERDUE Deadline has hit and not received
+ * @property SUBMITTED_ON_TIME Submitted before deadline
+ * @property SUBMITTED_LATE Submitted after deadline
+ */
 enum class LearningTaskSubmissionStatus {
     PENDING,
     OVERDUE,
