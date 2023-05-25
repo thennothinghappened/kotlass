@@ -121,8 +121,8 @@ data class LearningTask(
     val students: List<LearningTaskStudent>,
     private val subjectId: Unit? = null,
     private val subjectHeader: Unit? = null,
-    private val taskReportDescription: String,
-    private val taskTitleOnReport: String,
+    private val taskReportDescription: String? = null,
+    private val taskTitleOnReport: String? = null,
     private val verticalBreakdownHeadings: Boolean,
     private val wikiNodeId: Int
 )
