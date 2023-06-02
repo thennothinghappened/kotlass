@@ -120,7 +120,7 @@ data class LearningTask(
     private val showTaskDueDates: Boolean,
     private val singleResultBreakdownCols: Int,
     val students: List<LearningTaskStudent>,
-    private val subjectId: Unit? = null,
+    private val subjectId: Int? = null,
     private val subjectHeader: Unit? = null,
     private val taskReportDescription: String? = null,
     private val taskTitleOnReport: String? = null,
