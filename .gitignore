@@ -4,3 +4,4 @@ local.properties
 build
 /src/commonTest/kotlin/org.orca.kotlass/ClientCredentials.kt
 /java_pid*
+**/.DS_Store
