@@ -12,7 +12,7 @@ subprojects {
 }
 
 group = "org.orca"
-version = "1.0.0"
+version = "1.1.0"
 
 val GITHUB_USER = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USER")
 val GITHUB_TOKEN = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
