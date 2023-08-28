@@ -1,10 +1,10 @@
 plugins {
-    kotlin("multiplatform") version "1.8.21"
-    kotlin("plugin.serialization") version "1.8.0"
+    kotlin("multiplatform")
+    kotlin("plugin.serialization")
     id("com.android.library")
     id("maven-publish")
-    id("org.jetbrains.kotlin.android") version "1.8.0" apply false
-    id("org.jetbrains.dokka") version "1.8.10"
+    id("org.jetbrains.kotlin.android") apply false
+    id("org.jetbrains.dokka")
 }
 
 subprojects {
@@ -40,15 +40,8 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
-    
     android()
-    iosArm64 {
-        binaries {
-            framework {
-                baseName = "library"
-            }
-        }
-    }
+
     sourceSets {
         val ktorVersion = "2.2.2"
         val coroutinesVersion = "1.6.4"
@@ -91,21 +84,17 @@ kotlin {
                 implementation("junit:junit:4.13.2")
             }
         }
-        val iosArm64Main by getting {
-            dependencies {
-                implementation("io.ktor:ktor-client-darwin:$ktorVersion")
-            }
-        }
-        val iosArm64Test by getting
     }
 }
 
 android {
+    namespace = group.toString()
+
     compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 23
-        targetSdk = 33
+        compileSdk = 33
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
