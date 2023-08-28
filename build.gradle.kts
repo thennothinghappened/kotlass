@@ -14,6 +14,9 @@ subprojects {
 group = "org.orca"
 version = "1.0"
 
+val GITHUB_USER: String? by project
+val GITHUB_TOKEN: String? by project
+
 repositories {
     google()
     mavenCentral()
@@ -110,6 +113,21 @@ android {
     }
 }
 dependencies {
-    implementation("androidx.core:core-ktx:+")
-    implementation("androidx.core:core-ktx:+")
+    implementation("androidx.core:core-ktx:1.10.1")
+    implementation("androidx.core:core-ktx:1.10.1")
+}
+
+
+GITHUB_USER?.let {
+    publishing {
+        repositories {
+            maven {
+                setUrl("https://maven.pkg.github.com/thennothinghappened/kotlass")
+                credentials {
+                    username = GITHUB_USER!!
+                    password = GITHUB_TOKEN!!
+                }
+            }
+        }
+    }
 }
