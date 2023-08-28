@@ -29,7 +29,7 @@ data class CalendarLayer(
     val isCustom: Boolean,
     val title: String,
     val viewOnly: Boolean, //todo: what is this for
-    private val calendarManagerUserIds: Int? = null,
-    private val isICal: Boolean,
-    private val userIdTarget: Int? = null
+//    private val calendarManagerUserIds: Int? = null,
+//    private val isICal: Boolean,
+//    private val userIdTarget: Int? = null
 )

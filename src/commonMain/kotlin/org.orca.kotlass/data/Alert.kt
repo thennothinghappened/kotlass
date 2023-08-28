@@ -14,6 +14,6 @@ data class Alert(
     @SerialName("LinkUrl") val linkUrl: String,
     @SerialName("Title") val title: String,
     @SerialName("Type") val type: Int, //todo: what are the types?
-    @SerialName("ImageSourceUrl") private val imageSourceUrl: String, //todo: alerts with images?
-    @SerialName("IsWarning") private val isWarning: Boolean //todo: what triggers this?
+//    @SerialName("ImageSourceUrl") private val imageSourceUrl: String, //todo: alerts with images?
+//    @SerialName("IsWarning") private val isWarning: Boolean //todo: what triggers this?
 )

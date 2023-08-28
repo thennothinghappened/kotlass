@@ -21,6 +21,8 @@ data class DataExtGridDataContainer<T>(
 
 internal val json = Json {
     encodeDefaults = true
+    ignoreUnknownKeys = true
+    coerceInputValues = true
 }
 
 internal interface Request {

@@ -28,12 +28,13 @@ open class KotlassClient(
         val cookie: String
     }
 
-    private val client = HttpClient() {
+    private val client = HttpClient {
         install(ContentNegotiation) {
             json(Json {
                 prettyPrint = true
+                ignoreUnknownKeys = true
+
                 if (!devMode) {
-                    ignoreUnknownKeys = true
                     coerceInputValues = true
                 }
             })

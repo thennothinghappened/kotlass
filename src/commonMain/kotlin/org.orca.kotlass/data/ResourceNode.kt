@@ -46,10 +46,10 @@ data class ResourceNode(
     val name: String,
     val parentNodeId: Int? = null,
 
-    private val createdBy: Int? = null,
-    private val inheritedPermissions: Boolean,
-    private val permissions: List<Int>,
-    private val viewLevel: Int
+//    private val createdBy: Int? = null,
+//    private val inheritedPermissions: Boolean,
+//    private val permissions: List<Int>,
+//    private val viewLevel: Int
 ) {
     public fun find(id: Int) = children.find { it.id == id }
 

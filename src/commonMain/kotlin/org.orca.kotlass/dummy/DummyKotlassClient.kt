@@ -130,17 +130,7 @@ open class DummyKotlassClient(
         name = name,
         subjectId = random.nextInt(5000),
         subjectLongName = longName,
-        yearLevelShortName = "Year ${random.nextInt(7, 13)}",
-        attendanceModeDefault = 1,
-        checkInEnabledDefault = 0,
-        extendedStatusId = 110,
-        haparaSyncEnabled = false,
-        importTeachers = false,
-        layerAllowsImport = true,
-        layerId = 2,
-        rollTapThreshold = 0,
-        subjectImportIdentifier = name,
-        timetableStructureId = 2
+        yearLevelShortName = "Year ${random.nextInt(7, 13)}"
     )
 
     /**
@@ -169,23 +159,9 @@ open class DummyKotlassClient(
         userName = userName,
         newsItemGroupTargets = newsItemGroupTargets,
         showImagesFullscreen = false,
-        userId = 0,
-        emailSentDate = "",
         postDateTime = null,
         startDate = null,
         finishDate = null,
-        locked = true,
-        newsItemCustomGroupTargets = NewsItemCustomGroupTarget(
-            "",
-            emptyList(),
-            emptyList()
-        ),
-        newsItemId = "",
-        publicWebsite = false,
-        publishToLinkedSchools = false,
-        publishToTalkingPoints = false,
-        startFinishString = "",
-        talkingPointsTags = emptyList()
     )
 
     /**
@@ -213,16 +189,7 @@ open class DummyKotlassClient(
         instanceId = instanceId,
         title = title,
         longTitleWithoutTime = longTitleWithoutTime,
-        allDay = false,
-        attendanceMode = 1,
-        attendeeUserId = 0,
-        guid = "",
-        isRecurring = false,
-        repeatForever = false,
-        repeatFrequency = 0,
-        rollMarked = true,
-        runningStatus = 1,
-        teachingDaysOnly = false
+        allDay = false
     )
 
     private fun findTaskById(id: Int) =

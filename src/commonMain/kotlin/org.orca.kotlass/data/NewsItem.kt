@@ -42,16 +42,16 @@ data class NewsItem(
     @SerialName("Finish") val finishDate: Instant?, // useful to know when post expires
     @SerialName("NewsItemGroupTargets") val newsItemGroupTargets: List<NewsItemGroupTarget>, // the group of people this will be sent to
     @SerialName("ShowImagesFullScreen") val showImagesFullscreen: Boolean,
-    @SerialName("UserId") private val userId: Int, // duplicate of above
-    @SerialName("EmailSentDate") private val emailSentDate: String,
-    @SerialName("Locked") private val locked: Boolean,
-    @SerialName("NewsItemCustomGroupTargets") private val newsItemCustomGroupTargets: NewsItemCustomGroupTarget, // this doesn't seem to be used
-    @SerialName("NewsItemId") private val newsItemId: String, // todo: this probably isn't useful
-    @SerialName("PublicWebsite") private val publicWebsite: Boolean,
-    @SerialName("PublishToLinkedSchools") private val publishToLinkedSchools: Boolean,
-    @SerialName("PublishToTalkingPoints") private val publishToTalkingPoints: Boolean,
-    @SerialName("StartFinishString") private val startFinishString: String,
-    @SerialName("TalkingPointsTags") private val talkingPointsTags: List<String>,
+//    @SerialName("UserId") private val userId: Int, // duplicate of above
+//    @SerialName("EmailSentDate") private val emailSentDate: String,
+//    @SerialName("Locked") private val locked: Boolean,
+//    @SerialName("NewsItemCustomGroupTargets") private val newsItemCustomGroupTargets: NewsItemCustomGroupTarget, // this doesn't seem to be used
+//    @SerialName("NewsItemId") private val newsItemId: String, // todo: this probably isn't useful
+//    @SerialName("PublicWebsite") private val publicWebsite: Boolean,
+//    @SerialName("PublishToLinkedSchools") private val publishToLinkedSchools: Boolean,
+//    @SerialName("PublishToTalkingPoints") private val publishToTalkingPoints: Boolean,
+//    @SerialName("StartFinishString") private val startFinishString: String,
+//    @SerialName("TalkingPointsTags") private val talkingPointsTags: List<String>,
 )
 
 /**
@@ -68,7 +68,7 @@ data class NewsItemAttachment(
     @SerialName("OriginalFileName") val originalFileName: String,
     @SerialName("UiLink") val uiLink: String,
     @SerialName("SourceOrganisationId") private val sourceOrganisationId: String?,
-    @SerialName("Url") private val url: String?
+//    @SerialName("Url") private val url: String?
 )
 
 /**

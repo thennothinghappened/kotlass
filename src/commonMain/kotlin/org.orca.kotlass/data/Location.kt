@@ -6,9 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Location(
     private @SerialName("__type") val dataType: String,
-    private val archived: Boolean,
-    private val availableForBooking: Boolean? = null,
-    private val building: String? = null,
     val computerNumber: Int? = null,
     val hasCooling: Boolean? = null,
     val hasDvd: Boolean? = null,
@@ -29,5 +26,7 @@ data class Location(
     val roomName: String? = null,
     val seatNumber: Int? = null,
     val shortName: String? = null,
-
+//    private val archived: Boolean,
+//    private val availableForBooking: Boolean? = null,
+//    private val building: String? = null,
 )

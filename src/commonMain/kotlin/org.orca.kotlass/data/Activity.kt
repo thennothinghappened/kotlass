@@ -28,21 +28,10 @@ data class ActivitySummaryByActivityIdRequest(
 data class ActivitySummary(
     @SerialName("__type") private val dataType: String,
     @SerialName("AcademicYearLevel") val academicYearLevel: String,
-    @SerialName("ActivityDefaultAttendanceMode") private val activityDefaultAttendanceMode: Int,
-    @SerialName("ActivityDefaultCampusId") private val activityDefaultCampusId: Int? = null,
-    @SerialName("ActivityDefaultCustomLocation") private val activityDefaultCustomLocation: Int? = null,
-    @SerialName("ActivityDefaultLocationId") private val activityDefaultLocationId: Int? = null,
     @SerialName("ActivityDisplayName") val activityDisplayName: String,
-    @SerialName("ActivityFinish") private val activityFinish: String? = null,
     @SerialName("ActivityId") val activityId: Int,
-    @SerialName("ActivityImportIdentifier") private val activityImportIdentifier: String,
     @SerialName("ActivityManagerId") val activityManagerId: String,
-    @SerialName("ActivityPermissions") private val activityPermissions: ActivityPermissions,
     @SerialName("ActivitySingular") val activitySingular: String,
-    @SerialName("ActivityStart") private val activityStart: String? = null,
-    @SerialName("ExtendedStatusId") private val extendedStatusId: Int,
-    @SerialName("FacultyId") private val facultyId: Int,
-    @SerialName("FacultyManagerIds") private val facultyManagerIds: List<Int>,
     @SerialName("Instances") val instances: List<Activity>,
     @SerialName("IsBusRoute") val isBusRoute: Boolean,
     @SerialName("IsExam") val isExam: Boolean,
@@ -51,12 +40,23 @@ data class ActivitySummary(
     @SerialName("IsSchoolApproval") val isSchoolApproval: Boolean,
     @SerialName("IsStandardClass") val isStandardClass: Boolean,
     @SerialName("IsYardDuty") val isYardDuty: Boolean,
-    @SerialName("RollTapThreshold") private val rollTapThreshold: Int,
-    @SerialName("ShowNewsFeed") val showNewsFeed: Boolean? = null,
-    @SerialName("SubjectCoordinatorId") private val subjectCoordinatorId: String? = null,
-    @SerialName("SubjectId") private val subjectId: Int,
     @SerialName("SubjectName") val subjectName: String,
-    @SerialName("SubjectShortName") val subjectShortName: String
+    @SerialName("SubjectShortName") val subjectShortName: String,
+    @SerialName("ShowNewsFeed") val showNewsFeed: Boolean? = null,
+//    @SerialName("ActivityDefaultAttendanceMode") private val activityDefaultAttendanceMode: Int,
+//    @SerialName("ActivityDefaultCampusId") private val activityDefaultCampusId: Int? = null,
+//    @SerialName("ActivityDefaultCustomLocation") private val activityDefaultCustomLocation: Int? = null,
+//    @SerialName("ActivityDefaultLocationId") private val activityDefaultLocationId: Int? = null,
+//    @SerialName("ActivityFinish") private val activityFinish: String? = null,
+//    @SerialName("ActivityImportIdentifier") private val activityImportIdentifier: String,
+//    @SerialName("ActivityPermissions") private val activityPermissions: ActivityPermissions,
+//    @SerialName("ActivityStart") private val activityStart: String? = null,
+//    @SerialName("ExtendedStatusId") private val extendedStatusId: Int,
+//    @SerialName("FacultyId") private val facultyId: Int,
+//    @SerialName("FacultyManagerIds") private val facultyManagerIds: List<Int>,
+//    @SerialName("RollTapThreshold") private val rollTapThreshold: Int,
+//    @SerialName("SubjectCoordinatorId") private val subjectCoordinatorId: String? = null,
+//    @SerialName("SubjectId") private val subjectId: Int,
 )
 
 /**
@@ -114,21 +114,21 @@ data class Activity(
     @SerialName("lp") val lessonPlan: ActivityLessonPlan,
     @SerialName("m") val managerShortName: String,
     @SerialName("managers") val managers: List<Manager>,
-    @SerialName("ActivityImportIdentifier") private val activityImportIdentifier: String,
-    @SerialName("AttendanceMode") private val attendanceMode: Int,
-    @SerialName("AttendeeLimit") private val attendeeLimit: Int? = null,
-    @SerialName("ExtendedStatusId") private val extendedStatusId: Int? = null,
-    @SerialName("LocationId") private val locationId: Int? = null,
-    @SerialName("ReadableAttendeeCount") private val readableAttendeeCount: String,
-    @SerialName("SubjectId") private val subjectId: String,
-    @SerialName("UserCanCancelOrDelete") private val userCanCancelOrDelete: Boolean,
-    @SerialName("UserCanEdit") private val userCanEdit: Boolean,
-    @SerialName("bs") private val bs: List<ActivityBR>,
-    @SerialName("dt") private val dateTime: String,
-    @SerialName("irm") private val irm: Boolean,
-    @SerialName("mi") private val mi: Int,
-    @SerialName("rollTapThreshold") private val rollTapThreshold: Int,
-    @SerialName("wsv") private val wsv: String
+//    @SerialName("ActivityImportIdentifier") private val activityImportIdentifier: String,
+//    @SerialName("AttendanceMode") private val attendanceMode: Int,
+//    @SerialName("AttendeeLimit") private val attendeeLimit: Int? = null,
+//    @SerialName("ExtendedStatusId") private val extendedStatusId: Int? = null,
+//    @SerialName("LocationId") private val locationId: Int? = null,
+//    @SerialName("ReadableAttendeeCount") private val readableAttendeeCount: String,
+//    @SerialName("SubjectId") private val subjectId: String,
+//    @SerialName("UserCanCancelOrDelete") private val userCanCancelOrDelete: Boolean,
+//    @SerialName("UserCanEdit") private val userCanEdit: Boolean,
+//    @SerialName("bs") private val bs: List<ActivityBR>,
+//    @SerialName("dt") private val dateTime: String,
+//    @SerialName("irm") private val irm: Boolean,
+//    @SerialName("mi") private val mi: Int,
+//    @SerialName("rollTapThreshold") private val rollTapThreshold: Int,
+//    @SerialName("wsv") private val wsv: String
 )
 
 /**
@@ -141,8 +141,8 @@ data class LocationDetailsContainer(
     @SerialName("LocationId") val locationId: Int,
     @SerialName("CoveringLocationDetails") val coveringLocationDetails: Location? = null,
     @SerialName("CoveringLocationId") val coveringLocationId: Int? = null,
-    private val campusId: Int? = null,
-    private val customLocation: Unit? = null
+//    private val campusId: Int? = null,
+//    private val customLocation: Unit? = null
 )
 
 /**
@@ -167,9 +167,9 @@ data class ActivityLessonPlan(
     @SerialName("__type") private val dataType: String,
     val fileAssetId: String? = null,
     val name: String? = null,
-    private val mp: String,
-    private val sp: String? = null,
-    private val wnid: Int? = null,
+//    private val mp: String,
+//    private val sp: String? = null,
+//    private val wnid: Int? = null,
 )
 
 /**
