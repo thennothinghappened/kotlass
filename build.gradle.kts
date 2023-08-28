@@ -12,7 +12,7 @@ subprojects {
 }
 
 group = "org.orca"
-version = "1.1.0"
+version = "1.1.1"
 
 val GITHUB_USER = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USER")
 val GITHUB_TOKEN = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
@@ -24,9 +24,7 @@ repositories {
 
 kotlin {
     jvm {
-        compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
-        }
+        jvmToolchain(18)
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
@@ -40,7 +38,11 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
-    android()
+    androidTarget {
+        compilations.all {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+    }
 
     sourceSets {
         val ktorVersion = "2.2.2"
