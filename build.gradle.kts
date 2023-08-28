@@ -12,7 +12,7 @@ subprojects {
 }
 
 group = "org.orca"
-version = "1.0"
+version = "1.0.0"
 
 val GITHUB_USER: String? by project
 val GITHUB_TOKEN: String? by project
