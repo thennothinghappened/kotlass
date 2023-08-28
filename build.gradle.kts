@@ -14,8 +14,8 @@ subprojects {
 group = "org.orca"
 version = "1.0.0"
 
-val GITHUB_USER: String? by project
-val GITHUB_TOKEN: String? by project
+val GITHUB_USER = project.findProperty("gpr.user") as String? ?: System.getenv("GITHUB_USER")
+val GITHUB_TOKEN = project.findProperty("gpr.key") as String? ?: System.getenv("GITHUB_TOKEN")
 
 repositories {
     google()
@@ -117,16 +117,13 @@ dependencies {
     implementation("androidx.core:core-ktx:1.10.1")
 }
 
-
-GITHUB_USER?.let {
-    publishing {
-        repositories {
-            maven {
-                setUrl("https://maven.pkg.github.com/thennothinghappened/kotlass")
-                credentials {
-                    username = GITHUB_USER!!
-                    password = GITHUB_TOKEN!!
-                }
+publishing {
+    repositories {
+        maven {
+            setUrl("https://maven.pkg.github.com/thennothinghappened/kotlass")
+            credentials {
+                username = GITHUB_USER
+                password = GITHUB_TOKEN
             }
         }
     }
