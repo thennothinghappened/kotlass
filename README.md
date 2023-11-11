@@ -1,2 +1,2 @@
 # kotlass
- Kotlin based client for the Compass REST API.
+Unofficial Kotlin Multiplatform client for the [Compass](https://compass.education/) REST API!
