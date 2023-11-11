@@ -28,7 +28,7 @@ dependencyResolutionManagement {
             library("ktor-client-jvm", "io.ktor:ktor-client-jvm:2.2.4")
             library("kotlinx-datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
             library("kotlinx-serialization-json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
-            library("touchlab-kermit", "co.touchlab:kermit:1.2.2")
+            library("touchlab-kermit", "co.touchlab:kermit:2.0.2")
         }
     }
 }
