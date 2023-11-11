@@ -9,3 +9,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# For testing, create this file and populate with your credentials.
+shared/src/commonTest/kotlin/org/orca/kotlass/client/COMPASS_PRIVATE_TEST_DATA.kt

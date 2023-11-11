@@ -7,7 +7,7 @@ plugins {
 
 /* required for maven publication */
 group = "org.orca.kotlass"
-version = "0.1"
+version = "2.0.0"
 
 kotlin {
     jvm()

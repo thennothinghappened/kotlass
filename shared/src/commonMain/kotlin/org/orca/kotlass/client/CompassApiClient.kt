@@ -8,7 +8,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 
 class CompassApiClient(
-    domain: String
+    private val credentials: CompassUserCredentials
 ) {
 
     companion object {
@@ -17,7 +17,7 @@ class CompassApiClient(
 
     private val client = HttpClient {
         defaultRequest {
-            host = domain
+            host = credentials.domain
             url { protocol = URLProtocol.HTTPS }
         }
 
