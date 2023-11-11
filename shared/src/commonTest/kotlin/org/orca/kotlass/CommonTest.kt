@@ -1,12 +1,15 @@
 package org.orca.kotlass
 
+import org.orca.kotlass.client.CompassApiClient
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class CommonTest {
-
+    /**
+     * Temporary test used for overall testing functionality.
+     */
     @Test
-    fun testExample() {
-        assertTrue(Greeting().greeting().contains("Hello"), "Check 'Hello' is mentioned")
+    fun mainTest() {
+//        val client = CompassApiClient("")
     }
 }
