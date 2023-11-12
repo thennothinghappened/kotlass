@@ -37,7 +37,7 @@ class CommonTest {
     @Test
     fun mainTest(): Unit = runBlocking {
         val client = CompassApiClient(COMPASS_PRIVATE_TEST_DATA.credentials)
-        val res = client.getActivityInstance(COMPASS_PRIVATE_TEST_DATA.classActivityInstanceId)
+        val res = client.getGradingSchemesForLearningTasks()
 
         assertSuccess(res)
 

@@ -17,6 +17,7 @@ import org.orca.kotlass.data.common.CalendarEvent
 import org.orca.kotlass.data.common.CompassGetActivityById
 import org.orca.kotlass.data.common.CompassGetActivityByInstanceId
 import org.orca.kotlass.data.common.CompassGetCalendarEventsByUser
+import org.orca.kotlass.data.common.GradingScheme
 
 class CompassApiClient(
     private val credentials: CompassUserCredentials
@@ -139,6 +140,23 @@ class CompassApiClient(
 
         CompassApiResult.Success(
             res.body<ResponseWrapper<ActivityInstance>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
+     * Get applicable [GradingScheme] list used for Learning Tasks.
+     */
+    suspend fun getGradingSchemesForLearningTasks(): CompassApiResult<List<GradingScheme>> = try {
+
+        val res = client.get {
+            url(path = "/Services/ReferenceDataCache.svc/GetGradingSchemesForLearningTasks")
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<List<GradingScheme>>>().data
         )
 
     } catch (e: Throwable) {
