@@ -9,6 +9,18 @@ plugins {
 group = "org.orca.kotlass"
 version = "2.0.0-SNAPSHOT"
 
+/**
+ * GitHub User ID for publishing to GitHub Packages.
+ */
+val githubUser: String? = project.findProperty("gpr.user") as String?
+    ?: System.getenv("GITHUB_USER")
+
+/**
+ * GitHub Token for publishing to GitHub Packages.
+ */
+val githubToken: String? = project.findProperty("gpr.key") as String?
+    ?: System.getenv("GITHUB_TOKEN")
+
 kotlin {
     jvm()
     androidTarget()
@@ -85,5 +97,19 @@ android {
     compileSdk = 31
     defaultConfig {
         minSdk = 21
+    }
+}
+
+publishing {
+    repositories {
+        if (githubUser != null && githubToken != null) {
+            maven {
+                setUrl("https://maven.pkg.github.com/thennothinghappened/kotlass")
+                credentials {
+                    username = githubUser
+                    password = githubToken
+                }
+            }
+        }
     }
 }
