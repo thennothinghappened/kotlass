@@ -21,6 +21,8 @@ import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
 import org.orca.kotlass.data.grading.GradingScheme
 import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForActivityId
 import org.orca.kotlass.data.learningtask.LearningTask
+import org.orca.kotlass.data.user.CompassGetUserRequest
+import org.orca.kotlass.data.user.User
 
 class CompassApiClient(
     private val credentials: CompassUserCredentials
@@ -206,6 +208,26 @@ class CompassApiClient(
             res.body<ResponseWrapper<CompassApiListContainer<LearningTask>>>()
                 .data
                 .data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
+     * Get a given [User], or ourself by default.
+     */
+    suspend fun getUser(id: Int = credentials.userId): CompassApiResult<User> = try {
+
+        val body = CompassGetUserRequest(id)
+
+        val res = client.post {
+            url(path = "/Services/User.svc/GetUserDetailsBlobByUserId")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<User>>().data
         )
 
     } catch (e: Throwable) {

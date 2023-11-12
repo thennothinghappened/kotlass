@@ -67,6 +67,12 @@ class CommonTest {
     fun `test getting learning tasks for activity id`(): Unit = runBlocking {
         val res = client.getLearningTasksForActivity(COMPASS_PRIVATE_TEST_DATA.classActivityId)
         assertSuccess(res)
+    }
+
+    @Test
+    fun `test getting our user info`(): Unit = runBlocking {
+        val res = client.getUser()
+        assertSuccess(res)
 
         Logger.i { res.data.toString() }
     }
