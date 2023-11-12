@@ -7,11 +7,10 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.Json.Default.encodeToString
-import kotlinx.serialization.serializer
 import org.orca.kotlass.data.common.CalendarEvent
 import org.orca.kotlass.data.common.CompassGetCalendarEventsByUser
 
@@ -46,10 +45,16 @@ class CompassApiClient(
         }
     }
 
-    private fun handleError(e: Throwable): CompassApiError {
-        throw e // TODO
-    }
+    private fun handleError(error: Throwable): CompassApiError =
+        when (error) {
+            is JsonConvertException -> CompassApiError.ParseError(error)
+            else -> CompassApiError.ClientError(error)
+        }
 
+    /**
+     * Get the [CalendarEvent]s for our [credentials]' `userId`, optionally
+     * for a given [activityId], otherwise for all activities from [startDate] to [endDate].
+     */
     suspend fun getCalendarEvents(
         startDate: LocalDate,
         endDate: LocalDate = startDate,

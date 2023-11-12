@@ -15,15 +15,20 @@ sealed interface CompassApiResult<T> {
  * Different error types when talking to Compass.
  */
 sealed interface CompassApiError {
+
+    sealed interface HasCause : CompassApiError {
+        val error: Throwable
+    }
+
     /**
      * JSON parsing error.
      */
-    class ParseError(val error: JsonConvertException) : CompassApiError
+    class ParseError(override val error: JsonConvertException) : HasCause
 
     /**
      * Network/connection error.
      */
-    class ConnectionError(val error: Throwable) : CompassApiError
+    class ConnectionError(override val error: Throwable) : HasCause
 
     /**
      * Error returned from Compass, which unfortunately tells us nothing
@@ -35,5 +40,5 @@ sealed interface CompassApiError {
     /**
      * Client logic error, aka, bug in Kotlass!
      */
-    class ClientError(val error: Throwable) : CompassApiError
+    class ClientError(override val error: Throwable) : HasCause
 }
