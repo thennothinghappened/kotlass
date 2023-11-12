@@ -1,7 +1,14 @@
+*.iml
 .gradle
+/local.properties
 .idea
-local.properties
-build
-/src/commonTest/kotlin/org.orca.kotlass/ClientCredentials.kt
-/java_pid*
 **/.DS_Store
+/build
+*/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# For testing, create this file and populate with your credentials.
+shared/src/commonTest/kotlin/org/orca/kotlass/client/COMPASS_PRIVATE_TEST_DATA.kt
