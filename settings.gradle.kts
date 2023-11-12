@@ -8,8 +8,8 @@ pluginManagement {
         mavenCentral()
     }
     plugins {
-        kotlin("multiplatform").version("1.8.10")
-        kotlin("plugin.serialization").version("1.8.10")
+        kotlin("multiplatform").version("1.9.20")
+        kotlin("plugin.serialization").version("1.9.20")
         id("com.android.library").version("7.4.2")
     }
 }

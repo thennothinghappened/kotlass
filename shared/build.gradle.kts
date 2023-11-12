@@ -11,7 +11,7 @@ version = "2.0.0"
 
 kotlin {
     jvm()
-    android()
+    androidTarget()
     iosX64()
     iosArm64()
     iosSimulatorArm64()
