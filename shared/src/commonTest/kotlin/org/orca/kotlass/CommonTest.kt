@@ -64,4 +64,12 @@ class CommonTest {
 
         Logger.i { res.data.toString() }
     }
+
+    @Test
+    fun `test getting academic groups`(): Unit = runBlocking {
+        val res = client.getAcademicGroups()
+        assertSuccess(res)
+
+        Logger.i { res.data.toString() }
+    }
 }

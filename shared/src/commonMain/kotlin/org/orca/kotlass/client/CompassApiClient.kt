@@ -11,6 +11,7 @@ import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
+import org.orca.kotlass.data.common.AcademicGroup
 import org.orca.kotlass.data.common.Activity
 import org.orca.kotlass.data.common.ActivityInstance
 import org.orca.kotlass.data.common.CalendarEvent
@@ -157,6 +158,23 @@ class CompassApiClient(
 
         CompassApiResult.Success(
             res.body<ResponseWrapper<List<GradingScheme>>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
+     * Get list of [AcademicGroup]s.
+     */
+    suspend fun getAcademicGroups(): CompassApiResult<List<AcademicGroup>> = try {
+
+        val res = client.get {
+            url(path = "/Services/ReferenceDataCache.svc/GetAllAcademicGroups")
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<List<AcademicGroup>>>().data
         )
 
     } catch (e: Throwable) {
