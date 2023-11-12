@@ -37,37 +37,35 @@ class CommonTest {
     fun `test getting grading schemes`(): Unit = runBlocking {
         val res = client.getGradingSchemesForLearningTasks()
         assertSuccess(res)
-
-        Logger.i { res.data.toString() }
     }
 
     @Test
     fun `test getting activity by id`(): Unit = runBlocking {
         val res = client.getActivity(COMPASS_PRIVATE_TEST_DATA.classActivityId)
         assertSuccess(res)
-
-        Logger.i { res.data.toString() }
     }
 
     @Test
     fun `test getting activity by instance id`(): Unit = runBlocking {
         val res = client.getActivity(COMPASS_PRIVATE_TEST_DATA.classActivityInstanceId)
         assertSuccess(res)
-
-        Logger.i { res.data.toString() }
     }
 
     @Test
     fun `test getting activity instance`(): Unit = runBlocking {
         val res = client.getActivityInstance(COMPASS_PRIVATE_TEST_DATA.classActivityInstanceId)
         assertSuccess(res)
-
-        Logger.i { res.data.toString() }
     }
 
     @Test
     fun `test getting academic groups`(): Unit = runBlocking {
         val res = client.getAcademicGroups()
+        assertSuccess(res)
+    }
+
+    @Test
+    fun `test getting learning tasks for activity id`(): Unit = runBlocking {
+        val res = client.getLearningTasksForActivity(COMPASS_PRIVATE_TEST_DATA.classActivityId)
         assertSuccess(res)
 
         Logger.i { res.data.toString() }

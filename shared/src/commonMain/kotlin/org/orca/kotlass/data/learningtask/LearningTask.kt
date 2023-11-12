@@ -3,6 +3,7 @@ package org.orca.kotlass.data.learningtask
 import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.orca.kotlass.data.common.fileasset.FileAsset
 
 /**
  * A Learning Task is set classwork tracked on Compass.
@@ -42,6 +43,11 @@ data class LearningTask(
     /**
      * Corresponding ID of a given [LearningTaskCategory].
      */
-    val categoryId: Int
+    val categoryId: Int,
+
+    /**
+     * List of included file attachments for this task.
+     */
+    val attachments: List<FileAsset>?
 
 )

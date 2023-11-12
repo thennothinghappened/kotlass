@@ -97,6 +97,26 @@ sealed interface FileAsset {
     ) : FileAsset
 
     /**
+     * Pointer to a resource in Compass Resources.
+     */
+    @Serializable
+    data class ResourcesAsset(
+        override val author: String? = null,
+
+        override val description: String? = null,
+
+        override val filename: String? = null,
+
+        override val name: String? = null,
+
+        @SerialName("wikiNodeId")
+        override val resourceId: Int,
+
+        @SerialName("wikiNodeType")
+        override val resourceType: FileType,
+    ) : FileAsset
+
+    /**
      * This exists as Compass sometimes just returns an empty asset instead
      * of just returning a proper `null`.
      */
@@ -129,6 +149,10 @@ sealed interface FileAsset {
 
                 if (it["uri"]?.jsonPrimitive?.contentOrNull != null) {
                     return ExternalAsset.serializer()
+                }
+
+                if (it["wikiNodeId"]?.jsonPrimitive?.contentOrNull != null) {
+                    return ResourcesAsset.serializer()
                 }
 
                 return NoAsset.serializer()

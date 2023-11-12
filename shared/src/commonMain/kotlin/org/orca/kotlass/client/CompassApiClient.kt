@@ -16,8 +16,11 @@ import org.orca.kotlass.data.activity.ActivityInstance
 import org.orca.kotlass.data.common.CalendarEvent
 import org.orca.kotlass.data.activity.CompassGetActivityById
 import org.orca.kotlass.data.activity.CompassGetActivityByInstanceId
+import org.orca.kotlass.data.common.CompassApiListContainer
 import org.orca.kotlass.data.common.CompassGetCalendarEventsByUser
 import org.orca.kotlass.data.common.GradingScheme
+import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForActivityId
+import org.orca.kotlass.data.learningtask.LearningTask
 
 class CompassApiClient(
     private val credentials: CompassUserCredentials
@@ -174,6 +177,34 @@ class CompassApiClient(
 
         CompassApiResult.Success(
             res.body<ResponseWrapper<List<AcademicGroup>>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
+     * Get an [ActivityInstance] by its [instanceId].
+     */
+    suspend fun getLearningTasksForActivity(
+        activityId: Int,
+        limit: Int = 2000
+    ): CompassApiResult<List<LearningTask>> = try {
+
+        val body = CompassGetLearningTasksForActivityId(
+            activityId = activityId,
+            limit = limit
+        )
+
+        val res = client.post {
+            url(path = "/Services/LearningTasks.svc/GetAllLearningTasksByActivityId")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<CompassApiListContainer<LearningTask>>>()
+                .data
+                .data
         )
 
     } catch (e: Throwable) {
