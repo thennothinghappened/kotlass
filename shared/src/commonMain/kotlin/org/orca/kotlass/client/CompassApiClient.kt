@@ -21,15 +21,17 @@ import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
 import org.orca.kotlass.data.grading.GradingScheme
 import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForActivityId
 import org.orca.kotlass.data.learningtask.LearningTask
-import org.orca.kotlass.data.user.CompassGetUserRequest
+import org.orca.kotlass.data.user.CompassGetStaffRequest
+import org.orca.kotlass.data.user.CompassGetUserDetailsRequest
 import org.orca.kotlass.data.user.User
+import org.orca.kotlass.data.user.UserDetails
 
 class CompassApiClient(
     private val credentials: CompassUserCredentials
 ) {
 
     private companion object {
-
+        const val DEFAULT_LIMIT = 2000
     }
 
     private val client = HttpClient {
@@ -191,7 +193,7 @@ class CompassApiClient(
      */
     suspend fun getLearningTasksForActivity(
         activityId: Int,
-        limit: Int = 2000
+        limit: Int = DEFAULT_LIMIT
     ): CompassApiResult<List<LearningTask>> = try {
 
         val body = CompassGetLearningTasksForActivityId(
@@ -215,11 +217,14 @@ class CompassApiClient(
     }
 
     /**
-     * Get a given [User], or ourself by default.
+     * Get a given user's [UserDetails], or ourself by default.
+     *
+     * *As a student*, this will return no data for any user other than their
+     * own ID.
      */
-    suspend fun getUser(id: Int = credentials.userId): CompassApiResult<User> = try {
+    suspend fun getUserDetails(id: Int = credentials.userId): CompassApiResult<UserDetails> = try {
 
-        val body = CompassGetUserRequest(id)
+        val body = CompassGetUserDetailsRequest(id)
 
         val res = client.post {
             url(path = "/Services/User.svc/GetUserDetailsBlobByUserId")
@@ -227,7 +232,27 @@ class CompassApiClient(
         }
 
         CompassApiResult.Success(
-            res.body<ResponseWrapper<User>>().data
+            res.body<ResponseWrapper<UserDetails>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
+     * Get the list of all staff members [User].
+     */
+    suspend fun getAllStaff(limit: Int = DEFAULT_LIMIT): CompassApiResult<List<User>> = try {
+
+        val body = CompassGetStaffRequest(limit)
+
+        val res = client.post {
+            url(path = "/Services/User.svc/GetAllStaff")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<List<User>>>().data
         )
 
     } catch (e: Throwable) {

@@ -71,7 +71,13 @@ class CommonTest {
 
     @Test
     fun `test getting our user info`(): Unit = runBlocking {
-        val res = client.getUser()
+        val res = client.getUserDetails()
+        assertSuccess(res)
+    }
+
+    @Test
+    fun `test getting all staff`(): Unit = runBlocking {
+        val res = client.getAllStaff()
         assertSuccess(res)
 
         Logger.i { res.data.toString() }

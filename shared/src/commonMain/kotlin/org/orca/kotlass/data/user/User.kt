@@ -1,42 +1,51 @@
 package org.orca.kotlass.data.user
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
  * A given user on Compass!
+ *
+ * Note: distinction between this and [UserDetails] is this
+ * seems to be more a summary.
  */
 @Serializable
 data class User(
 
     /**
-     * The user's first name.
+     * Unique ID for this user.
      */
-    @SerialName("userFirstName")
+    val id: Int,
+
+    /**
+     * Display short code name for this user.
+     */
+    @SerialName("displayCode")
+    val codeName: String,
+
+    /**
+     * User's first name.
+     */
+    @SerialName("fn")
     val firstName: String,
 
     /**
-     * The user's last name.
+     * User's last name.
      */
-    @SerialName("userLastName")
+    @SerialName("ln")
     val lastName: String,
 
     /**
-     * Internal path to a photo of the user.
+     * User's full name.
      */
-    @SerialName("userPhotoPath")
-    val photoPath: String,
+    @SerialName("n")
+    val fullName: String,
 
     /**
-     * The user's email address.
+     * Timestamp this User was added.
      */
-    @SerialName("userEmail")
-    val email: String,
-
-    /**
-     * Unique ID of the user.
-     */
-    @SerialName("userId")
-    val id: Int,
+    @SerialName("start")
+    val startTimestamp: Instant,
 
 )
