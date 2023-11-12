@@ -1,5 +1,6 @@
 package org.orca.kotlass.data.calendar
 
+import kotlinx.datetime.Instant
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -16,6 +17,16 @@ sealed interface CalendarEvent {
      * Whether the event lasts the entire day.
      */
     val allDay: Boolean
+
+    /**
+     * Timestamp of the start of this event.
+     */
+    val start: Instant
+
+    /**
+     * Timestamp of the finish time of this event.
+     */
+    val finish: Instant
 
     /**
      * Which student ID the event is for, or null for all.
@@ -55,6 +66,10 @@ sealed interface CalendarEvent {
     data class Lesson(
         override val allDay: Boolean,
 
+        override val start: Instant,
+
+        override val finish: Instant,
+
         override val targetStudentId: Int?,
 
         override val activityId: Int,
@@ -78,6 +93,10 @@ sealed interface CalendarEvent {
     data class Event(
         override val allDay: Boolean,
 
+        override val start: Instant,
+
+        override val finish: Instant,
+
         override val targetStudentId: Int?,
 
         @SerialName("title")
@@ -99,6 +118,10 @@ sealed interface CalendarEvent {
     data class Notice(
         override val allDay: Boolean,
 
+        override val start: Instant,
+
+        override val finish: Instant,
+
         override val targetStudentId: Int?,
 
         @SerialName("title")
@@ -114,6 +137,10 @@ sealed interface CalendarEvent {
     @Serializable
     data class LearningTask(
         override val allDay: Boolean,
+
+        override val start: Instant,
+
+        override val finish: Instant,
 
         override val targetStudentId: Int?,
 
