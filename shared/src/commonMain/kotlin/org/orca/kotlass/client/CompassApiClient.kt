@@ -20,6 +20,7 @@ import org.orca.kotlass.data.common.CompassApiListContainer
 import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
 import org.orca.kotlass.data.grading.GradingScheme
 import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForActivityId
+import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForUserId
 import org.orca.kotlass.data.learningtask.LearningTask
 import org.orca.kotlass.data.user.CompassGetStaffRequest
 import org.orca.kotlass.data.user.CompassGetUserDetailsRequest
@@ -199,7 +200,7 @@ class CompassApiClient(
     }
 
     /**
-     * Get an [ActivityInstance] by its [instanceId].
+     * Get a list of [LearningTask]s for a given [Activity]'s ID.
      */
     suspend fun getLearningTasksForActivity(
         activityId: Int,
@@ -227,14 +228,42 @@ class CompassApiClient(
     }
 
     /**
+     * Get all [LearningTask]s for a given [User]'s ID.
+     */
+    suspend fun getLearningTasksForUserId(
+        userId: Int = credentials.userId,
+        limit: Int = DEFAULT_LIMIT
+    ): CompassApiResult<List<LearningTask>> = try {
+
+        val body = CompassGetLearningTasksForUserId(
+            userId = userId,
+            limit = limit
+        )
+
+        val res = client.post {
+            url(path = "/Services/LearningTasks.svc/GetAllLearningTasksByUserId")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<CompassApiListContainer<LearningTask>>>()
+                .data
+                .data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
      * Get a given user's [UserDetails], or ourself by default.
      *
      * *As a student*, this will return no data for any user other than their
      * own ID.
      */
-    suspend fun getUserDetails(id: Int = credentials.userId): CompassApiResult<UserDetails> = try {
+    suspend fun getUserDetails(userId: Int = credentials.userId): CompassApiResult<UserDetails> = try {
 
-        val body = CompassGetUserDetailsRequest(id)
+        val body = CompassGetUserDetailsRequest(userId)
 
         val res = client.post {
             url(path = "/Services/User.svc/GetUserDetailsBlobByUserId")

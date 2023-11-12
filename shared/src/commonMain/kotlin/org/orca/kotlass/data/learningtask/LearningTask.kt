@@ -5,6 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.orca.kotlass.data.common.fileasset.FileAsset
 import org.orca.kotlass.data.grading.GradingItem
+import org.orca.kotlass.dateutils.InstantLenientSerializer
 
 /**
  * A Learning Task is set classwork tracked on Compass.
@@ -39,7 +40,8 @@ data class LearningTask(
     /**
      * The timestamp when this task is due.
      */
-    val dueDateTimestamp: Instant,
+    @Serializable(with = InstantLenientSerializer::class)
+    val dueDateTimestamp: Instant?,
 
     /**
      * Corresponding ID of a given [LearningTaskCategory].

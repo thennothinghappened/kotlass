@@ -78,6 +78,12 @@ class CommonTest {
     }
 
     @Test
+    fun `test getting learning tasks for our user`(): Unit = runBlocking {
+        val res = client.getLearningTasksForUserId()
+        assertSuccess(res)
+    }
+
+    @Test
     fun `test getting our user info`(): Unit = runBlocking {
         val res = client.getUserDetails()
         assertSuccess(res)

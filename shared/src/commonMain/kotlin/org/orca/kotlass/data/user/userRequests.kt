@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 internal data class CompassGetUserDetailsRequest(
     @SerialName("targetUserId")
-    val id: Int
+    val userId: Int
 )
 
 /**
