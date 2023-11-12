@@ -90,8 +90,14 @@ sealed interface ActivityInstance {
      *
      * TODO: in what case can there be multiple?
      */
-    @SerialName("locations")
-    val location: List<LocationContainer>
+    val locations: List<LocationContainer>
+
+    /**
+     * List of [Manager]s for this instance.
+     *
+     * TODO: in what case can there be multiple?
+     */
+    val managers: List<Manager>
 
     /**
      * Activity Instance of a given Class - i.e. a lesson, which
@@ -105,8 +111,9 @@ sealed interface ActivityInstance {
         @SerialName("ActivityId")
         override val id: Int,
 
-        @SerialName("locations")
-        override val location: List<LocationContainer>,
+        override val locations: List<LocationContainer>,
+
+        override val managers: List<Manager>,
 
         /**
          * Readable name of the subject this instance belongs to.
