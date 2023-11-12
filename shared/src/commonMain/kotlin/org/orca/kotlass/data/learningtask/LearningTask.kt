@@ -4,6 +4,7 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.orca.kotlass.data.common.fileasset.FileAsset
+import org.orca.kotlass.data.grading.GradingItem
 
 /**
  * A Learning Task is set classwork tracked on Compass.
@@ -54,6 +55,16 @@ data class LearningTask(
      * List of assigned students to this task who are viewable to this user,
      * their submissions, and results.
      */
-    val students: List<LearningTaskTargetStudent>
+    val students: List<LearningTaskTargetStudent>,
+
+    /**
+     * List of submission items required to submit this task.
+     */
+    val submissionItems: List<LearningTaskSubmissionItem>?,
+
+    /**
+     * List of [GradingItem] references to [GradingScheme]s.
+     */
+    val gradingItems: List<GradingItem>?
 
 )

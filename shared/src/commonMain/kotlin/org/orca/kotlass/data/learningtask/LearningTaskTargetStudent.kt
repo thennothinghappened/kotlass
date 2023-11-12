@@ -41,5 +41,10 @@ data class LearningTaskTargetStudent(
     /**
      * Status on whether this task was submitted by this student.
      */
-    val submissionStatus: LearningTaskSubmissionStatus
+    val submissionStatus: LearningTaskSubmissionStatus,
+
+    /**
+     * The results this student received for this task.
+     */
+    val results: List<LearningTaskResult>?
 )

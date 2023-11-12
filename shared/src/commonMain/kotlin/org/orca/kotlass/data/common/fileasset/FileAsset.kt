@@ -32,7 +32,8 @@ sealed interface FileAsset {
     /**
      * Filename of this file.
      */
-    val filename: String?
+    @SerialName("filename")
+    val fileName: String?
 
     /**
      * Readable name of this file.
@@ -46,10 +47,10 @@ sealed interface FileAsset {
     val resourceId: Int?
 
     /**
-     * Type of this asset if it is a resource in Compass Resources.
+     * File type of this asset.
      */
     @SerialName("wikiNodeType")
-    val resourceType: FileType?
+    val fileType: FileType?
 
     @Serializable
     data class InternalAsset(
@@ -57,7 +58,8 @@ sealed interface FileAsset {
 
         override val description: String? = null,
 
-        override val filename: String? = null,
+        @SerialName("filename")
+        override val fileName: String? = null,
 
         override val name: String?,
 
@@ -65,7 +67,7 @@ sealed interface FileAsset {
         override val resourceId: Int? = null,
 
         @SerialName("wikiNodeType")
-        override val resourceType: FileType? = null,
+        override val fileType: FileType? = null,
 
         /**
          * Internal reference ID for this asset to download from Compass.
@@ -80,7 +82,8 @@ sealed interface FileAsset {
 
         override val description: String? = null,
 
-        override val filename: String? = null,
+        @SerialName("filename")
+        override val fileName: String? = null,
 
         override val name: String?,
 
@@ -88,7 +91,7 @@ sealed interface FileAsset {
         override val resourceId: Int? = null,
 
         @SerialName("wikiNodeType")
-        override val resourceType: FileType? = null,
+        override val fileType: FileType? = null,
 
         /**
          * URI to the file location.
@@ -105,7 +108,8 @@ sealed interface FileAsset {
 
         override val description: String? = null,
 
-        override val filename: String? = null,
+        @SerialName("filename")
+        override val fileName: String? = null,
 
         override val name: String? = null,
 
@@ -113,7 +117,7 @@ sealed interface FileAsset {
         override val resourceId: Int,
 
         @SerialName("wikiNodeType")
-        override val resourceType: FileType,
+        override val fileType: FileType,
     ) : FileAsset
 
     /**
@@ -126,7 +130,8 @@ sealed interface FileAsset {
 
         override val description: String? = null,
 
-        override val filename: String? = null,
+        @SerialName("filename")
+        override val fileName: String? = null,
 
         override val name: String? = null,
 
@@ -134,7 +139,7 @@ sealed interface FileAsset {
         override val resourceId: Int? = null,
 
         @SerialName("wikiNodeType")
-        override val resourceType: FileType? = null,
+        override val fileType: FileType? = null,
     ) : FileAsset
 
     /**

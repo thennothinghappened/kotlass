@@ -18,8 +18,7 @@ data class LearningTaskSubmission(
     /**
      * Uploaded filename.
      */
-    @SerialName("fileName")
-    val filename: String,
+    val fileName: String,
 
     /**
      * Compass Asset ID for the submitted file.
@@ -30,13 +29,12 @@ data class LearningTaskSubmission(
      * Type of the uploaded asset.
      */
     @SerialName("submissionFileType")
-    val resourceType: FileType,
+    val fileType: FileType,
 
     /**
-     * ID of the task's matching submission upload option.
+     * ID of the task's matching submission upload item.
      */
-    @SerialName("taskSubmissionItemId")
-    val taskSubmissionOptionId: Int,
+    val taskSubmissionItemId: Int,
 
     /**
      * Timestamp of the upload of this submission item.

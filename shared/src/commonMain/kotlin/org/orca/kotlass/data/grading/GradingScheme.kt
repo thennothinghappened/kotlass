@@ -46,5 +46,10 @@ data class GradingSchemeOption(
     /**
      * Value assigned to the option internally.
      */
-    val value: String?
+    val value: String?,
+
+    /**
+     * Unique ID for this option.
+     */
+    val id: String
 )
