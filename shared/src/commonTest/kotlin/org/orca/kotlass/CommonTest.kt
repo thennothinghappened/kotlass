@@ -44,9 +44,7 @@ class CommonTest {
     @Test
     fun mainTest(): Unit = runBlocking {
         val client = CompassApiClient(COMPASS_PRIVATE_TEST_DATA.credentials)
-        val res = client.getCalendarEvents(
-            startDate = LocalDate(2023, 5, 1)
-        )
+        val res = client.getActivity(COMPASS_PRIVATE_TEST_DATA.classActivityId)
 
         assertSuccess(res)
 

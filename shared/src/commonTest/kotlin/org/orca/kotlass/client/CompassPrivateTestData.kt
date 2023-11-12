@@ -18,5 +18,5 @@ import org.orca.kotlass.client.CompassUserCredentials
 data class CompassPrivateTestData(
     val credentials: CompassUserCredentials,
     val classActivityId: Int,
-    val classActivitySessionId: Int,
+    val classActivityInstanceId: String,
 )

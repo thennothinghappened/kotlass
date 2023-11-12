@@ -11,7 +11,10 @@ import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
+import org.orca.kotlass.data.common.Activity
 import org.orca.kotlass.data.common.CalendarEvent
+import org.orca.kotlass.data.common.CompassGetActivityById
+import org.orca.kotlass.data.common.CompassGetActivityByInstanceId
 import org.orca.kotlass.data.common.CompassGetCalendarEventsByUser
 
 class CompassApiClient(
@@ -75,6 +78,46 @@ class CompassApiClient(
 
         CompassApiResult.Success(
             res.body<ResponseWrapper<List<CalendarEvent>>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
+     * Get a given [Activity] by an [instanceId] belonging to it.
+     */
+    suspend fun getActivity(instanceId: String): CompassApiResult<Activity> = try {
+
+        val body = CompassGetActivityByInstanceId(instanceId)
+
+        val res = client.post {
+            url(path = "/Services/Activity.svc/GetLessonsByInstanceId")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<Activity>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    /**
+     * Get an [Activity] by its [activityId].
+     */
+    suspend fun getActivity(activityId: Int): CompassApiResult<Activity> = try {
+
+        val body = CompassGetActivityById(activityId)
+
+        val res = client.post {
+            url(path = "/Services/Activity.svc/GetLessonsByActivityId")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<Activity>>().data
         )
 
     } catch (e: Throwable) {
