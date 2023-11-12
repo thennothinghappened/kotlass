@@ -2,10 +2,12 @@ package org.orca.kotlass
 
 import co.touchlab.kermit.Logger
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDate
 import org.orca.kotlass.client.COMPASS_PRIVATE_TEST_DATA
 import org.orca.kotlass.client.CompassApiClient
 import org.orca.kotlass.client.CompassApiError
 import org.orca.kotlass.client.CompassApiResult
+import org.orca.kotlass.dateutils.now
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.test.Test
@@ -36,6 +38,12 @@ class CommonTest {
     @Test
     fun `test getting grading schemes`(): Unit = runBlocking {
         val res = client.getGradingSchemesForLearningTasks()
+        assertSuccess(res)
+    }
+
+    @Test
+    fun `test getting calendar events for a day`(): Unit = runBlocking {
+        val res = client.getCalendarEvents(LocalDate.now())
         assertSuccess(res)
     }
 
@@ -79,7 +87,5 @@ class CommonTest {
     fun `test getting all staff`(): Unit = runBlocking {
         val res = client.getAllStaff()
         assertSuccess(res)
-
-        Logger.i { res.data.toString() }
     }
 }
