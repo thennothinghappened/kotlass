@@ -23,22 +23,22 @@ sealed interface CompassApiError {
     /**
      * JSON parsing error.
      */
-    class ParseError(override val error: JsonConvertException) : HasCause
+    data class ParseError(override val error: JsonConvertException) : HasCause
 
     /**
      * Network/connection error.
      */
-    class ConnectionError(override val error: Throwable) : HasCause
+    data class ConnectionError(override val error: Throwable) : HasCause
 
     /**
      * Error returned from Compass, which unfortunately tells us nothing
      * about if we are at fault or if Compass is experiencing issues, or
      * if this is a credential issue, or parsing issue, etc.
      */
-    object CompassError : CompassApiError
+    data object CompassError : CompassApiError
 
     /**
      * Client logic error, aka, bug in Kotlass!
      */
-    class ClientError(override val error: Throwable) : HasCause
+    data class ClientError(override val error: Throwable) : HasCause
 }

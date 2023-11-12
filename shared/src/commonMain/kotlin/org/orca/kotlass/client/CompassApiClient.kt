@@ -26,6 +26,9 @@ import org.orca.kotlass.data.user.CompassGetUserDetailsRequest
 import org.orca.kotlass.data.user.User
 import org.orca.kotlass.data.user.UserDetails
 
+/**
+ * Client for talking to the Compass API!
+ */
 class CompassApiClient(
     private val credentials: CompassUserCredentials
 ) {
@@ -58,9 +61,16 @@ class CompassApiClient(
         }
     }
 
+    /**
+     * Handle errors to give a more descriptive container for callers
+     * to know what went wrong.
+     *
+     * TODO: unfortunately, errors differ by platform, so we don't currently give useful info for connection errors.
+     */
     private fun handleError(error: Throwable): CompassApiError =
         when (error) {
             is JsonConvertException -> CompassApiError.ParseError(error)
+            is ServerResponseException -> CompassApiError.CompassError
             else -> CompassApiError.ClientError(error)
         }
 
