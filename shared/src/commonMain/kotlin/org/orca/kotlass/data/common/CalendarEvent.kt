@@ -70,7 +70,11 @@ sealed interface CalendarEvent {
         @SerialName("longTitleWithoutTime")
         override val name: String,
 
-        val lessonPlanConfigured: Boolean,
+        /**
+         * Whether this lesson currently has a lesson plan.
+         */
+        @SerialName("lessonPlanConfigured")
+        val hasLessonPlan: Boolean,
     ) : Instanced
 
     @Serializable
@@ -137,6 +141,7 @@ object CalendarEventSerializer : JsonContentPolymorphicSerializer<CalendarEvent>
             2 -> CalendarEvent.Event.serializer()
             5 -> CalendarEvent.Notice.serializer()
             7 -> CalendarEvent.Notice.serializer()
+            8 -> CalendarEvent.Notice.serializer()
             10 -> CalendarEvent.LearningTask.serializer()
             else -> throw IllegalArgumentException("Unknown CalendarEvent activityType '$it'!")
         }
