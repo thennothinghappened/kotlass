@@ -1,6 +1,5 @@
 package org.orca.kotlass.client
 
-import co.touchlab.kermit.Logger
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -12,11 +11,11 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.common.AcademicGroup
-import org.orca.kotlass.data.common.Activity
-import org.orca.kotlass.data.common.ActivityInstance
+import org.orca.kotlass.data.activity.Activity
+import org.orca.kotlass.data.activity.ActivityInstance
 import org.orca.kotlass.data.common.CalendarEvent
-import org.orca.kotlass.data.common.CompassGetActivityById
-import org.orca.kotlass.data.common.CompassGetActivityByInstanceId
+import org.orca.kotlass.data.activity.CompassGetActivityById
+import org.orca.kotlass.data.activity.CompassGetActivityByInstanceId
 import org.orca.kotlass.data.common.CompassGetCalendarEventsByUser
 import org.orca.kotlass.data.common.GradingScheme
 
