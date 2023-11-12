@@ -12,6 +12,8 @@ import kotlin.test.Test
 
 class CommonTest {
 
+    private val client = CompassApiClient(COMPASS_PRIVATE_TEST_DATA.credentials)
+
     @OptIn(ExperimentalContracts::class)
     private inline fun <T> assertSuccess(res: CompassApiResult<T>) {
         contract { returns() implies (res is CompassApiResult.Success) }
@@ -31,14 +33,33 @@ class CommonTest {
         }
     }
 
-    /**
-     * Temporary test used for overall testing functionality.
-     */
     @Test
-    fun mainTest(): Unit = runBlocking {
-        val client = CompassApiClient(COMPASS_PRIVATE_TEST_DATA.credentials)
+    fun `test getting grading schemes`(): Unit = runBlocking {
         val res = client.getGradingSchemesForLearningTasks()
+        assertSuccess(res)
 
+        Logger.i { res.data.toString() }
+    }
+
+    @Test
+    fun `test getting activity by id`(): Unit = runBlocking {
+        val res = client.getActivity(COMPASS_PRIVATE_TEST_DATA.classActivityId)
+        assertSuccess(res)
+
+        Logger.i { res.data.toString() }
+    }
+
+    @Test
+    fun `test getting activity by instance id`(): Unit = runBlocking {
+        val res = client.getActivity(COMPASS_PRIVATE_TEST_DATA.classActivityInstanceId)
+        assertSuccess(res)
+
+        Logger.i { res.data.toString() }
+    }
+
+    @Test
+    fun `test getting activity instance`(): Unit = runBlocking {
+        val res = client.getActivityInstance(COMPASS_PRIVATE_TEST_DATA.classActivityInstanceId)
         assertSuccess(res)
 
         Logger.i { res.data.toString() }
