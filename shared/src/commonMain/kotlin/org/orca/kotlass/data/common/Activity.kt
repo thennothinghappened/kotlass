@@ -13,7 +13,7 @@ import kotlinx.serialization.json.jsonPrimitive
  * Compass representation of a given activity, which has a list
  * of instances. Activities are generally a [Class], but others exist.
  */
-@Serializable(with = ActivitySerializer::class)
+@Serializable(with = Activity.ActivitySerializer::class)
 sealed interface Activity {
 
     /**
@@ -55,9 +55,22 @@ sealed interface Activity {
         val subjectName: String,
     ) : Activity
 
+    /**
+     * Compass differentiates activities by a series of "`Is...`" boolean properties.
+     */
+    object ActivitySerializer : JsonContentPolymorphicSerializer<Activity>(Activity::class) {
+        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Activity> =
+            element.jsonObject.let {
+                if (it["IsStandardClass"]?.jsonPrimitive?.booleanOrNull == true) {
+                    return Class.serializer()
+                }
+
+                throw IllegalArgumentException("Activity belongs to no activity type!")
+            }
+    }
 }
 
-@Serializable
+@Serializable(with = ActivityInstance.ActivityInstanceSerializer::class)
 sealed interface ActivityInstance {
 
     /**
@@ -73,6 +86,14 @@ sealed interface ActivityInstance {
     val id: Int
 
     /**
+     * List of locations for this instance.
+     *
+     * TODO: in what case can there be multiple?
+     */
+    @SerialName("locations")
+    val location: List<LocationContainer>
+
+    /**
      * Activity Instance of a given Class - i.e. a lesson, which
      * may have a lesson plan, and has a subject name.
      */
@@ -83,6 +104,9 @@ sealed interface ActivityInstance {
 
         @SerialName("ActivityId")
         override val id: Int,
+
+        @SerialName("locations")
+        override val location: List<LocationContainer>,
 
         /**
          * Readable name of the subject this instance belongs to.
@@ -96,20 +120,20 @@ sealed interface ActivityInstance {
         @SerialName("lp")
         val lessonPlanFile: FileAsset,
     ) : ActivityInstance
-}
 
-/**
- * Compass differentiates activities by a series of "`Is...`" boolean properties.
- */
-object ActivitySerializer : JsonContentPolymorphicSerializer<Activity>(Activity::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Activity> =
-        element.jsonObject.let {
-            if (it["IsStandardClass"]?.jsonPrimitive?.booleanOrNull == true) {
-                return Activity.Class.serializer()
+    /**
+     * Compass differentiates activities by a series of "`Is...`" boolean properties.
+     */
+    object ActivityInstanceSerializer : JsonContentPolymorphicSerializer<ActivityInstance>(ActivityInstance::class) {
+        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out ActivityInstance> =
+            element.jsonObject.let {
+                if (it["IsStandardClass"]?.jsonPrimitive?.booleanOrNull == true) {
+                    return ClassInstance.serializer()
+                }
+
+                throw IllegalArgumentException("Activity belongs to no activity type!")
             }
-
-            throw IllegalArgumentException("Activity belongs to no activity type!")
-        }
+    }
 }
 
 /**

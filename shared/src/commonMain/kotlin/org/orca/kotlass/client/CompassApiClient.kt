@@ -12,6 +12,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.data.common.Activity
+import org.orca.kotlass.data.common.ActivityInstance
 import org.orca.kotlass.data.common.CalendarEvent
 import org.orca.kotlass.data.common.CompassGetActivityById
 import org.orca.kotlass.data.common.CompassGetActivityByInstanceId
@@ -123,4 +124,25 @@ class CompassApiClient(
     } catch (e: Throwable) {
         CompassApiResult.Failure(handleError(e))
     }
+
+    /**
+     * Get an [ActivityInstance] by its [instanceId].
+     */
+    suspend fun getActivityInstance(instanceId: String): CompassApiResult<ActivityInstance> = try {
+
+        val body = CompassGetActivityByInstanceId(instanceId)
+
+        val res = client.post {
+            url(path = "/Services/Activity.svc/GetLessonsByInstanceIdQuick")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<ActivityInstance>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
 }
