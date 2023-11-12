@@ -48,6 +48,12 @@ data class LearningTask(
     /**
      * List of included file attachments for this task.
      */
-    val attachments: List<FileAsset>?
+    val attachments: List<FileAsset>?,
+
+    /**
+     * List of assigned students to this task who are viewable to this user,
+     * their submissions, and results.
+     */
+    val students: List<LearningTaskTargetStudent>
 
 )

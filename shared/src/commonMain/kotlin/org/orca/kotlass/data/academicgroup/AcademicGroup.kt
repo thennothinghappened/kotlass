@@ -1,4 +1,4 @@
-package org.orca.kotlass.data.common
+package org.orca.kotlass.data.academicgroup
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

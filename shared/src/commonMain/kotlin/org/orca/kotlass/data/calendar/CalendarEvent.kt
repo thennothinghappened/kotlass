@@ -1,18 +1,15 @@
-package org.orca.kotlass.data.common
+package org.orca.kotlass.data.calendar
 
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.int
-import kotlinx.serialization.json.intOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-@Serializable(with = CalendarEventSerializer::class)
+@Serializable(with = CalendarEvent.CalendarEventSerializer::class)
 sealed interface CalendarEvent {
 
     /**
@@ -128,32 +125,21 @@ sealed interface CalendarEvent {
 
         val learningTaskId: Int
     ) : CalendarEvent
-}
 
-/**
- * Compass uses the `activityType` field to determine what type of [CalendarEvent] to use
- * for a specific event.
- */
-object CalendarEventSerializer : JsonContentPolymorphicSerializer<CalendarEvent>(CalendarEvent::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out CalendarEvent> =
-        when (val it = element.jsonObject["activityType"]?.jsonPrimitive?.int) {
-            1 -> CalendarEvent.Lesson.serializer()
-            2 -> CalendarEvent.Event.serializer()
-            5 -> CalendarEvent.Notice.serializer()
-            7 -> CalendarEvent.Notice.serializer()
-            8 -> CalendarEvent.Notice.serializer()
-            10 -> CalendarEvent.LearningTask.serializer()
-            else -> throw IllegalArgumentException("Unknown CalendarEvent activityType '$it'!")
-        }
+    /**
+     * Compass uses the `activityType` field to determine what type of [CalendarEvent] to use
+     * for a specific event.
+     */
+    object CalendarEventSerializer : JsonContentPolymorphicSerializer<CalendarEvent>(CalendarEvent::class) {
+        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out CalendarEvent> =
+            when (val it = element.jsonObject["activityType"]?.jsonPrimitive?.int) {
+                1 -> Lesson.serializer()
+                2 -> Event.serializer()
+                5 -> Notice.serializer()
+                7 -> Notice.serializer()
+                8 -> Notice.serializer()
+                10 -> LearningTask.serializer()
+                else -> throw IllegalArgumentException("Unknown CalendarEvent activityType '$it'!")
+            }
+    }
 }
-
-/**
- * Request for getting a [List] of [CalendarEvent]s!
- */
-@Serializable
-internal data class CompassGetCalendarEventsByUser(
-    val userId: Int,
-    val startDate: LocalDate,
-    val endDate: LocalDate,
-    val activityId: Int? = null
-)

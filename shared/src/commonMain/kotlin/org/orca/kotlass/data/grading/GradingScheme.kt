@@ -1,6 +1,5 @@
-package org.orca.kotlass.data.common
+package org.orca.kotlass.data.grading
 
-import io.ktor.resources.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

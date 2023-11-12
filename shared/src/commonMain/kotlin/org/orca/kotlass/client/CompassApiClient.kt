@@ -10,15 +10,15 @@ import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import org.orca.kotlass.data.common.AcademicGroup
+import org.orca.kotlass.data.academicgroup.AcademicGroup
 import org.orca.kotlass.data.activity.Activity
 import org.orca.kotlass.data.activity.ActivityInstance
-import org.orca.kotlass.data.common.CalendarEvent
+import org.orca.kotlass.data.calendar.CalendarEvent
 import org.orca.kotlass.data.activity.CompassGetActivityById
 import org.orca.kotlass.data.activity.CompassGetActivityByInstanceId
 import org.orca.kotlass.data.common.CompassApiListContainer
-import org.orca.kotlass.data.common.CompassGetCalendarEventsByUser
-import org.orca.kotlass.data.common.GradingScheme
+import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
+import org.orca.kotlass.data.grading.GradingScheme
 import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForActivityId
 import org.orca.kotlass.data.learningtask.LearningTask
 
@@ -49,6 +49,7 @@ class CompassApiClient(
                 prettyPrint = true
                 isLenient = true
                 ignoreUnknownKeys = true
+
             })
         }
     }

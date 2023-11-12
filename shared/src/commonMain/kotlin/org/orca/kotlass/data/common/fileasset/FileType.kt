@@ -21,10 +21,10 @@ internal object FileTypeSerializer : KSerializer<FileType> {
     override val descriptor = PrimitiveSerialDescriptor("FileTypeSerializer", PrimitiveKind.INT)
 
     override fun deserialize(decoder: Decoder): FileType =
-        decoder.decodeInt().let {
-                index -> FileType.entries.find {
-            it.index == index
-        } ?: FileType.Unknown
+        decoder.decodeInt().let { index ->
+            FileType.entries.find {
+                it.index == index
+            } ?: FileType.Unknown
         }
 
     override fun serialize(encoder: Encoder, value: FileType) {
