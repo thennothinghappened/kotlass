@@ -90,6 +90,8 @@ kotlin {
         iosArm64Test.dependsOn(iosTest)
         iosSimulatorArm64Test.dependsOn(iosTest)
     }
+
+    jvmToolchain(18)
 }
 
 android {
