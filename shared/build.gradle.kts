@@ -7,7 +7,7 @@ plugins {
 
 /* required for maven publication */
 group = "org.orca.kotlass"
-version = "2.0.0-SNAPSHOT-1"
+version = "2.0.0-SNAPSHOT-2"
 
 /**
  * GitHub User ID for publishing to GitHub Packages.
@@ -23,7 +23,13 @@ val githubToken: String? = project.findProperty("gpr.key") as String?
 
 kotlin {
     jvm()
-    androidTarget()
+    androidTarget {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "1.8"
+            }
+        }
+    }
     iosX64()
     iosArm64()
     iosSimulatorArm64()
@@ -90,8 +96,6 @@ kotlin {
         iosArm64Test.dependsOn(iosTest)
         iosSimulatorArm64Test.dependsOn(iosTest)
     }
-
-    jvmToolchain(18)
 }
 
 android {
