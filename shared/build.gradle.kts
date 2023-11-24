@@ -7,7 +7,7 @@ plugins {
 
 /* required for maven publication */
 group = "org.orca.kotlass"
-version = "2.0.0-SNAPSHOT-2"
+version = "2.0.0-SNAPSHOT-3"
 
 /**
  * GitHub User ID for publishing to GitHub Packages.
