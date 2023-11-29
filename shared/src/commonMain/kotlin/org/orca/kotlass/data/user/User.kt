@@ -16,6 +16,7 @@ data class User(
     /**
      * Unique ID for this user.
      */
+    @SerialName("id")
     val id: Int,
 
     /**

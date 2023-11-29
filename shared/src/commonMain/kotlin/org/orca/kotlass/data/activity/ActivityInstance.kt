@@ -32,6 +32,7 @@ sealed interface ActivityInstance {
      *
      * TODO: in what case can there be multiple?
      */
+    @SerialName("locations")
     val locations: List<LocationContainer>
 
     /**
@@ -39,6 +40,7 @@ sealed interface ActivityInstance {
      *
      * TODO: in what case can there be multiple?
      */
+    @SerialName("managers")
     val managers: List<Manager>
 
     /**
@@ -53,8 +55,10 @@ sealed interface ActivityInstance {
         @SerialName("ActivityId")
         override val id: Int,
 
+        @SerialName("locations")
         override val locations: List<LocationContainer>,
 
+        @SerialName("managers")
         override val managers: List<Manager>,
 
         /**

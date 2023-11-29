@@ -1,5 +1,6 @@
 package org.orca.kotlass.data.activity
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -7,6 +8,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 internal data class CompassGetActivityById(
+    @SerialName("activityId")
     val activityId: Int
 )
 
@@ -15,5 +17,6 @@ internal data class CompassGetActivityById(
  */
 @Serializable
 internal data class CompassGetActivityByInstanceId(
+    @SerialName("instanceId")
     val instanceId: String
 )

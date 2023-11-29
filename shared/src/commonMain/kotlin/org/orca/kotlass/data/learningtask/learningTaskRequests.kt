@@ -12,11 +12,13 @@ internal data class CompassGetLearningTasksForActivityId(
     /**
      * [Activity.id] to get tasks for.
      */
+    @SerialName("activityId")
     val activityId: Int,
 
     /**
      * Maximum number of tasks to return.
      */
+    @SerialName("limit")
     val limit: Int
 )
 
@@ -28,10 +30,12 @@ internal data class CompassGetLearningTasksForUserId(
     /**
      * [User.id] to get tasks for.
      */
+    @SerialName("userId")
     val userId: Int,
 
     /**
      * Maximum number of tasks to return.
      */
+    @SerialName("limit")
     val limit: Int
 )

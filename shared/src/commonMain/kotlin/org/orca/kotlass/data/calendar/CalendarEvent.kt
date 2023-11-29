@@ -16,21 +16,25 @@ sealed interface CalendarEvent {
     /**
      * Whether the event lasts the entire day.
      */
+    @SerialName("allDay")
     val allDay: Boolean
 
     /**
      * Timestamp of the start of this event.
      */
+    @SerialName("start")
     val start: Instant
 
     /**
      * Timestamp of the finish time of this event.
      */
+    @SerialName("finish")
     val finish: Instant
 
     /**
      * Which student ID the event is for, or null for all.
      */
+    @SerialName("targetStudentId")
     val targetStudentId: Int?
 
     /**
@@ -55,7 +59,10 @@ sealed interface CalendarEvent {
      */
     @Serializable
     sealed interface Instanced : CalendarEvent {
+        @SerialName("activityId")
         val activityId: Int
+
+        @SerialName("instanceId")
         val instanceId: String
     }
 
@@ -64,16 +71,22 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Lesson(
+        @SerialName("allDay")
         override val allDay: Boolean,
 
+        @SerialName("start")
         override val start: Instant,
 
+        @SerialName("finish")
         override val finish: Instant,
 
+        @SerialName("targetStudentId")
         override val targetStudentId: Int?,
 
+        @SerialName("activityId")
         override val activityId: Int,
 
+        @SerialName("instanceId")
         override val instanceId: String,
 
         @SerialName("title")
@@ -91,12 +104,16 @@ sealed interface CalendarEvent {
 
     @Serializable
     data class Event(
+        @SerialName("allDay")
         override val allDay: Boolean,
 
+        @SerialName("start")
         override val start: Instant,
 
+        @SerialName("finish")
         override val finish: Instant,
 
+        @SerialName("targetStudentId")
         override val targetStudentId: Int?,
 
         @SerialName("title")
@@ -116,12 +133,16 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Notice(
+        @SerialName("allDay")
         override val allDay: Boolean,
 
+        @SerialName("start")
         override val start: Instant,
 
+        @SerialName("finish")
         override val finish: Instant,
 
+        @SerialName("targetStudentId")
         override val targetStudentId: Int?,
 
         @SerialName("title")
@@ -136,12 +157,16 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class LearningTask(
+        @SerialName("allDay")
         override val allDay: Boolean,
 
+        @SerialName("start")
         override val start: Instant,
 
+        @SerialName("finish")
         override val finish: Instant,
 
+        @SerialName("targetStudentId")
         override val targetStudentId: Int?,
 
         @SerialName("title")
@@ -150,6 +175,7 @@ sealed interface CalendarEvent {
         @SerialName("longTitleWithoutTime")
         override val name: String,
 
+        @SerialName("learningTaskId")
         val learningTaskId: Int
     ) : CalendarEvent
 

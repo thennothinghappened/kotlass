@@ -22,11 +22,13 @@ sealed interface FileAsset {
     /**
      * Author of this file.
      */
+    @SerialName("author")
     val author: String?
 
     /**
      * Description of this file.
      */
+    @SerialName("description")
     val description: String?
 
     /**
@@ -38,6 +40,7 @@ sealed interface FileAsset {
     /**
      * Readable name of this file.
      */
+    @SerialName("name")
     val name: String?
 
     /**
@@ -54,13 +57,16 @@ sealed interface FileAsset {
 
     @Serializable
     data class InternalAsset(
+        @SerialName("author")
         override val author: String? = null,
 
+        @SerialName("description")
         override val description: String? = null,
 
         @SerialName("filename")
         override val fileName: String? = null,
 
+        @SerialName("name")
         override val name: String?,
 
         @SerialName("wikiNodeId")
@@ -78,13 +84,16 @@ sealed interface FileAsset {
 
     @Serializable
     data class ExternalAsset(
+        @SerialName("author")
         override val author: String? = null,
 
+        @SerialName("description")
         override val description: String? = null,
 
         @SerialName("filename")
         override val fileName: String? = null,
 
+        @SerialName("name")
         override val name: String?,
 
         @SerialName("wikiNodeId")
@@ -104,13 +113,16 @@ sealed interface FileAsset {
      */
     @Serializable
     data class ResourcesAsset(
+        @SerialName("author")
         override val author: String? = null,
 
+        @SerialName("description")
         override val description: String? = null,
 
         @SerialName("filename")
         override val fileName: String? = null,
 
+        @SerialName("name")
         override val name: String? = null,
 
         @SerialName("wikiNodeId")
@@ -126,13 +138,16 @@ sealed interface FileAsset {
      */
     @Serializable
     data class NoAsset(
+        @SerialName("author")
         override val author: String? = null,
 
+        @SerialName("description")
         override val description: String? = null,
 
         @SerialName("filename")
         override val fileName: String? = null,
 
+        @SerialName("name")
         override val name: String? = null,
 
         @SerialName("wikiNodeId")

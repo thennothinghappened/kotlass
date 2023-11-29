@@ -18,5 +18,6 @@ data class GradingItem(
     /**
      * ID of this item, referenced in [LearningTask] results.
      */
+    @SerialName("id")
     val id: Int
 )

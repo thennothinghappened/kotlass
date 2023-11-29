@@ -23,16 +23,19 @@ data class LearningTaskResult(
     /**
      * The result string, if used.
      */
+    @SerialName("result")
     val result: String,
 
     /**
      * User ID of the [Manager] who last modified this result.
      */
+    @SerialName("modifiedByUserId")
     val modifiedByUserId: Int,
 
     /**
      * Timestamp that this result was last modified.
      */
+    @SerialName("modifiedTimestamp")
     val modifiedTimestamp: Instant,
 
     /**

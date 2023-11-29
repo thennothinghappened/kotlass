@@ -13,11 +13,13 @@ data class AcademicGroup(
     /**
      * Unique ID for this group.
      */
+    @SerialName("id")
     val id: Int,
 
     /**
      * Readable name for this group.
      */
+    @SerialName("name")
     val name: String,
 
     /**

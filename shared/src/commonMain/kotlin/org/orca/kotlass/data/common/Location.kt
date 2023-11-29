@@ -27,10 +27,12 @@ data class Location(
     /**
      * Short readable name of this location.
      */
+    @SerialName("shortName")
     val shortName: String,
 
     /**
      * Long readable name of this location.
      */
+    @SerialName("longName")
     val longName: String
 )

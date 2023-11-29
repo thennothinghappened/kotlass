@@ -12,11 +12,13 @@ data class GradingScheme(
     /**
      * Name of this grading scheme.
      */
+    @SerialName("name")
     val name: String,
 
     /**
      * Description of this grading scheme.
      */
+    @SerialName("description")
     val description: String,
 
     /**
@@ -28,6 +30,7 @@ data class GradingScheme(
     /**
      * List of options for this scheme.
      */
+    @SerialName("options")
     val options: List<GradingSchemeOption>
 )
 
@@ -46,10 +49,12 @@ data class GradingSchemeOption(
     /**
      * Value assigned to the option internally.
      */
+    @SerialName("value")
     val value: String?,
 
     /**
      * Unique ID for this option.
      */
+    @SerialName("id")
     val id: String
 )

@@ -12,6 +12,7 @@ data class LearningTaskTargetStudent(
      * in the case of extensions.
      */
     @Serializable(with = InstantLenientSerializer::class)
+    @SerialName("dueDateTimestamp")
     val dueDateTimestamp: Instant? = null,
 
     /**
@@ -31,20 +32,24 @@ data class LearningTaskTargetStudent(
      * TODO: that's a guess, check this!
      */
     @Serializable(with = InstantLenientSerializer::class)
+    @SerialName("submittedTimestamp")
     val submittedTimestamp: Instant? = null,
 
     /**
      * List of submitted uploads by this student.
      */
+    @SerialName("submissions")
     val submissions: List<LearningTaskSubmission>?,
 
     /**
      * Status on whether this task was submitted by this student.
      */
+    @SerialName("submissionStatus")
     val submissionStatus: LearningTaskSubmissionStatus,
 
     /**
      * The results this student received for this task.
      */
+    @SerialName("results")
     val results: List<LearningTaskResult>?
 )

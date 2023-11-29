@@ -20,5 +20,6 @@ internal data class CompassGetStaffRequest(
     /**
      * Max number of [User]s to return.
      */
+    @SerialName("limit")
     val limit: Int
 )

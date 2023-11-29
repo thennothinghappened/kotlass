@@ -1,5 +1,6 @@
 package org.orca.kotlass.data.common
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -8,5 +9,6 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 internal data class CompassApiListContainer<T>(
+    @SerialName("data")
     val data: List<T>
 )

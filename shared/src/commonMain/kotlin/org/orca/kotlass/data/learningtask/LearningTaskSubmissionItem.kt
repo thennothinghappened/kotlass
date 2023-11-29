@@ -13,11 +13,13 @@ data class LearningTaskSubmissionItem(
      * Unique ID used to identify which option to upload to,
      * and by [LearningTaskSubmission]s to specify their parent item.
      */
+    @SerialName("id")
     val id: Int,
 
     /**
      * Readable name of this item.
      */
+    @SerialName("name")
     val name: String,
 
     /**
