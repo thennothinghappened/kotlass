@@ -10,6 +10,7 @@ import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
+import org.orca.kotlass.client.requests.*
 import org.orca.kotlass.data.academicgroup.AcademicGroup
 import org.orca.kotlass.data.activity.Activity
 import org.orca.kotlass.data.activity.ActivityInstance
@@ -30,13 +31,13 @@ import org.orca.kotlass.data.user.UserDetails
 /**
  * Client for talking to the Compass API!
  */
-class CompassApiClient(
-    private val credentials: CompassUserCredentials
-) {
-
-    private companion object {
-        const val DEFAULT_LIMIT = 2000
-    }
+class CompassApiClient(private val credentials: CompassUserCredentials) :
+    ICalendarEventsClient,
+    IActivitiesClient,
+    IGradingSchemesClient,
+    IAcademicGroupsClient,
+    ILearningTasksClient,
+    IUsersClient {
 
     private val client = HttpClient {
         defaultRequest {
@@ -75,14 +76,10 @@ class CompassApiClient(
             else -> CompassApiError.ClientError(error)
         }
 
-    /**
-     * Get the [CalendarEvent]s for our [credentials]' `userId`, optionally
-     * for a given [activityId], otherwise for all activities from [startDate] to [endDate].
-     */
-    suspend fun getCalendarEvents(
+    override suspend fun getCalendarEvents(
         startDate: LocalDate,
-        endDate: LocalDate = startDate,
-        activityId: Int? = null
+        endDate: LocalDate,
+        activityId: Int?
     ): CompassApiResult<List<CalendarEvent>> = try {
 
         val body = CompassGetCalendarEventsByUser(
@@ -105,10 +102,7 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get a given [Activity] by an [instanceId] belonging to it.
-     */
-    suspend fun getActivity(instanceId: String): CompassApiResult<Activity> = try {
+    override suspend fun getActivity(instanceId: String): CompassApiResult<Activity> = try {
 
         val body = CompassGetActivityByInstanceId(instanceId)
 
@@ -125,10 +119,7 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get an [Activity] by its [activityId].
-     */
-    suspend fun getActivity(activityId: Int): CompassApiResult<Activity> = try {
+    override suspend fun getActivity(activityId: Int): CompassApiResult<Activity> = try {
 
         val body = CompassGetActivityById(activityId)
 
@@ -145,10 +136,11 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get an [ActivityInstance] by its [instanceId].
-     */
-    suspend fun getActivityInstance(instanceId: String): CompassApiResult<ActivityInstance> = try {
+    override suspend fun getActivity(instance: ActivityInstance): CompassApiResult<Activity> {
+        return getActivity(instance.activityId)
+    }
+
+    override suspend fun getActivityInstance(instanceId: String): CompassApiResult<ActivityInstance> = try {
 
         val body = CompassGetActivityByInstanceId(instanceId)
 
@@ -165,10 +157,7 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get applicable [GradingScheme] list used for Learning Tasks.
-     */
-    suspend fun getGradingSchemesForLearningTasks(): CompassApiResult<List<GradingScheme>> = try {
+    override suspend fun getGradingSchemesForLearningTasks(): CompassApiResult<List<GradingScheme>> = try {
 
         val res = client.get {
             url(path = "/Services/ReferenceDataCache.svc/GetGradingSchemesForLearningTasks")
@@ -182,10 +171,7 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get list of [AcademicGroup]s.
-     */
-    suspend fun getAcademicGroups(): CompassApiResult<List<AcademicGroup>> = try {
+    override suspend fun getAcademicGroups(): CompassApiResult<List<AcademicGroup>> = try {
 
         val res = client.get {
             url(path = "/Services/ReferenceDataCache.svc/GetAllAcademicGroups")
@@ -199,12 +185,9 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get a list of [LearningTask]s for a given [Activity]'s ID.
-     */
-    suspend fun getLearningTasksForActivity(
+    override suspend fun getLearningTasksForActivity(
         activityId: Int,
-        limit: Int = DEFAULT_LIMIT
+        limit: Int
     ): CompassApiResult<List<LearningTask>> = try {
 
         val body = CompassGetLearningTasksForActivityId(
@@ -227,12 +210,9 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get all [LearningTask]s for a given [User]'s ID.
-     */
-    suspend fun getLearningTasksForUserId(
-        userId: Int = credentials.userId,
-        limit: Int = DEFAULT_LIMIT
+    override suspend fun getLearningTasksForUserId(
+        userId: Int,
+        limit: Int
     ): CompassApiResult<List<LearningTask>> = try {
 
         val body = CompassGetLearningTasksForUserId(
@@ -255,13 +235,11 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get a given user's [UserDetails], or ourself by default.
-     *
-     * *As a student*, this will return no data for any user other than their
-     * own ID.
-     */
-    suspend fun getUserDetails(userId: Int = credentials.userId): CompassApiResult<UserDetails> = try {
+    override suspend fun getLearningTasks(limit: Int): CompassApiResult<List<LearningTask>> {
+        return getLearningTasksForUserId(credentials.userId, limit)
+    }
+
+    override suspend fun getUserDetails(userId: Int): CompassApiResult<UserDetails> = try {
 
         val body = CompassGetUserDetailsRequest(userId)
 
@@ -278,10 +256,11 @@ class CompassApiClient(
         CompassApiResult.Failure(handleError(e))
     }
 
-    /**
-     * Get the list of all staff members [User].
-     */
-    suspend fun getAllStaff(limit: Int = DEFAULT_LIMIT): CompassApiResult<List<User>> = try {
+    override suspend fun getMyUserDetails(): CompassApiResult<UserDetails> {
+        return getUserDetails(credentials.userId)
+    }
+
+    override suspend fun getAllStaff(limit: Int): CompassApiResult<List<User>> = try {
 
         val body = CompassGetStaffRequest(limit)
 

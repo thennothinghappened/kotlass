@@ -25,7 +25,7 @@ sealed interface ActivityInstance {
      * Unique ID of the parent [Activity].
      */
     @SerialName("ActivityId")
-    val id: Int
+    val activityId: Int
 
     /**
      * List of locations for this instance.
@@ -53,7 +53,7 @@ sealed interface ActivityInstance {
         override val name: String,
 
         @SerialName("ActivityId")
-        override val id: Int,
+        override val activityId: Int,
 
         @SerialName("locations")
         override val locations: List<LocationContainer>,
