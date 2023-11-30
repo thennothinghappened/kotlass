@@ -157,6 +157,23 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
+    override suspend fun getActivityInstance(calendarEvent: CalendarEvent.Instanced): CompassApiResult<ActivityInstance> = try {
+
+        val body = CompassGetActivityByInstanceId(calendarEvent.instanceId)
+
+        val res = client.post {
+            url(path = "/Services/Activity.svc/GetLessonsByInstanceIdQuick")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<ActivityInstance>>().data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
     override suspend fun getGradingSchemesForLearningTasks(): CompassApiResult<List<GradingScheme>> = try {
 
         val res = client.get {

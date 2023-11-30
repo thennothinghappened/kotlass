@@ -9,4 +9,7 @@ import kotlinx.serialization.Serializable
  * which we take as failure anyway, handled by [CompassApiResult]
  */
 @Serializable
-data class ResponseWrapper<T>(@SerialName("d") val data: T)
+data class ResponseWrapper<T>(
+    @SerialName("d")
+    val data: T
+)
