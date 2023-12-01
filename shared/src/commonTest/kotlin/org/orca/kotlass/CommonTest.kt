@@ -1,6 +1,5 @@
 package org.orca.kotlass
 
-import co.touchlab.kermit.Logger
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 import org.orca.kotlass.client.COMPASS_PRIVATE_TEST_DATA
