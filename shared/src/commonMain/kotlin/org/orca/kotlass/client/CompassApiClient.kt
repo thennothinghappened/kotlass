@@ -37,7 +37,8 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
     IGradingSchemesClient,
     IAcademicGroupsClient,
     ILearningTasksClient,
-    IUsersClient {
+    IUsersClient,
+    IAuthClient {
 
     private val client = HttpClient {
         defaultRequest {
@@ -290,6 +291,16 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
             res.body<ResponseWrapper<List<User>>>().data
         )
 
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    override suspend fun checkAuthentication(): CompassApiResult<Unit?> = try {
+        client.post {
+            url(path = "/Services/Mobile.svc/TestAuth")
+        }
+
+        CompassApiResult.Success(null)
     } catch (e: Throwable) {
         CompassApiResult.Failure(handleError(e))
     }

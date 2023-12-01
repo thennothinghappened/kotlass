@@ -36,6 +36,12 @@ class CommonTest {
     }
 
     @Test
+    fun `test authentication`(): Unit = runBlocking {
+        val res = client.checkAuthentication()
+        assertSuccess(res)
+    }
+
+    @Test
     fun `test getting grading schemes`(): Unit = runBlocking {
         val res = client.getGradingSchemesForLearningTasks()
         assertSuccess(res)
