@@ -7,8 +7,14 @@ import org.orca.kotlass.client.CompassUserCredentials
  * Client for checking authentication status with Compass.
  */
 interface IAuthClient {
+
     /**
-     * Return whether we are successfully authenticated with Compass.
+     * Set the new credentials for this client.
+     */
+    fun setCredentials(credentials: CompassUserCredentials)
+
+    /**
+     * Return whether provided credentials are successfully authenticated with Compass.
      *
      * NOTE: this cannot check if the provided [CompassUserCredentials.userId] is valid!
      */

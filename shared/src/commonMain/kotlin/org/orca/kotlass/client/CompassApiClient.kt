@@ -8,6 +8,8 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.isActive
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import org.orca.kotlass.client.requests.*
@@ -31,7 +33,7 @@ import org.orca.kotlass.data.user.UserDetails
 /**
  * Client for talking to the Compass API!
  */
-class CompassApiClient(private val credentials: CompassUserCredentials) :
+class CompassApiClient(private var credentials: CompassUserCredentials) :
     ICalendarEventsClient,
     IActivitiesClient,
     IGradingSchemesClient,
@@ -40,28 +42,40 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
     IUsersClient,
     IAuthClient {
 
-    private val client = HttpClient {
-        defaultRequest {
+    companion object {
+        private fun createHttpClient(credentials: CompassUserCredentials): HttpClient {
+            return HttpClient {
+                defaultRequest {
 
-            url {
-                host = credentials.domain
-                protocol = URLProtocol.HTTPS
+                    url {
+                        host = credentials.domain
+                        protocol = URLProtocol.HTTPS
+                    }
+
+                    header(HttpHeaders.Cookie, credentials.cookie)
+                    contentType(ContentType.Application.Json)
+                }
+
+                expectSuccess = true
+
+                install(ContentNegotiation) {
+                    json(Json {
+                        prettyPrint = true
+                        isLenient = true
+                        ignoreUnknownKeys = true
+                    })
+                }
             }
-
-            header(HttpHeaders.Cookie, credentials.cookie)
-            contentType(ContentType.Application.Json)
         }
+    }
 
-        expectSuccess = true
+    private var client = createHttpClient(credentials)
 
-        install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
+    override fun setCredentials(credentials: CompassUserCredentials) {
+        this.credentials = credentials
+        client.cancel("Reloading HTTP client: credentials changed!")
 
-            })
-        }
+        client = createHttpClient(credentials)
     }
 
     /**
