@@ -184,7 +184,7 @@ sealed interface CalendarEvent {
      * for a specific event.
      */
     object CalendarEventSerializer : JsonContentPolymorphicSerializer<CalendarEvent>(CalendarEvent::class) {
-        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out CalendarEvent> =
+        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<CalendarEvent> =
             when (val it = element.jsonObject["activityType"]?.jsonPrimitive?.int) {
                 1 -> Lesson.serializer()
                 2 -> Event.serializer()

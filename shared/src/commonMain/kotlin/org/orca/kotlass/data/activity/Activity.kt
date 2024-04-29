@@ -59,7 +59,7 @@ sealed interface Activity {
      * Compass differentiates activities by a series of "`Is...`" boolean properties.
      */
     object ActivitySerializer : JsonContentPolymorphicSerializer<Activity>(Activity::class) {
-        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Activity> =
+        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Activity> =
             element.jsonObject.let {
                 if (it["IsStandardClass"]?.jsonPrimitive?.booleanOrNull == true) {
                     return Class.serializer()

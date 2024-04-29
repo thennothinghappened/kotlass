@@ -16,7 +16,7 @@ class CommonTest {
     private val client = CompassApiClient(COMPASS_PRIVATE_TEST_DATA.credentials)
 
     @OptIn(ExperimentalContracts::class)
-    private inline fun <T> assertSuccess(res: CompassApiResult<T>) {
+    private fun <T> assertSuccess(res: CompassApiResult<T>) {
         contract { returns() implies (res is CompassApiResult.Success) }
 
         if (res !is CompassApiResult.Failure) {

@@ -70,7 +70,7 @@ sealed interface Manager {
 }
 
 object ManagerSerializer : JsonContentPolymorphicSerializer<Manager>(Manager::class) {
-    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out Manager> =
+    override fun selectDeserializer(element: JsonElement): DeserializationStrategy<Manager> =
         element.jsonObject.let {
             if (it["CoveringUserId"]?.jsonPrimitive?.contentOrNull != null) {
                 return@let Manager.CoveredManager.serializer()

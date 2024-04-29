@@ -161,7 +161,7 @@ sealed interface FileAsset {
      * Compass file assets differentiate between internal IDs and external URIs.
      */
     object FileAssetSerializer : JsonContentPolymorphicSerializer<FileAsset>(FileAsset::class) {
-        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<out FileAsset> =
+        override fun selectDeserializer(element: JsonElement): DeserializationStrategy<FileAsset> =
             element.jsonObject.let {
                 if (it["fileAssetId"]?.jsonPrimitive?.contentOrNull != null) {
                     return InternalAsset.serializer()
