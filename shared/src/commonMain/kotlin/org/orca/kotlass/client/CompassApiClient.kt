@@ -69,17 +69,19 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
     }
 
     /**
-     * Handle errors to give a more descriptive container for callers
-     * to know what went wrong.
-     *
-     * TODO: unfortunately, errors differ by platform, so we don't currently give useful info for connection errors.
+     * Validate that the passed credentials for this client are accepted by the server.
      */
-    private fun handleError(error: Throwable): CompassApiError =
-        when (error) {
-            is JsonConvertException -> CompassApiError.ParseError(error)
-            is ServerResponseException -> CompassApiError.CompassError
-            else -> CompassApiError.ClientError(error)
+    suspend fun checkAuth(): CompassApiResult<Unit> = try {
+
+        client.post {
+            url(path = "/Services/Mobile.svc/TestAuth")
         }
+
+        CompassApiResult.Success(Unit)
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
 
     override suspend fun getCalendarEvents(
         startDate: LocalDate,
@@ -299,14 +301,17 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
-    suspend fun checkAuthentication(): CompassApiResult<Unit?> = try {
-        client.post {
-            url(path = "/Services/Mobile.svc/TestAuth")
+    /**
+     * Handle errors to give a more descriptive container for callers
+     * to know what went wrong.
+     *
+     * TODO: unfortunately, errors differ by platform, so we don't currently give useful info for connection errors.
+     */
+    private fun handleError(error: Throwable): CompassApiError =
+        when (error) {
+            is JsonConvertException -> CompassApiError.ParseError(error)
+            is ServerResponseException -> CompassApiError.CompassError
+            else -> CompassApiError.ClientError(error)
         }
-
-        CompassApiResult.Success(null)
-    } catch (e: Throwable) {
-        CompassApiResult.Failure(handleError(e))
-    }
 
 }
