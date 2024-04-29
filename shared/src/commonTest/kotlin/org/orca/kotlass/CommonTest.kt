@@ -41,13 +41,6 @@ class CommonTest {
     }
 
     @Test
-    fun `test reloading credentials`(): Unit = runBlocking {
-        `test authentication`()
-        client.setCredentials(COMPASS_PRIVATE_TEST_DATA.credentials)
-        `test authentication`()
-    }
-
-    @Test
     fun `test getting grading schemes`(): Unit = runBlocking {
         val res = client.getGradingSchemesForLearningTasks()
         assertSuccess(res)

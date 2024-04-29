@@ -8,19 +8,22 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.serialization.*
 import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.isActive
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import org.orca.kotlass.client.requests.*
+import org.orca.kotlass.client.requests.IAcademicGroupsClient
+import org.orca.kotlass.client.requests.IActivitiesClient
+import org.orca.kotlass.client.requests.ICalendarEventsClient
+import org.orca.kotlass.client.requests.IGradingSchemesClient
+import org.orca.kotlass.client.requests.ILearningTasksClient
+import org.orca.kotlass.client.requests.IUsersClient
 import org.orca.kotlass.data.academicgroup.AcademicGroup
 import org.orca.kotlass.data.activity.Activity
 import org.orca.kotlass.data.activity.ActivityInstance
-import org.orca.kotlass.data.calendar.CalendarEvent
 import org.orca.kotlass.data.activity.CompassGetActivityById
 import org.orca.kotlass.data.activity.CompassGetActivityByInstanceId
-import org.orca.kotlass.data.common.CompassApiListContainer
+import org.orca.kotlass.data.calendar.CalendarEvent
 import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
+import org.orca.kotlass.data.common.CompassApiListContainer
 import org.orca.kotlass.data.grading.GradingScheme
 import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForActivityId
 import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForUserId
@@ -33,49 +36,36 @@ import org.orca.kotlass.data.user.UserDetails
 /**
  * Client for talking to the Compass API!
  */
-class CompassApiClient(private var credentials: CompassUserCredentials) :
+class CompassApiClient(private val credentials: CompassUserCredentials) :
     ICalendarEventsClient,
     IActivitiesClient,
     IGradingSchemesClient,
     IAcademicGroupsClient,
     ILearningTasksClient,
-    IUsersClient,
-    IAuthClient {
+    IUsersClient {
 
-    companion object {
-        private fun createHttpClient(credentials: CompassUserCredentials): HttpClient {
-            return HttpClient {
-                defaultRequest {
+    private val client = HttpClient {
+        defaultRequest {
 
-                    url {
-                        host = credentials.domain
-                        protocol = URLProtocol.HTTPS
-                    }
-
-                    header(HttpHeaders.Cookie, credentials.cookie)
-                    contentType(ContentType.Application.Json)
-                }
-
-                expectSuccess = true
-
-                install(ContentNegotiation) {
-                    json(Json {
-                        prettyPrint = true
-                        isLenient = true
-                        ignoreUnknownKeys = true
-                    })
-                }
+            url {
+                protocol = URLProtocol.HTTPS
+                host = credentials.domain
             }
+
+            header(HttpHeaders.Cookie, credentials.cookie)
+
+            contentType(ContentType.Application.Json)
         }
-    }
 
-    private var client = createHttpClient(credentials)
+        expectSuccess = true
 
-    override fun setCredentials(credentials: CompassUserCredentials) {
-        this.credentials = credentials
-        client.cancel("Reloading HTTP client: credentials changed!")
-
-        client = createHttpClient(credentials)
+        install(ContentNegotiation) {
+            json(Json {
+                prettyPrint = true
+                isLenient = true
+                ignoreUnknownKeys = true
+            })
+        }
     }
 
     /**
@@ -309,7 +299,7 @@ class CompassApiClient(private var credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
-    override suspend fun checkAuthentication(): CompassApiResult<Unit?> = try {
+    suspend fun checkAuthentication(): CompassApiResult<Unit?> = try {
         client.post {
             url(path = "/Services/Mobile.svc/TestAuth")
         }
