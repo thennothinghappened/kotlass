@@ -36,7 +36,7 @@ class CommonTest {
 
     @Test
     fun `test authentication`(): Unit = runBlocking {
-        val res = client.checkAuthentication()
+        val res = client.checkAuth()
         assertSuccess(res)
     }
 
