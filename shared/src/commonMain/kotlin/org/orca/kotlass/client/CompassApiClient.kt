@@ -25,9 +25,8 @@ import org.orca.kotlass.data.calendar.CalendarEvent
 import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
 import org.orca.kotlass.data.common.CompassApiListContainer
 import org.orca.kotlass.data.grading.GradingScheme
-import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForActivityId
-import org.orca.kotlass.data.learningtask.CompassGetLearningTasksForUserId
 import org.orca.kotlass.data.learningtask.LearningTask
+import org.orca.kotlass.data.learningtask.LearningTasksRequest
 import org.orca.kotlass.data.user.CompassGetStaffRequest
 import org.orca.kotlass.data.user.CompassGetUserDetailsRequest
 import org.orca.kotlass.data.user.User
@@ -211,12 +210,14 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
 
     override suspend fun getLearningTasksForActivity(
         activityId: Int,
-        limit: Int
+        limit: Int,
+        offset: Int
     ): CompassApiResult<List<LearningTask>> = try {
 
-        val body = CompassGetLearningTasksForActivityId(
+        val body = LearningTasksRequest.ForActivityId(
             activityId = activityId,
-            limit = limit
+            limit = limit,
+            offset = offset
         )
 
         val res = client.post {
@@ -236,12 +237,14 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
 
     override suspend fun getLearningTasksForUserId(
         userId: Int,
-        limit: Int
+        limit: Int,
+        offset: Int
     ): CompassApiResult<List<LearningTask>> = try {
 
-        val body = CompassGetLearningTasksForUserId(
+        val body = LearningTasksRequest.ForUserId(
             userId = userId,
-            limit = limit
+            limit = limit,
+            offset = offset
         )
 
         val res = client.post {
@@ -259,7 +262,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
-    override suspend fun getLearningTasks(limit: Int): CompassApiResult<List<LearningTask>> {
+    override suspend fun getLearningTasks(limit: Int, offset: Int): CompassApiResult<List<LearningTask>> {
         return getLearningTasksForUserId(credentials.userId, limit)
     }
 

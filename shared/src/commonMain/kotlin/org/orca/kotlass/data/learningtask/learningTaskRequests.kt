@@ -2,40 +2,64 @@ package org.orca.kotlass.data.learningtask
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.orca.kotlass.data.activity.Activity
 
 /**
- * Request to get a list of [LearningTask]s for a given [Activity.id].
+ * A request to query the list of learning tasks.
  */
 @Serializable
-internal data class CompassGetLearningTasksForActivityId(
-    /**
-     * [Activity.id] to get tasks for.
-     */
-    @SerialName("activityId")
-    val activityId: Int,
+internal sealed interface LearningTasksRequest {
 
     /**
      * Maximum number of tasks to return.
      */
     @SerialName("limit")
     val limit: Int
-)
-
-/**
- * Request to get a list of [LearningTask]s for a given user ID.
- */
-@Serializable
-internal data class CompassGetLearningTasksForUserId(
-    /**
-     * [User.id] to get tasks for.
-     */
-    @SerialName("userId")
-    val userId: Int,
 
     /**
-     * Maximum number of tasks to return.
+     * The offset into the list to begin returning items from, for pagination.
      */
-    @SerialName("limit")
-    val limit: Int
-)
+    @SerialName("start")
+    val offset: Int
+
+    /**
+     * Request to get a list of [LearningTask]s for a given [Activity.id].
+     */
+    @Serializable
+    class ForActivityId(
+        /**
+         * [Activity.id] to get tasks for.
+         */
+        @SerialName("activityId")
+        val activityId: Int,
+
+        @SerialName("limit")
+        override val limit: Int,
+
+        @SerialName("start")
+        override val offset: Int
+
+    ) : LearningTasksRequest
+
+    /**
+     * Request to get a list of [LearningTask]s for a given user ID.
+     */
+    @Serializable
+    class ForUserId(
+
+        /**
+         * [User.id] to get tasks for.
+         */
+        @SerialName("userId")
+        val userId: Int,
+
+        @SerialName("limit")
+        override val limit: Int,
+
+        @SerialName("start")
+        override val offset: Int
+
+    ) : LearningTasksRequest
+
+}

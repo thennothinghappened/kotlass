@@ -14,7 +14,8 @@ interface ILearningTasksClient {
      */
     suspend fun getLearningTasksForActivity(
         activityId: Int,
-        limit: Int = CompassApiRequestDefaults.DEFAULT_LIMIT
+        limit: Int = CompassApiRequestDefaults.DEFAULT_LIMIT,
+        offset: Int = 0
     ): CompassApiResult<List<LearningTask>>
 
     /**
@@ -22,13 +23,15 @@ interface ILearningTasksClient {
      */
     suspend fun getLearningTasksForUserId(
         userId: Int,
-        limit: Int = CompassApiRequestDefaults.DEFAULT_LIMIT
+        limit: Int = CompassApiRequestDefaults.DEFAULT_LIMIT,
+        offset: Int = 0
     ): CompassApiResult<List<LearningTask>>
 
     /**
      * Get all [LearningTask]s for the default [User]'s ID.
      */
     suspend fun getLearningTasks(
-        limit: Int = CompassApiRequestDefaults.DEFAULT_LIMIT
+        limit: Int = CompassApiRequestDefaults.DEFAULT_LIMIT,
+        offset: Int = 0
     ): CompassApiResult<List<LearningTask>>
 }
