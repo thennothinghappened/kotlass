@@ -9,6 +9,7 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.orca.kotlass.data.common.Manager
 
 @Serializable(with = CalendarEvent.CalendarEventSerializer::class)
 sealed interface CalendarEvent {
@@ -53,6 +54,12 @@ sealed interface CalendarEvent {
     val name: String
 
     /**
+     * List of managers for this event.
+     */
+    @SerialName("managers")
+    val managers: List<Manager>
+
+    /**
      * Calendar Event which has an instance associated with it.
      * Technically, all do internally, but only [Lesson] seems to use
      * it for the current types encountered.
@@ -95,6 +102,9 @@ sealed interface CalendarEvent {
         @SerialName("longTitleWithoutTime")
         override val name: String,
 
+        @SerialName("managers")
+        override val managers: List<Manager>,
+
         /**
          * Whether this lesson currently has a lesson plan.
          */
@@ -121,6 +131,9 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
+
+        @SerialName("managers")
+        override val managers: List<Manager>
     ) : CalendarEvent
 
     /**
@@ -150,6 +163,9 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
+
+        @SerialName("managers")
+        override val managers: List<Manager>,
     ) : CalendarEvent
 
     /**
@@ -174,6 +190,9 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
+
+        @SerialName("managers")
+        override val managers: List<Manager>,
 
         @SerialName("learningTaskId")
         val learningTaskId: Int
