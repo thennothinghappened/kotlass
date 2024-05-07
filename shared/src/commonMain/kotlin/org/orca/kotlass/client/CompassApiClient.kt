@@ -163,9 +163,9 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
-    override suspend fun getActivityInstance(calendarEvent: CalendarEvent.Instanced): CompassApiResult<ActivityInstance> = try {
+    override suspend fun getActivityInstance(calendarEvent: CalendarEvent.HasActivity): CompassApiResult<ActivityInstance> = try {
 
-        val body = CompassGetActivityByInstanceId(calendarEvent.instanceId)
+        val body = CompassGetActivityByInstanceId(calendarEvent.id)
 
         val res = client.post {
             url(path = "/Services/Activity.svc/GetLessonsByInstanceIdQuick")

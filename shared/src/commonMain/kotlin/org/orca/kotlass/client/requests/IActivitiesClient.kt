@@ -30,7 +30,7 @@ interface IActivitiesClient {
     suspend fun getActivityInstance(instanceId: String): CompassApiResult<ActivityInstance>
 
     /**
-     * Get an [ActivityInstance] by its referencing [CalendarEvent.Instanced]
+     * Get an [ActivityInstance] by its referencing [CalendarEvent.HasActivity]
      */
-    suspend fun getActivityInstance(calendarEvent: CalendarEvent.Instanced): CompassApiResult<ActivityInstance>
+    suspend fun getActivityInstance(calendarEvent: CalendarEvent.HasActivity): CompassApiResult<ActivityInstance>
 }

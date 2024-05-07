@@ -15,6 +15,12 @@ import org.orca.kotlass.data.common.Manager
 sealed interface CalendarEvent {
 
     /**
+     * The unique ID of this event.
+     */
+    @SerialName("instanceId")
+    val id: String
+
+    /**
      * Whether the event lasts the entire day.
      */
     @SerialName("allDay")
@@ -60,17 +66,20 @@ sealed interface CalendarEvent {
     val managers: List<Manager>
 
     /**
-     * Calendar Event which has an instance associated with it.
+     * Calendar Event which has an associated activity.
+     *
      * Technically, all do internally, but only [Lesson] seems to use
      * it for the current types encountered.
      */
     @Serializable
-    sealed interface Instanced : CalendarEvent {
+    sealed interface HasActivity : CalendarEvent {
+
+        /**
+         * The ID of the activity of which this event is an instance of.
+         */
         @SerialName("activityId")
         val activityId: Int
 
-        @SerialName("instanceId")
-        val instanceId: String
     }
 
     /**
@@ -78,6 +87,9 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Lesson(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
@@ -93,9 +105,6 @@ sealed interface CalendarEvent {
         @SerialName("activityId")
         override val activityId: Int,
 
-        @SerialName("instanceId")
-        override val instanceId: String,
-
         @SerialName("title")
         override val shortName: String,
 
@@ -110,10 +119,13 @@ sealed interface CalendarEvent {
          */
         @SerialName("lessonPlanConfigured")
         val hasLessonPlan: Boolean,
-    ) : Instanced
+    ) : HasActivity
 
     @Serializable
     data class Event(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
@@ -146,6 +158,9 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Notice(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
@@ -173,6 +188,9 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class LearningTask(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
