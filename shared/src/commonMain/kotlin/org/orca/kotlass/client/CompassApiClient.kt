@@ -18,9 +18,9 @@ import org.orca.kotlass.client.requests.ILearningTasksClient
 import org.orca.kotlass.client.requests.IUsersClient
 import org.orca.kotlass.data.academicgroup.AcademicGroup
 import org.orca.kotlass.data.activity.Activity
-import org.orca.kotlass.data.activity.ActivityInstance
 import org.orca.kotlass.data.activity.ActivityByIdRequest
 import org.orca.kotlass.data.activity.ActivityByInstanceIdRequest
+import org.orca.kotlass.data.activity.ActivityInstance
 import org.orca.kotlass.data.activity.StandardActivitiesRequest
 import org.orca.kotlass.data.calendar.CalendarEvent
 import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
@@ -186,7 +186,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
-    override suspend fun getActivityInstance(calendarEvent: CalendarEvent.Instanced): CompassApiResult<ActivityInstance> = try {
+    override suspend fun getActivityInstance(calendarEvent: CalendarEvent.HasActivity): CompassApiResult<ActivityInstance> = try {
 
         val body = ActivityByInstanceIdRequest(calendarEvent.instanceId)
 

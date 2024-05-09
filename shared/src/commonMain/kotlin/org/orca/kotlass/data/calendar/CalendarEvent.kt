@@ -9,9 +9,16 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import org.orca.kotlass.data.common.Manager
 
 @Serializable(with = CalendarEvent.CalendarEventSerializer::class)
 sealed interface CalendarEvent {
+
+    /**
+     * The unique ID of this event.
+     */
+    @SerialName("instanceId")
+    val id: String
 
     /**
      * Whether the event lasts the entire day.
@@ -53,17 +60,26 @@ sealed interface CalendarEvent {
     val name: String
 
     /**
-     * Calendar Event which has an instance associated with it.
+     * List of managers for this event.
+     */
+    @SerialName("managers")
+    val managers: List<Manager>
+
+    /**
+     * Calendar Event which has an associated activity.
+     *
      * Technically, all do internally, but only [Lesson] seems to use
      * it for the current types encountered.
      */
     @Serializable
-    sealed interface Instanced : CalendarEvent {
+    sealed interface HasActivity : CalendarEvent {
+
+        /**
+         * The ID of the activity of which this event is an instance of.
+         */
         @SerialName("activityId")
         val activityId: Int
 
-        @SerialName("instanceId")
-        val instanceId: String
     }
 
     /**
@@ -71,6 +87,9 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Lesson(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
@@ -86,24 +105,27 @@ sealed interface CalendarEvent {
         @SerialName("activityId")
         override val activityId: Int,
 
-        @SerialName("instanceId")
-        override val instanceId: String,
-
         @SerialName("title")
         override val shortName: String,
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
 
+        @SerialName("managers")
+        override val managers: List<Manager>,
+
         /**
          * Whether this lesson currently has a lesson plan.
          */
         @SerialName("lessonPlanConfigured")
         val hasLessonPlan: Boolean,
-    ) : Instanced
+    ) : HasActivity
 
     @Serializable
     data class Event(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
@@ -121,6 +143,9 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
+
+        @SerialName("managers")
+        override val managers: List<Manager>
     ) : CalendarEvent
 
     /**
@@ -133,6 +158,9 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Notice(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
@@ -150,6 +178,9 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
+
+        @SerialName("managers")
+        override val managers: List<Manager>,
     ) : CalendarEvent
 
     /**
@@ -157,6 +188,9 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class LearningTask(
+        @SerialName("instanceId")
+        override val id: String,
+
         @SerialName("allDay")
         override val allDay: Boolean,
 
@@ -174,6 +208,9 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
+
+        @SerialName("managers")
+        override val managers: List<Manager>,
 
         @SerialName("learningTaskId")
         val learningTaskId: Int
