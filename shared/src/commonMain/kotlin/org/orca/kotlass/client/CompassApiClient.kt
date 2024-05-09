@@ -188,7 +188,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
 
     override suspend fun getActivityInstance(calendarEvent: CalendarEvent.HasActivity): CompassApiResult<ActivityInstance> = try {
 
-        val body = ActivityByInstanceIdRequest(calendarEvent.instanceId)
+        val body = ActivityByInstanceIdRequest(calendarEvent.id)
 
         val res = client.post {
             url(path = "/Services/Activity.svc/GetLessonsByInstanceIdQuick")
