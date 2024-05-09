@@ -53,6 +53,12 @@ class CommonTest {
     }
 
     @Test
+    fun `test getting standard activities`(): Unit = runBlocking {
+        val res = client.getStandardActivities()
+        assertSuccess(res)
+    }
+
+    @Test
     fun `test getting activity by id`(): Unit = runBlocking {
         val res = client.getActivity(COMPASS_PRIVATE_TEST_DATA.classActivityId)
         assertSuccess(res)

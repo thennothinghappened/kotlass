@@ -19,8 +19,9 @@ import org.orca.kotlass.client.requests.IUsersClient
 import org.orca.kotlass.data.academicgroup.AcademicGroup
 import org.orca.kotlass.data.activity.Activity
 import org.orca.kotlass.data.activity.ActivityInstance
-import org.orca.kotlass.data.activity.CompassGetActivityById
-import org.orca.kotlass.data.activity.CompassGetActivityByInstanceId
+import org.orca.kotlass.data.activity.ActivityByIdRequest
+import org.orca.kotlass.data.activity.ActivityByInstanceIdRequest
+import org.orca.kotlass.data.activity.StandardActivitiesRequest
 import org.orca.kotlass.data.calendar.CalendarEvent
 import org.orca.kotlass.data.calendar.CompassGetCalendarEventsByUser
 import org.orca.kotlass.data.common.CompassApiListContainer
@@ -108,9 +109,31 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
+    override suspend fun getStandardActivities(
+        academicGroup: AcademicGroup?
+    ) = try {
+
+        val body = StandardActivitiesRequest(
+            academicGroupId = academicGroup?.id ?: -1,
+            userId = credentials.userId
+        )
+
+        val res = client.post {
+            url(path = "/Services/Subjects.svc/GetStandardClassesOfUserInAcademicGroup")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<CompassApiListContainer<Activity>>>().data.data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
     override suspend fun getActivity(instanceId: String): CompassApiResult<Activity> = try {
 
-        val body = CompassGetActivityByInstanceId(instanceId)
+        val body = ActivityByInstanceIdRequest(instanceId)
 
         val res = client.post {
             url(path = "/Services/Activity.svc/GetLessonsByInstanceId")
@@ -127,7 +150,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
 
     override suspend fun getActivity(activityId: Int): CompassApiResult<Activity> = try {
 
-        val body = CompassGetActivityById(activityId)
+        val body = ActivityByIdRequest(activityId)
 
         val res = client.post {
             url(path = "/Services/Activity.svc/GetLessonsByActivityId")
@@ -148,7 +171,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
 
     override suspend fun getActivityInstance(instanceId: String): CompassApiResult<ActivityInstance> = try {
 
-        val body = CompassGetActivityByInstanceId(instanceId)
+        val body = ActivityByInstanceIdRequest(instanceId)
 
         val res = client.post {
             url(path = "/Services/Activity.svc/GetLessonsByInstanceIdQuick")
@@ -165,7 +188,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
 
     override suspend fun getActivityInstance(calendarEvent: CalendarEvent.Instanced): CompassApiResult<ActivityInstance> = try {
 
-        val body = CompassGetActivityByInstanceId(calendarEvent.instanceId)
+        val body = ActivityByInstanceIdRequest(calendarEvent.instanceId)
 
         val res = client.post {
             url(path = "/Services/Activity.svc/GetLessonsByInstanceIdQuick")

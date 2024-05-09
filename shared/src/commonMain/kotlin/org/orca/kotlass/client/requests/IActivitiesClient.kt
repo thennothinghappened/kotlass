@@ -1,6 +1,7 @@
 package org.orca.kotlass.client.requests
 
 import org.orca.kotlass.client.CompassApiResult
+import org.orca.kotlass.data.academicgroup.AcademicGroup
 import org.orca.kotlass.data.activity.Activity
 import org.orca.kotlass.data.activity.ActivityInstance
 import org.orca.kotlass.data.calendar.CalendarEvent
@@ -9,6 +10,17 @@ import org.orca.kotlass.data.calendar.CalendarEvent
  * Client for getting [Activity]s and their [ActivityInstance]s
  */
 interface IActivitiesClient {
+
+    /**
+     * Get the list of activities the given user normally has. This generally means classes,
+     * as they are repeating scheduled activities for which the user is enrolled in.
+     *
+     * The given [academicGroup] may be null, in which case the current group is assumed.
+     */
+    suspend fun getStandardActivities(
+        academicGroup: AcademicGroup? = null
+    ): CompassApiResult<List<Activity>>
+
     /**
      * Get a given [Activity] by an [instanceId] belonging to it.
      */
