@@ -17,7 +17,7 @@ sealed interface CalendarEvent {
     /**
      * The unique ID of this event.
      */
-    @SerialName("instanceId")
+    @SerialName("guid")
     val id: String
 
     /**
@@ -60,25 +60,31 @@ sealed interface CalendarEvent {
     val name: String
 
     /**
-     * List of managers for this event.
-     */
-    @SerialName("managers")
-    val managers: List<Manager>
-
-    /**
-     * Calendar Event which has an associated activity.
+     * Calendar Event which has an associated activity and manager.
      *
      * Technically, all do internally, but only [Lesson] seems to use
      * it for the current types encountered.
      */
     @Serializable
-    sealed interface HasActivity : CalendarEvent {
+    sealed interface ManagedActivity : CalendarEvent {
 
         /**
          * The ID of the activity of which this event is an instance of.
          */
         @SerialName("activityId")
         val activityId: Int
+
+        /**
+         * The ID of the associated activity instance of the activity.
+         */
+        @SerialName("instanceId")
+        val instanceId: String
+
+        /**
+         * List of managers for this event.
+         */
+        @SerialName("managers")
+        val managers: List<Manager>
 
     }
 
@@ -87,8 +93,11 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Lesson(
-        @SerialName("instanceId")
+        @SerialName("guid")
         override val id: String,
+
+        @SerialName("instanceId")
+        override val instanceId: String,
 
         @SerialName("allDay")
         override val allDay: Boolean,
@@ -119,12 +128,18 @@ sealed interface CalendarEvent {
          */
         @SerialName("lessonPlanConfigured")
         val hasLessonPlan: Boolean,
-    ) : HasActivity
+    ) : ManagedActivity
 
     @Serializable
     data class Event(
-        @SerialName("instanceId")
+        @SerialName("guid")
         override val id: String,
+
+        @SerialName("activityId")
+        override val activityId: Int,
+
+        @SerialName("instanceId")
+        override val instanceId: String,
 
         @SerialName("allDay")
         override val allDay: Boolean,
@@ -146,7 +161,7 @@ sealed interface CalendarEvent {
 
         @SerialName("managers")
         override val managers: List<Manager>
-    ) : CalendarEvent
+    ) : ManagedActivity
 
     /**
      * TODO: Working name for this type, as it isn't named on Compass.
@@ -158,7 +173,7 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class Notice(
-        @SerialName("instanceId")
+        @SerialName("guid")
         override val id: String,
 
         @SerialName("allDay")
@@ -178,9 +193,6 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
-
-        @SerialName("managers")
-        override val managers: List<Manager>,
     ) : CalendarEvent
 
     /**
@@ -188,7 +200,7 @@ sealed interface CalendarEvent {
      */
     @Serializable
     data class LearningTask(
-        @SerialName("instanceId")
+        @SerialName("guid")
         override val id: String,
 
         @SerialName("allDay")
@@ -208,9 +220,6 @@ sealed interface CalendarEvent {
 
         @SerialName("longTitleWithoutTime")
         override val name: String,
-
-        @SerialName("managers")
-        override val managers: List<Manager>,
 
         @SerialName("learningTaskId")
         val learningTaskId: Int

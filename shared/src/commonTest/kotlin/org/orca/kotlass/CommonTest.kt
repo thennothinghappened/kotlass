@@ -2,11 +2,11 @@ package org.orca.kotlass
 
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import org.orca.kotlass.client.COMPASS_PRIVATE_TEST_DATA
 import org.orca.kotlass.client.CompassApiClient
 import org.orca.kotlass.client.CompassApiError
 import org.orca.kotlass.client.CompassApiResult
-import org.orca.kotlass.dateutils.now
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.test.Test
@@ -14,6 +14,9 @@ import kotlin.test.Test
 class CommonTest {
 
     private val client = CompassApiClient(COMPASS_PRIVATE_TEST_DATA.credentials)
+
+    private val testDateStart = LocalDate(year = 2024, month = Month.APRIL, dayOfMonth = 15)
+    private val testDateFinish = LocalDate(year = 2024, month = Month.APRIL, dayOfMonth = 19)
 
     @OptIn(ExperimentalContracts::class)
     private fun <T> assertSuccess(res: CompassApiResult<T>) {
@@ -47,8 +50,8 @@ class CommonTest {
     }
 
     @Test
-    fun `test getting calendar events for a day`(): Unit = runBlocking {
-        val res = client.getCalendarEvents(LocalDate.now())
+    fun `test getting calendar events for a week`(): Unit = runBlocking {
+        val res = client.getCalendarEvents(testDateStart, testDateFinish)
         assertSuccess(res)
     }
 

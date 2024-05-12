@@ -64,6 +64,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
                 prettyPrint = true
                 isLenient = true
                 ignoreUnknownKeys = true
+                coerceInputValues = true
             })
         }
     }
@@ -186,7 +187,7 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
         CompassApiResult.Failure(handleError(e))
     }
 
-    override suspend fun getActivityInstance(calendarEvent: CalendarEvent.HasActivity): CompassApiResult<ActivityInstance> = try {
+    override suspend fun getActivityInstance(calendarEvent: CalendarEvent.ManagedActivity): CompassApiResult<ActivityInstance> = try {
 
         val body = ActivityByInstanceIdRequest(calendarEvent.id)
 
