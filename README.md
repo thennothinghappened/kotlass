@@ -1,12 +1,4 @@
 
-> [!IMPORTANT]
-> 
-> From the moment of writing this, Kotlass is being discontinued in favour of merging its capabilities into 
-> [Pelorus](https://github.com/thennothinghappened/Pelorus) as the backend & repository component. This decision is not
-> final, but I'm not aware of any projects outside my own app using this library, so I feel that this is a reasonable
-> choice to make. Should there be anyone looking to use Kotlass that I'm unaware of, feel free to reach out via an
-> issue to see if there's an alternative that'd work out better!
-
 # Kotlass
 Unofficial Kotlin Multiplatform client for the [Compass](https://compass.education/) REST API!
 
