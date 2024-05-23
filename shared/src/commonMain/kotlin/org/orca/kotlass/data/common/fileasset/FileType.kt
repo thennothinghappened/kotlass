@@ -8,6 +8,9 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
 
+/**
+ * File type of a Compass asset.
+ */
 @Serializable(with = FileTypeSerializer::class)
 enum class FileType(val index: Int) {
     Unknown(0),

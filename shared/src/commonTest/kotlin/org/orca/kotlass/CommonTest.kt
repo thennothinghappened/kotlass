@@ -108,4 +108,17 @@ class CommonTest {
         val res = client.getAllStaff()
         assertSuccess(res)
     }
+
+    @Test
+    fun `test getting newsfeed`(): Unit = runBlocking {
+        val res = client.newsPaged()
+        assertSuccess(res)
+    }
+
+    @Test
+    fun `test getting newsfeed for activity`(): Unit = runBlocking {
+        val res = client.newsForActivityPaged(COMPASS_PRIVATE_TEST_DATA.classActivityId)
+        assertSuccess(res)
+    }
+
 }

@@ -15,6 +15,7 @@ import org.orca.kotlass.client.requests.IActivitiesClient
 import org.orca.kotlass.client.requests.ICalendarEventsClient
 import org.orca.kotlass.client.requests.IGradingSchemesClient
 import org.orca.kotlass.client.requests.ILearningTasksClient
+import org.orca.kotlass.client.requests.INewsFeedClient
 import org.orca.kotlass.client.requests.IUsersClient
 import org.orca.kotlass.data.academicgroup.AcademicGroup
 import org.orca.kotlass.data.activity.Activity
@@ -28,6 +29,8 @@ import org.orca.kotlass.data.common.CompassApiListContainer
 import org.orca.kotlass.data.grading.GradingScheme
 import org.orca.kotlass.data.learningtask.LearningTask
 import org.orca.kotlass.data.learningtask.LearningTasksRequest
+import org.orca.kotlass.data.news.NewsFeedPagedRequest
+import org.orca.kotlass.data.news.NewsItem
 import org.orca.kotlass.data.user.CompassGetStaffRequest
 import org.orca.kotlass.data.user.CompassGetUserDetailsRequest
 import org.orca.kotlass.data.user.User
@@ -42,7 +45,8 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
     IGradingSchemesClient,
     IAcademicGroupsClient,
     ILearningTasksClient,
-    IUsersClient {
+    IUsersClient,
+    INewsFeedClient {
 
     private val client = HttpClient {
         defaultRequest {
@@ -340,5 +344,41 @@ class CompassApiClient(private val credentials: CompassUserCredentials) :
             is ServerResponseException -> CompassApiError.CompassError
             else -> CompassApiError.ClientError(error)
         }
+
+    private suspend fun newsPaged(
+        activityId: Int?,
+        limit: Int,
+        offset: Int
+    ): CompassApiResult<List<NewsItem>> = try {
+
+        val body = NewsFeedPagedRequest(
+            activityId,
+            limit.toString(),
+            offset.toString()
+        )
+
+        val res = client.post {
+            url(path = "/Services/NewsFeed.svc/GetMyNewsFeedPaged")
+            setBody(body)
+        }
+
+        CompassApiResult.Success(
+            res.body<ResponseWrapper<CompassApiListContainer<NewsItem>>>().data.data
+        )
+
+    } catch (e: Throwable) {
+        CompassApiResult.Failure(handleError(e))
+    }
+
+    override suspend fun newsForActivityPaged(
+        activityId: Int,
+        limit: Int,
+        offset: Int
+    ): CompassApiResult<List<NewsItem>> = newsPaged(activityId, limit, offset)
+
+    override suspend fun newsPaged(
+        limit: Int,
+        offset: Int
+    ): CompassApiResult<List<NewsItem>> = newsPaged(null, limit, offset)
 
 }
