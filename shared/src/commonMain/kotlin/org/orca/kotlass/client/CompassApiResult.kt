@@ -7,8 +7,8 @@ import io.ktor.serialization.*
  * Represents a returned API result.
  */
 sealed interface CompassApiResult<T> {
-    class Success<T>(val data: T) : CompassApiResult<T>
-    class Failure<T>(val error: CompassApiError) : CompassApiResult<T>
+    data class Success<T>(val data: T) : CompassApiResult<T>
+    data class Failure<T>(val error: CompassApiError) : CompassApiResult<T>
 }
 
 /**
@@ -41,4 +41,5 @@ sealed interface CompassApiError {
      * Client logic error, aka, bug in Kotlass!
      */
     data class ClientError(override val error: Throwable) : HasCause
+
 }
